@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- <link rel="stylesheet" href="./reset.css"> -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <title>楼层类型定义（企业级）</title>
+    <style>
+        .el-table th>.cell {}
+
+        .el-table__fixed-right::before,
+        .el-table__fixed::before {
+            height: 0;
+        }
+
+        ul,
+        li {
+            list-style: none;
+        }
+
+        * {
+            font-size: 12px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #666;
+        }
+
+        .dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 99;
+            background-color: rgba(0, 0, 0, .5)
+        }
+
+        .dialog .conter {
+            width: 360px;
+            height: 250px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            padding-bottom: 50px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px 20px 50px;
+        }
+
+        .dialog .conter .add-btn {
+            height: 50px;
+            width: 100%;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            line-height: 50px;
+            text-align: center;
+            cursor: pointer;
+            z-index: 9;
+            background: #fff
+        }
+
+        .dialog .form-center {
+            width: 240px;
+            height: 260px;
+            background: #fff;
+            padding: 20px 20px 50px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border-radius: 10px;
+        }
+
+        .label {
+            line-height: 32px;
+        }
+
+        .mt20 {
+            margin-top: 20px;
+        }
+
+        .ml20 {
+            margin-left: 20px;
+        }
+
+        .sub-btn {
+            position: absolute;
+            right: 20px;
+            bottom: 0;
+            color: #666;
+        }
+
+        .sub-btn ul {
+            display: flex;
+            flex-direction: row;
+            cursor: pointer;
+        }
+
+        .el-table::before {
+            height: 0;
+        }
+
+        /* 工序定义 */
+
+        .procedure-center {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            width: 550px;
+            min-height: 300px;
+            max-height: 80%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        ul,
+        li {
+            list-style: none;
+        }
+
+        .label {
+            line-height: 32px;
+            text-align: center;
+            color: #666;
+        }
+
+        /* ::-webkit-scrollbar {display:none} */
+
+        .mt20 {
+            margin-top: 20px;
+        }
+
+        .el-table::before {
+            height: 0;
+        }
+
+        .add-btn {
+            cursor: pointer;
+            color: #666;
+        }
+
+        .boder-top {
+            border-top: 1px solid #ccc;
+        }
+
+        .procedure-add-dialog {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            width: 400px;
+            height: 300px;
+            background: #fff;
+            padding: 20px 20px 20px 0;
+            border-radius: 10px;
+        }
+
+        .sub-btn ul {
+            display: flex;
+            flex-direction: row;
+            cursor: pointer;
+        }
+
+        .sub-btn {
+            position: absolute;
+            right: 20px;
+            bottom: 0;
+            color: #666;
+        }
+
+        .ml20 {
+            margin-left: 20px;
+        }
+
+        .procedure-dbl-dialog {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            width: 300px;
+            height: 300px;
+            padding: 20px 20px 50px;
+            background: #fff;
+            overflow-y: auto;
+            border-radius: 10px;
+        }
+
+        .procedure-dbl-dialog h1 {
+            text-align: center;
+        }
+
+        .submit-btn {
+            width: 100%;
+            text-align: center;
+            height: 20px;
+            line-height: 20px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        /* 模板 */
+
+        .tem-center {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            width: 600px;
+            height: 310px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+        }
+
+        .tem-center h1 {
+            font-size: 14px;
+            text-align: center;
+            color: #666;
+        }
+
+        .mt20 {
+            margin-top: 20px;
+        }
+
+        .add-btn {
+            text-align: right;
+            color: #666;
+            cursor: pointer;
+        }
+
+        ul,
+        li {
+            list-style: none;
+        }
+
+        .sub-btn ul {
+            display: flex;
+            flex-direction: row;
+            cursor: pointer;
+        }
+
+        .sub-btn {
+            position: absolute;
+            right: 20px;
+            bottom: 0;
+            color: #666;
+        }
+
+        .ml20 {
+            margin-left: 20px;
+        }
+
+        .postion-center {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+        }
+
+        .tem-add-dialog {
+            width: 400px;
+            height: 300px;
+            padding: 20px 20px 50px;
+            background: #fff;
+            border-radius: 10px;
+
+        }
+
+        .label {
+            line-height: 32px;
+            color: #666;
+        }
+
+        .el-select {
+            width: 100%;
+        }
+
+        .el-table::before {
+            height: 0;
+        }
+
+        .procedure-tab {
+            width: 360px;
+            height: 250px;
+            background: #fff;
+            padding-bottom: 50px;
+        }
+        ::-webkit-scrollbar{
+            width: 4px;
+            height: 6px;
+            background-color: #f6f9fc;
+        }
+        ::-webkit-scrollbar-thumb{
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 4px rgba(0, 0, 0, 0);
+            background-color: #c6c6c6;
+        }
+        ::-webkit-scrollbar-track{
+            -webkit-box-shadow: inset 0 0 0px rgba(0, 0, 0, 0);
+            border-radius: 10px;
+            background-color: #f6f9fc;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="dialog" v-if="mainDialog">
+            <!-- 楼层定义dom -->
+            <div class="conter" v-show="!addDialogShow && showName == ''">
+                <h2>楼层类型定义(企业级)</h2>
+                <el-table style="overflow-y: auto" max-height="200" stripe :data="tableData" height="200" @row-dblclick=tableRowDblCkucj
+                    style="width: 100%">
+                    <el-table-column prop="floorTyoe" label="楼层类型" width="140">
+                    </el-table-column>
+                    <el-table-column prop="describe" label="描述" width="140">
+                    </el-table-column>
+                    <el-table-column fixed="right" label="操作" width="80">
+                        <template slot-scope="scope">
+                            <el-button @click.native.prevent="deleteRow(scope.$index, tableData)" type="text" size="small">
+                                移除
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="sub-btn">
+                    <ul>
+                        <li  @click=tabAddClick>添加</li>
+                        <li @click=addLocal class="ml20">下一步</li>
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class="form-center" v-show="addDialogShow">
+                <el-row>
+                    <el-col :span="6" class="label">
+                        楼层类型：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-input size="small" placeholder="请输入楼层类型" v-model="addDialog.floorTyoe" clearable>
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <el-row class="mt20">
+                    <el-col :span="6" class="label">
+                        描述：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-input type="textarea" :autosize="{ minRows:8, maxRows: 8}" placeholder="请输入描述" resize='none' v-model="addDialog.describe">
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <div class="sub-btn">
+                    <ul>
+                        <li @click=addDialogSub>确定</li>
+                        <li class="ml20" @click=addDialogCancel>取消</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="procedure-center" v-show="procedureViewShow && showName == 'procedure'">
+                <el-row class="mt20">
+                    <el-col :span="5" class="label">
+                        工序项：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-table style="overflow-y: auto" :data="procedureTableData" height="250" style="width: 100%" stripe max-hegiht=200>
+                            <el-table-column type="index" :index="indexMethod" label="项目序号" width="100">
+                            </el-table-column>
+                            <el-table-column prop="floorType" label="工序项" width="100">
+                            </el-table-column>
+                            <el-table-column prop="describe" label="描述" width="100">
+                            </el-table-column>
+                            <el-table-column fixed="right" label="操作" width="80">
+                                <template slot-scope="scope">
+                                    <el-button @click.native.prevent="deleteRowUp(scope.$index, procedureTableData,customData)" type="text" size="small">
+                                        移除
+                                    </el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <!-- <div class="add-btn mt20" @click="procedureAddDialog = true; procedureViewShow = false">添加</div> -->
+                    </el-col>
+                </el-row>
+
+                <el-row class="mt20 boder-top">
+                    <el-col :span="5" class="label">
+                        施工时间：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-table style="overflow-y: auto; height: 150px;" :data="customData" style="width: 100%" max-hegiht=200  height="250" @row-dblclick=procedureTableRowDblCkucj stripe>
+                            <el-table-column prop="index" label="楼层类型" min-width="100"></el-table-column>
+                            <el-table-column :prop=item.propData width="100" v-for="(item,index) in customTab" :label=item.labal></el-table-column>
+                            <el-table-column fixed="right" label="操作" min-width="80">
+                                <template slot-scope="scope">
+                                    <el-button @click.native.prevent="deleteRowUp(scope.$index, customData,procedureTableData)" type="text" size="small">
+                                        移除
+                                    </el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-col>
+                </el-row>
+                <div class="sub-btn">
+                    <ul>
+                        <li @click="procedureAddDialog = true; procedureViewShow = false">添加</li>
+                        <li class="ml20" @click='submitLocalPreStep'>上一步</li>
+                        <li @click=submitLocal class="ml20">下一步</li>
+                        <!-- <li class="ml20" class="ml20" @click='mainDialog=false'>取消</li> -->
+                    </ul>
+                </div>
+            </div>
+            <div class="procedure-add-dialog" v-show="procedureAddDialog && showName == 'procedure'">
+                <el-row>
+                    <el-col :span="6" class="label">
+                        工序项：
+                    </el-col>
+                    <el-col :span="10">
+                        <el-input size="small" placeholder="请输入工序项" v-model="procedureAddDialogData.floorType" clearable>
+                        </el-input>
+                    </el-col>
+                    <el-col :span="4" class="label">
+                        色彩：
+                    </el-col>
+                    <el-col :span="4" class="label">
+                        <el-color-picker v-model="procedureAddDialogData.color" size="small"></el-color-picker>
+                    </el-col>
+                </el-row>
+                <el-row class="mt20">
+                    <el-col :span="6" class="label">
+                        描述：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-input type="textarea" :autosize="{ minRows:8, maxRows: 8}" placeholder="请输入描述" resize='none' v-model="procedureAddDialogData.describe">
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <div class="sub-btn">
+                    <ul>
+                        <li @click=procedureAddDialogSub>确定</li>
+                        <li class="ml20" @click=procedureAddDialogCancel class="ml20">取消</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="procedure-dbl-dialog" v-if="procedureAddDblshow && showName == 'procedure'" style="display: flex">
+                <h1>楼层类型</h1>
+                <div style="flex: 1;overflow-y: auto;">
+                        <el-row class="mt20" v-for="(item,index) in customTab">
+                                <el-col :span="6" class="label">
+                                    {{item.labal}}：
+                                </el-col>
+                                <el-col :span="18">
+                                    <el-input size="small" placeholder="请输入工时" v-model="customData[dblClickIndex][ 'propData'+index]" clearable 
+                                    v-on:focus="inputFocus(customData[dblClickIndex][ 'propData'+index],index)" @blur="inputBlur(customData[dblClickIndex][ 'propData'+index],index)">
+                                    </el-input>
+                                </el-col>
+                            </el-row>
+                </div>
+                
+                <div class="sub-btn">
+                    <ul>
+                        <li @click="procedureViewShow=true;procedureAddDblshow=false">确定</li>
+                        <!-- <li class="ml20" @click="procedureViewShow=true;procedureAddDblshow=false">取消</li> -->
+                    </ul>
+                </div>
+            </div>
+            <!-- 模板 dom -->
+            <div class="tem-add-dialog postion-center" v-show="showTemDialog">
+                <el-row class="mt20">
+                    <el-col :span="5" class="label">
+                        节点名称：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-input size="small" placeholder="请输入楼层类型" v-model="procedureTempData.nodeName" clearable>
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <el-row class="mt20">
+                    <el-col :span="5" class="label">
+                        关联工序：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-select v-model="procedureTempData.relationName" placeholder="请选择" size="small">
+                            <el-option v-for="item in relationNameOptions" :key="item.guid" :label="item.floorType" :value="item.guid">
+                            </el-option>
+                        </el-select>
+                    </el-col>
+                </el-row>
+                <el-row class="mt20">
+                    <el-col :span="5" class="label">
+                        前置节点：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-select v-model="procedureTempData.prepositionNode" placeholder="请选择" size="small">
+                            <el-option v-for="item in procedureTempTableData" :key="item.guid" :label="item.nodeName" :value="item.guid">
+                            </el-option>
+                        </el-select>
+                    </el-col>
+                </el-row>
+                <el-row class="mt20">
+                    <el-col :span="5" class="label">
+                        节点类型：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-input size="small" placeholder="请输入楼层类型" v-model="procedureTempData.relationType" clearable>
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <el-row class="mt20">
+                    <el-col :span="5" class="label">
+                        技术间隔时间：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-input size="small" placeholder="请输入楼层类型" v-model="procedureTempData.intervalTime" clearable>
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <div class="sub-btn">
+                    <ul>
+                        <li @click=submitParent>确定</li>
+                        <li class="ml20" class="ml20" @click=initTemData>取消</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tem-center" v-show="!showTemDialog && showName == 'tem'">
+                <h1>标准工序模板</h1>
+                <el-table :data="procedureTempTableData" stripe style="overflow-y: auto;max-height: 200px;">
+                    <el-table-column prop="nodeName" label="节点名称" width="100">
+                    </el-table-column>
+                    <el-table-column prop=prepositionNode label="前置节点" width="100">
+                    </el-table-column>
+                    <el-table-column prop="intervalTime" label="技术间隔时间" width="100">
+                    </el-table-column>
+                    <el-table-column prop=relationName label="关联工序" width="100">
+                    </el-table-column>
+                    <el-table-column prop="relationType" label="节点类型" width="100">
+                    </el-table-column>
+                    <el-table-column fixed="right" label="操作" width="80">
+                        <template slot-scope="scope">
+                            <el-button @click.native.prevent="deleteRow(scope.$index, procedureTempTableData)" type="text" size="small">
+                                移除
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <!-- <div class="add-btn mt20" @click="showTemDialog = true">添加</div> -->
+                <div class="sub-btn">
+                    <ul>
+                        <li @click="showTemDialog = true">添加</li>
+                        <li class="ml20" @click='preStep'>上一步</li>
+                        <li @click=finalSubmit class="ml20">确定</li>
+                        <li class="ml20" @click=initDialogView>取消</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    mainDialog: true,
+                    urlConfig: '',
+                    showName: '',
+                    tableData: [],
+                    addDialogShow: false,
+                    addDialog: {
+                        floorTyoe: '',
+                        describe: ''
+                    },
+                    //工序定义
+                    procedureTabData: [],
+                    procedureAddDialogData: {
+                        floorType: '',
+                        describe: '',
+                        color: ''
+                    },
+                    input: '',
+                    color2: '',
+                    describe: '',
+                    procedureTableData: [],
+                    customTab: [
+
+                    ], //自定义表格
+                    customData: [],
+                    procedureAddDialog: false,
+                    procedureAddDblshow: false,
+                    dblClickIndex: null,
+                    procedureViewShow: false,
+                    //模板
+                    procedureTempTableData: [],
+                    showTemDialog: false,
+                    procedureTempData: {
+                        nodeName: '', //节点名称
+                        relationName: '', //关联工序
+                        prepositionNode: '', //前置节点
+                        relationType: '', //节点类型
+                        intervalTime: '', //间隔时间
+
+                    },
+                    relationNameOptions: [],
+                    prepositionNodeOptions: [],
+
+                }
+            },
+            methods: {
+                inputFocus(val,index){
+                    if(val == '双击更改'){
+                        this.customData[this.dblClickIndex][ 'propData'+index] = ''
+                    }
+                },
+                inputBlur(val,index){
+                    if(val == ''){
+                        this.customData[this.dblClickIndex]['propData'+index] = '双击更改'
+                    }
+                },
+                preStep(){
+                    this.procedureViewShow = true
+                    this.showName = 'procedure'
+                    // this.showTemDialog = true
+                },
+                deleteRowUp(index,rows,rows1){
+                    rows.splice(index, 1);
+                    rows1.splice(index, 1);
+                },
+                deleteRow(index, rows) {
+                    rows.splice(index, 1);
+                },
+                initDialogView() {
+                    this.showName = ''
+                    this.procedureAddDialog = false
+                    this.procedureAddDblshow = false
+                    this.procedureViewShow = false
+                    this.addDialogShow = false
+                    this.mainDialog = false
+                    top.dialogClose('OuterPage_Setting')
+
+                },
+                ProcessIdInit(guid) {
+                    var a = ''
+                    this.relationNameOptions.forEach(item => {
+                        if (item.guid == guid) {
+                            a = item.floorType
+                        }
+                    })
+                    return a
+                },
+                ProcessIdInit1(guid){
+                    var a = ''
+                    this.procedureTempTableData.forEach(item => {
+                        if (item.guid == guid) {
+                            a = item.nodeName
+                        }
+                    })
+                    return a
+                },
+                BeforeProcessIdInit(guid) {
+                    this.relationNameOptions.forEach(item => {
+                        if (item.guid == guid) {
+                            return item.floorType
+                        }
+                    })
+                },
+                // procedureAddLocal(){
+
+                //     this.showTemDialog = false 
+                //     this.showName = 'tem'
+                // },
+                // procedureTabAddClick(){
+                //     this.procedureViewShow = true
+                // },
+                finalSubmit() {
+                    var schedule = {
+                        LevelCategory: [],
+                        Process: [],
+                        ProcessNode: []
+                    }
+                    var floorDefube = JSON.parse(window.localStorage.getItem('floorDefube')) //楼层部分
+                    floorDefube.forEach(item => {
+                        schedule.LevelCategory.push({
+                            LevelCategory: item.floorTyoe,
+                            LevelDescription: item.describe
+
+                        })
+                    })
+                    var customData = JSON.parse(window.localStorage.getItem('customData')) //模板定义
+                    customData.procedureTerm.forEach((item, index) => {
+                        var obj = {
+                            ProcessId: item.guid,
+                            ProcessName: item.floorType,
+                            ProcessDescription: item.describe,
+                            ProcessColor: item.color,
+                            ProcessNumber: index,
+                            LevelCategory2Cycle: []
+                        }
+                        var a = []
+                        customData.customData.forEach(items => {
+                            if (items.index == obj.ProcessName) {
+                                for (item in items) {
+                                    if (item != 'index') {
+                                        a.push({
+                                            LevelCycle: items[item] == '双击更改'?0:items[item],
+                                            LevelCategory: item
+                                        })
+                                    }
+                                }
+                                a.forEach(item => {
+                                    customData.customTabHeader.forEach(head => {
+                                        if (item.LevelCategory == head.propData) {
+                                            item.LevelCategory = head.labal
+                                        }
+                                    })
+                                    obj.LevelCategory2Cycle.push(item)
+                                })
+                                schedule.Process.push(obj)
+                            }
+
+                        })
+
+                    })
+
+                    //工序模板
+                    window.localStorage.setItem('gxmb', JSON.stringify(this.procedureTempTableData))
+                    this.procedureTempTableData.forEach(item => {
+                        console.log(item)
+
+                        schedule.ProcessNode.push({
+                            ProcessNodeName: item.nodeName,
+                            BeforeProcessId: item.prepositionNodeId,
+                            ProcessId: item.relationId,
+                            ProcessNodeCategory: item.relationType,
+                            Interval: item.intervalTime,
+                            guid:item.guid,
+                            relationName:item.relationName,
+                            prepositionNode:item.prepositionNode
+
+                        })
+                    })
+                    console.log(schedule)
+                    var formData = new FormData()
+                    formData.append('Schedule', JSON.stringify(schedule))
+                    axios.post(`${this.urlConfig}/api/Sys/AddOrUpdateSchedule`, formData).then(res => {
+                        top.dialogClose('OuterPage_Setting')
+                    })
+
+                },
+                procedureAddDialogCancel() {
+                    this.procedureAddDialog = false
+                    this.procedureViewShow = true
+                },
+                tabAddClick() {
+                    this.addDialogShow = true
+                },
+                addDialogSub() {
+                    if (this.addDialog.floorTyoe != '') {
+                        this.tableData.push({
+                            floorTyoe: this.addDialog.floorTyoe,
+                            describe: this.addDialog.describe
+                        })
+                        this.addDialogShow = false
+                        this.addDialog.floorTyoe = ''
+                        this.addDialog.describe = ''
+                    }
+                },
+                addDialogCancel() {
+                    this.addDialogShow = false
+                    this.addDialog.floorTyoe = ''
+                    this.addDialog.describe = ''
+                },
+                tableRowDblCkucj(row, event) {
+                    this.addDialog.floorTyoe = row.floorTyoe
+                    this.addDialog.describe = row.describe
+                    this.addDialogShow = true
+                },
+                addLocal() {
+                    var str = JSON.stringify(this.tableData)
+                    window.localStorage.setItem('floorDefube', str)
+                    this.addDialogShow = false
+                    this.procedureViewShow = true
+                    this.showName = 'procedure'
+                    var floorDefube = JSON.parse(window.localStorage.getItem('floorDefube'))
+                    var _this = this
+                    if (floorDefube.length > 0) {
+                        _this.customTab.length = 0
+                        floorDefube.forEach(function (item, index) {
+                                _this.customTab.push({
+                                    labal: item.floorTyoe,
+                                    propData: 'propData' + index
+                                })
+                        })
+
+                    }else{
+                        _this.customTab.length = 0
+                    }
+                },
+                procedureAddDialogSub() {
+                    this.procedureTableData.push({
+                        guid: this.GUID(),
+                        floorType: this.procedureAddDialogData.floorType,
+                        describe: this.procedureAddDialogData.describe,
+                        color: this.procedureAddDialogData.color
+                    })
+                    this.procedureViewShow = true
+                    this.procedureAddDialog = false
+
+
+                    var obj = {}
+                    obj.index = this.procedureAddDialogData.floorType
+                    this.customTab.forEach((item, index) => {
+
+                        obj['propData' + index] = '双击更改'
+                    })
+                    this.customData.push(obj)
+                },
+                indexMethod(index) {
+                    return index++
+                },
+                procedureTableRowDblCkucj(row) {
+                    this.dblClickIndex = this.customData.indexOf(row)
+                    this.procedureAddDblshow = true
+                    this.procedureViewShow = false
+                },
+                submitLocalPreStep(){
+                    this.addDialogShow = false
+                    this.showName = ''
+                },
+                submitLocal() {
+                    var obj = {
+                        // input: this.input,
+                        // color: this.color2,
+                        // describe: this.describe,
+                        procedureTerm: this.procedureTableData, //工序项内容
+                        customData: this.customData, //内容
+                        customTabHeader: this.customTab //表头
+
+                    }
+                    window.localStorage.setItem('customData', JSON.stringify(obj))
+                    customData = JSON.parse(window.localStorage.getItem('customData'))
+                    this.procedureViewShow = false
+                    this.showName = 'tem'
+                    this.showTemDialog = false
+                    this.relationNameOptions = customData.procedureTerm
+                    this.prepositionNodeOptions = customData.procedureTerm
+
+
+                },
+                GUID() {
+                    let guid = '';
+                    for (let i = 1; i <= 32; i++) {
+                        let n = Math.floor(Math.random() * 16.0).toString(16);
+                        guid += n;
+                        if ((i === 8) || (i === 12) || (i === 16) || (i === 20))
+                            guid += '-';
+                    }
+                    return guid;
+
+                },
+                //模板
+                submitParent() {
+                    this.procedureTempTableData.push({
+                        nodeName: this.procedureTempData.nodeName,
+                        relationName: this.ProcessIdInit(this.procedureTempData.relationName),
+                        relationId: this.procedureTempData.relationName,
+                        prepositionNode: this.ProcessIdInit1(this.procedureTempData.prepositionNode),
+                        prepositionNodeId: this.procedureTempData.prepositionNode,
+                        relationType: this.procedureTempData.relationType,
+                        intervalTime: this.procedureTempData.intervalTime,
+                        guid:this.GUID()
+                    })
+                    // var a = this.procedureTempData
+                    // a = JSON.stringify(a)
+                    // this.procedureTempTableData.push(JSON.parse(a))
+                    this.initTemData()
+
+                },
+                initTemData() {
+                    this.procedureTempData.nodeName = ''
+                    this.procedureTempData.relationName = '',
+                        this.procedureTempData.prepositionNode = '',
+                        this.procedureTempData.relationType = '',
+                        this.procedureTempData.intervalTime = ''
+                    this.showTemDialog = false
+                }
+            },
+            mounted() {
+                
+                this.urlConfig = "https://bimcomposer.probim.cn"
+                axios.get(`${this.urlConfig}/api/sys/GetSchedule`).then(res=>{
+                    console.log(res)
+                    if(res.data.LevelCategory.length>0){
+                        res.data.LevelCategory.forEach(item=>{//类型定义
+                            this.tableData.push({
+                                describe:item.LevelDescription,
+                                floorTyoe:item.LevelCategory
+                            })
+                        })
+                    }else{
+                        this.tableData.length = 0
+                    }
+                    if(res.data.Process.length>0){//工序项
+                        res.data.Process.forEach(item=>{
+                            var obj = {}
+                            obj.index = item.ProcessName
+                            this.procedureTableData.push( {
+                                color:item.ProcessColor,
+                                describe:item.ProcessDescription,
+                                guid:item.ProcessId,
+                                floorType:item.ProcessName
+                            })
+                            item.LevelCategory2Cycle.forEach((level,index)=>{
+                                this.customTab.push({
+                                    labal:level.LevelCategory,
+                                    propData:'propData' + index
+                                })
+                            })
+                            item.LevelCategory2Cycle.forEach((level,index)=>{
+                                this.customTab.forEach(header=>{
+                                    if(level.LevelCategory == header.labal){
+                                        obj[header.propData] = level.LevelCycle
+                                    }
+                                   
+                                })
+                               
+                            })
+                            this.customData.push(obj)
+                        })
+                    }else{
+                        this.customTab = []
+                        this.customData = []
+                        this.procedureTableData = []
+                    }
+
+                    if(res.data.ProcessNode.length > 0){
+                        res.data.ProcessNode.forEach(node=>{
+                            this.procedureTempTableData.push({
+                                guid:node.guid,
+                                intervalTime:node.Interval,
+                                nodeName:node.ProcessNodeName,
+                                relationId:node.ProcessId,
+                                relationName:node.relationName,
+                                prepositionNode:node.prepositionNode,
+                                prepositionNodeId:node.BeforeProcessId,
+                                relationType:node.ProcessNodeCategory
+
+                            })
+                        })
+                        
+                    }
+                    
+                })
+                // var gxmb = JSON.parse(window.localStorage.getItem('gxmb'))
+                // var floorDefube = JSON.parse(window.localStorage.getItem('floorDefube'))
+                //  var customData = JSON.parse(window.localStorage.getItem('customData'))
+                //  console.log(customData)
+                // if(gxmb){
+                //     console.log(gxmb)
+                //     this.procedureTempTableData = gxmb
+                // }
+                // if(customData){
+                //     this.procedureTableData = customData.procedureTerm
+                //     this.customData = customData.customData
+                //     this.customTab = customData.customTabHeader
+                // }
+                
+                // if (floorDefube.length > 0) {
+                //     this.tableData = floorDefube
+                // }
+            },
+        })
+    </script>
+</body>
+
+</html>
