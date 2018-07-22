@@ -72,8 +72,8 @@
     },
     data() {
       return {
-        acturalSchedule: false,
-        plannedSchedule: true,
+        acturalSchedule: true,
+        plannedSchedule: false,
         chart: null,
         renderer: null
       };

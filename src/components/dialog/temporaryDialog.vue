@@ -79,7 +79,7 @@
             <div class="sub-btn">
                 
                 <ul>
-                    <li @click="buildSelectNub">新增多个标准层</li>
+                    <li @click="buildSelectNub">批量添加</li>
                     <li @click="submitClick" class="ml20">确定</li>
                     <li class="ml20" @click="temporaryDialog = false">取消</li>
                 </ul>
@@ -125,8 +125,23 @@
                 </ul>
             </div>
         </div>
-        <div class="position-center add-multip" v-show="addMultipleBuild" style="height:150px;"> 
-            <h1>标准层批量操作</h1>
+        <div class="position-center add-multip" v-show="addMultipleBuild" style="height:200px;"> 
+            <h1>批量操作</h1>
+            <el-row class="mt20">
+                <el-col :span="6" class="label">
+                    选择楼层类型：
+                </el-col>
+                <el-col :span="18" class="label">
+                       <el-select v-model="batchInputVal" placeholder="请选择">
+                            <el-option
+                              v-for="item in navOptions"
+                              :key="item.floorType"
+                              :label="item.floorType"
+                              :value="item.floorType">
+                            </el-option>
+                          </el-select>
+                </el-col>
+            </el-row>
             <el-row class="mt20">
                 <el-col :span="6" class="label">
                     添加标准层个数：
@@ -146,6 +161,9 @@
     </div>
 </template>
 <style scope>
+    .el-input-number--small{
+        width: 95%;
+    }
     .el-table__fixed-right::before,
     .el-table__fixed::before {
         background-color: transparent;
@@ -275,7 +293,8 @@
                     floorType: ''
                 },
                 temporaryDialog: false,
-                addMultipleBuild: false
+                addMultipleBuild: false,
+                batchInputVal:''
             };
         },
         methods: {
@@ -287,12 +306,12 @@
                     }
                     this.addFloorTableData.floorID = this.nub.toString()
                     this.addFloorTableData.floorName = this.addFloorTableData.floorID + 'F'
-                    this.addFloorTableData.floorType = '标准层'
+                    this.addFloorTableData.floorType = this.batchInputVal
                     this.addFloorTableData.describe = ''
                     this.floorTableData.push({
                         floorID: this.nub.toString(),
                         floorName: this.addFloorTableData.floorID + 'F',
-                        floorType: '标准层',
+                        floorType:  this.batchInputVal,
                         describe: '双击修改描述'
                     })
                 }
@@ -372,6 +391,11 @@
                 this.reviseDialogShow = true
                 a.describe = a.describe == '双击修改描述' ? '' : a.describe
                 this.reviseDialogData = a
+            },
+            getQueryString(name){
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.location.search.substr(1).match(reg);
+                if (r != null) return unescape(r[2]); return null;
             }
         },
         mounted() {
@@ -385,6 +409,14 @@
                     })
                 })
             })
+
+            // var data = {
+            //     ComPanyId:this.getQueryString('ComPanyId'),
+            //     JsonData:this.getQueryString('JsonData')
+            // }
+            // this.$axios.post(`${window.urlConfig}/CompanyData/Save`,data).then(res=>{
+                
+            // })
             // var a = JSON.parse(window.localStorage.getItem('floorDefube'))
             // if (a) {
             //     this.navOptions = a

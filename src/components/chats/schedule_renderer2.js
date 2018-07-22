@@ -86,7 +86,6 @@ let createPlannedArrowRenderItem = (data, color) => {
 }
 
 let createArrowRenderItem = (data, color) => {
-  debugger
   let key_data = {};
   let key_index = {};
   data.forEach(x => {
@@ -207,7 +206,8 @@ let getDateRange = (array = []) => {
   //     return date_a - date_b;
 
   // })
-  let min = max = new Date();
+  let max = new Date()
+  let min = new Date();
   array.map(function (data) {
     data.data.map(function (d) {
       let date = new Date(d[0]);
@@ -342,6 +342,7 @@ class scheduleRenderer {
     //  var acturalScheduleUrl = `https://bimcomposer.probim.cn/api/Prj/GetScheduleTask?ProjectID=d975e1ea-7128-ceed-ac77-4a28d3bfd472&ModelID=7625a0b0-ae55-4131-843c-c791f93ff496&ScheduleID=609ec1fd-d973-4c71-a56a-8c7a8cc7d8f5&&IsGantt=false`
     return new Promise(resolve => {
       axios.get(acturalScheduleUrl).then(x => {
+        console.log(x)
         resolve(x.data)
       })
     })
