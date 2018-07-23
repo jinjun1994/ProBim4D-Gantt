@@ -294,11 +294,19 @@
                 },
                 temporaryDialog: false,
                 addMultipleBuild: false,
-                batchInputVal:''
+                batchInputVal:'',
+                floorConfig:''
             };
         },
         methods: {
             addMultipSubmit() {
+                if(this.batchInputVal == ''){
+                    this.$message({
+                        message: '请选择添加类型',
+                        type: 'warning'
+                    });
+                    return false
+                }
                 for (var i = 0; i < this.num6; i++) {
                     this.nub += 1
                     if (this.nub == 0) {
@@ -325,32 +333,89 @@
                 this.floorTableData.splice(index, 1)
             },
             submitClick() {
-                var _this = this
-                var data = {
-                    ScheduleName: this.temData.name,
-                    StartTime: this.temData.startTime,
-                    IsHaveClimbing: this.temData.useClimbing,
-                    BasicForm: this.temData.basics,
-                    ModelLevels: []
-                }
-                this.floorTableData.forEach(item => {
-                    data.ModelLevels.push({
-                        LevelNumber: item.floorID,
-                        LevelName: item.floorName,
-                        LevelCategoryName: item.floorType,
-                        LevelDscription: item.describe == "双击修改描述" ? '' : item.describe
+                // var _this = this
+                // var data = {
+                //     ScheduleName: this.temData.name,
+                //     StartTime: this.temData.startTime,
+                //     IsHaveClimbing: this.temData.useClimbing,
+                //     BasicForm: this.temData.basics,
+                //     ModelLevels: []
+                // }
+                // this.floorTableData.forEach(item => {
+                //     data.ModelLevels.push({
+                //         LevelNumber: item.floorID,
+                //         LevelName: item.floorName,
+                //         LevelCategoryName: item.floorType,
+                //         LevelDscription: item.describe == "双击修改描述" ? '' : item.describe
+                //     })
+                // })
+                // var formData = new FormData()
+                // formData.append('ModelProcess', JSON.stringify(data))
+                // formData.append('ProjectID', window.ProjectID)
+                // formData.append('ModelID', window.ModelID)
+                // this.$axios.post(` ${window.urlConfig}/api/Prj/AutoCreateSchedule`, formData).then(res => {
+                //     if (res.status == 200) {
+                //         _this.$emit('listAddItem')
+                //         _this.temporaryDialog = false
+                //     }
+                // })
+                let _this = this
+                let data = []
+                let userInpitTime = new Date(this.temData.startTime)
+                this.floorTableData.forEach((floorTableitem,index)=>{//遍历选择项
+                    this.floorConfig.ProcessNode.forEach((process,processIndex)=>{
+                        this.floorConfig.Process.forEach((processConfig,processConfigIndex)=>{
+                            if(process.ProcessId == processConfig.ProcessId){
+                                processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
+                                    if(LevelCategory.LevelCategory == floorTableitem.floorType){
+                                            let formatDateStrat = _this.formatDate(userInpitTime)
+                                            let formatDateStr = _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
+                                            data.push({
+                                                color:processConfig.ProcessColor,
+                                                TaskStartTime:formatDateStrat,
+                                                TaskID:_this.GUID(),
+                                                TaskEndTime:formatDateStr,
+                                                TaskName:process.ProcessNodeName + '_' + floorTableitem.floorName,
+                                                TaskPlanStartTime:formatDateStrat,
+                                                TaskPlanEndTime:formatDateStr
+
+
+                                            })
+                                    }
+                                    
+                                   
+                                })
+                            }
+                        })
                     })
+                    
+                        
                 })
-                var formData = new FormData()
-                formData.append('ModelProcess', JSON.stringify(data))
-                formData.append('ProjectID', window.ProjectID)
-                formData.append('ModelID', window.ModelID)
-                this.$axios.post(` ${window.urlConfig}/api/Prj/AutoCreateSchedule`, formData).then(res => {
-                    if (res.status == 200) {
-                        _this.$emit('listAddItem')
-                        _this.temporaryDialog = false
-                    }
-                })
+                console.log(data)
+                console.log(this.floorTableData)
+            },
+            formatDate(date){
+                var y = date.getFullYear();  
+                var m = date.getMonth() + 1;  
+                m = m < 10 ? ('0' + m) : m;  
+                var d = date.getDate();  
+                d = d < 10 ? ('0' + d) : d;  
+                var h = date.getHours();  
+                var minute = date.getMinutes();  
+                minute = minute < 10 ? ('0' + minute) : minute; 
+                var second= date.getSeconds();  
+                second = minute < 10 ? ('0' + second) : second;  
+                return y + '-' + m + '-' + d+' '+h+':'+minute+':'+ second;  
+            },
+            GUID(){
+                let guid = '';
+                for (let i = 1; i <= 32; i++) {
+                let n = Math.floor(Math.random() * 16.0).toString(16);
+                guid += n;
+                if ((i === 8) || (i === 12) || (i === 16) || (i === 20))
+                    guid += '-';
+                }
+                return guid;
             },
             handleCommand(command) {
                 this.nub += 1
@@ -402,14 +467,15 @@
             var _this = this
             this.$axios.get(`${window.urlConfig}/api/sys/GetSchedule`).then(res => {
                 console.log(res)
+                this.floorConfig = res.data
                 res.data.LevelCategory.forEach(item => {
                     _this.navOptions.push({
                         floorType: item.LevelCategory,
                         describe: item.LevelDescription
                     })
                 })
+                console.log(this.floorConfig)
             })
-
             // var data = {
             //     ComPanyId:this.getQueryString('ComPanyId'),
             //     JsonData:this.getQueryString('JsonData')
