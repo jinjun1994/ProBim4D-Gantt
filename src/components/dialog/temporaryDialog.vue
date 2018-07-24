@@ -359,6 +359,12 @@
                 //         _this.temporaryDialog = false
                 //     }
                 // })
+
+
+
+
+                //前端算gantt数据
+                
                 let _this = this
                 let data = []
                 let userInpitTime = new Date(this.temData.startTime)
@@ -377,8 +383,8 @@
                                                 TaskEndTime:formatDateStr,
                                                 TaskName:process.ProcessNodeName + '_' + floorTableitem.floorName,
                                                 TaskPlanStartTime:formatDateStrat,
-                                                TaskPlanEndTime:formatDateStr
-
+                                                TaskPlanEndTime:formatDateStr,
+                                                Type:process.ProcessNodeName
 
                                             })
                                     }
@@ -391,8 +397,8 @@
                     
                         
                 })
-                console.log(data)
-                console.log(this.floorTableData)
+                _this.$emit('saveGanttData',data)
+                
             },
             formatDate(date){
                 var y = date.getFullYear();  

@@ -135,6 +135,7 @@
                     } else {
                         data.ParentID = task.parent
                     }
+                    this.$emit('upDatedGanttDateToCharts',task)
                     formData.append('ProjectID', window.ProjectID)
                     formData.append('ModelID', window.ModelID)
                     formData.append('ScheduleTask', JSON.stringify(data))

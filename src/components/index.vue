@@ -24,14 +24,14 @@
                     </div>
                 </div>
             </div>
-            <gantt class="gantt-wp" v-show="showGantt" :tasks="tasks" :selectScheduleID="selectScheduleID" ref="ganttView" @ganttAddShow=ganttAddShow @reviseTaskDialog=reviseTaskDialog @operationGanttAddView=operationGanttAddView>
+            <gantt class="gantt-wp" v-show="showGantt" :tasks="tasks" :selectScheduleID="selectScheduleID" ref="ganttView" @ganttAddShow=ganttAddShow @reviseTaskDialog=reviseTaskDialog @operationGanttAddView=operationGanttAddView @upDatedGanttDateToCharts=upDatedGanttDateToCharts>
             </gantt>
-            <chats v-if="!showGantt" class="chats-wp" ref="chats" :selectScheduleID="selectScheduleID"></chats>
+            <chats v-if="!showGantt" class="chats-wp" ref="chats" :selectScheduleID="selectScheduleID" :ganttData=ganttOrChartsData></chats>
             <matchDialog></matchDialog>
             <ganttAdd ref="ganttAdd" @delGanttTask=delGanttTask :selectScheduleID=selectScheduleID @addTaskDialog=addTaskDialog @reviseTaskGantt=reviseTaskGantt :taskDefault=taskDefault :ruleForm=ruleForm></ganttAdd>
         </div>
         <div class="iframe-wp" v-show="show3d"></div>
-        <temporaryDialog ref="temporaryDialog" @listAddItem=listAddItem></temporaryDialog>
+        <temporaryDialog ref="temporaryDialog" @listAddItem=listAddItem @saveGanttData=saveGanttData></temporaryDialog>
     </div>
 </template>
 <style>
@@ -160,6 +160,7 @@
         },
         data() {
             return {
+                ganttData:{},
                 showGantt: true,
                 tasks: {
                     data: [],
@@ -181,10 +182,43 @@
                     judgeAdd: null,
                     parent: 0,
                     id: ""
-                }
+                },
+                ganttOrChartsData:''
             };
         },
         methods: {
+            serverDateInit(time){
+                var date = new Date(time)
+                 var year = date.getFullYear(),
+                    month = date.getMonth() + 1,
+                    day = date.getDate(),
+                    hour = date.getHours(),
+                    min = date.getMinutes(),
+                    sec = date.getSeconds();
+                
+                return year + '-' + month + '-' +day + 'T' +hour + ':' +min + ':' +sec;
+            },
+            upDatedGanttDateToCharts(task){
+                // this.tasks.data.forEach(taskArrData=>{
+                //     if(taskArrData.id == task.id){
+                //         console.log(this.ganttOrChartsData)
+                //         taskArrData = task
+                //     }
+                // })
+                this.ganttOrChartsData.forEach(item=>{
+                    if(item.TaskID == task.id){
+                        item.TaskStartTime = this.serverDateInit(task.start_date)
+                        item.TaskEndTime = this.serverDateInit(task.end_date)
+                    }
+                })
+            },
+            randomColor(){
+                return '#'+Math.floor(Math.random()*0xffffff).toString(16);
+            },
+            saveGanttData(data){
+                this.ganttData = data
+                console.log(this.ganttData)
+            },
             clearGanttDataView() {
                 this.showGantt = true
                 this.$refs.ganttView.clearGanttDataView()
@@ -305,47 +339,76 @@
                 window.ScheduleID = item.ScheduleID;
                 var _this = this;
                 this.selectScheduleID = item.ScheduleID;
-                this.$axios
-                    .get(
-                        `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${
-                        window.ProjectID
-                      }&ModelID=${window.ModelID}&ScheduleID=${
-                        item.ScheduleID
-                      }&&IsGantt=${this.showGantt}`
-                    )
-                    .then(res => {
-                        console.log(res)
-                        if (this.showGantt) { //甘特
-                            if (res.data.length == 0) {
-                                _this.tasks.data = res.data;
-                            } else {
-                                _this.tasks.data.length = 0;
-                                res.data.forEach((item, index) => {
-                                    var data1 = {
-                                        id: item.TaskID,
-                                        text: item.TaskName,
-                                        start_date: _this.initDate(item.TaskStartTime),
-                                        end_date: _this.initDate(item.TaskEndTime),
-                                        parent: item.ParentID,
-                                        plan_start_date: _this.initDate(item.TaskPlanStartTime) ?
-                                            item.TaskPlanStartTime : "",
-                                        plan_end_date: _this.initDate(item.TaskPlanEndTime) ?
-                                            item.TaskPlanEndTime : "",
-                                        additionaltext: _this.FilterValue
-                                    };
-                                    _this.tasks.data.push(data1);
-                                });
-                            }
-                            _this.$refs.ganttView.Repaint();
-                        } else {//echears
-                            _this.$refs.chats.chartRender()
-                        }
-                        loading.close()
-                    })
-                    .catch(res => {
-                        loading.close()
-                        console.log("请求甘特图数据错误，原因" + res);
-                    });
+                this.$axios.get(`${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${item.ScheduleID}&&IsGantt=true`).then(res=>{
+                     _this.ganttOrChartsData = res.data
+                     if(_this.showGantt){
+                           _this.initGantt()
+                     }else{
+                         _this.$refs.chats.chartRender(_this.ganttOrChartsData)
+                     }
+                      loading.close()
+                }).catch(res=>{
+                    console.log('甘特图接口报错' + res)
+                     loading.close()
+                })
+                // this.$axios
+                //     .get(
+                //         `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${
+                //         window.ProjectID
+                //       }&ModelID=${window.ModelID}&ScheduleID=${
+                //         item.ScheduleID
+                //       }&&IsGantt=${this.showGantt}`
+                //     )
+                //     .then(res => {
+                //         console.log(res)
+                //         if (this.showGantt) { //甘特
+                //             if (res.data.length == 0) {
+                //                 _this.tasks.data = res.data;
+                //             } else {
+                //                 _this.tasks.data.length = 0;
+                //                 res.data.forEach((item, index) => {
+                //                     var data1 = {
+                //                         id: item.TaskID,
+                //                         text: item.TaskName,
+                //                         start_date: _this.initDate(item.TaskStartTime),
+                //                         end_date: _this.initDate(item.TaskEndTime),
+                //                         parent: item.ParentID,
+                //                         plan_start_date: _this.initDate(item.TaskPlanStartTime) ?
+                //                             item.TaskPlanStartTime : "",
+                //                         plan_end_date: _this.initDate(item.TaskPlanEndTime) ?
+                //                             item.TaskPlanEndTime : "",
+                //                         additionaltext: _this.FilterValue
+                //                     };
+                //                     _this.tasks.data.push(data1);
+                //                 });
+                //             }
+                //             _this.$refs.ganttView.Repaint();
+                //         } else {//echears
+                //             _this.$refs.chats.chartRender()
+                //         }
+                //         loading.close()
+                //     })
+                //     .catch(res => {
+                //         loading.close()
+                //         console.log("请求甘特图数据错误，原因" + res);
+                //     });
+            },
+            initGantt(){
+                 this.tasks.data.length = 0;
+                 this.ganttOrChartsData.forEach((item,index)=>{
+                     var data ={
+                         id: item.TaskID,
+                         text: item.TaskName,
+                         start_date: this.initDate(item.TaskStartTime),
+                         end_date: this.initDate(item.TaskEndTime),
+                         parent: item.ParentID,
+                         plan_start_date: this.initDate(item.TaskPlanStartTime) ? item.TaskPlanStartTime : "",
+                         plan_end_date: this.initDate(item.TaskPlanEndTime) ?item.TaskPlanEndTime : "",
+                         additionaltext: this.FilterValue
+                     }
+                     this.tasks.data.push(data)
+                 })
+                 this.$refs.ganttView.Repaint();
             },
             toggleGantt() {
                 if(this.selectScheduleID != ''){

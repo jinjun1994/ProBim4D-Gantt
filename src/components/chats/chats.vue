@@ -10,7 +10,108 @@
   const renderer = require("./schedule_renderer2");
   export default {
     props: {
-      selectScheduleID: String
+      ganttData: Array
+    },
+    
+    data() {
+      return {
+        acturalSchedule: true,
+        plannedSchedule: false,
+        chart: null,
+        renderer: null
+      };
+    },
+    methods: {
+      initGanttDataToCharts(passData){
+        passData?passData = passData: passData = this.$props.ganttData
+        let dataNub = [],lastData =[];
+       passData.forEach(item => {//获取所有类型
+            if(item.Type){
+                dataNub.push(item.Type)
+            }else{
+              dataNub.push(item.FlowSection)
+            }
+            
+        });
+        dataNub = [...new Set(dataNub)] //去重
+        let initData = {
+          Guid:"00000000-0000-0000-0000-000000000000",
+          time:''
+        }
+        dataNub.forEach((data,index)=>{
+            lastData.push({
+              business:data,
+              color:null,
+              schedule:[]
+
+            })
+            passData.forEach(item=>{
+              if(item.Type){
+                  if(data == item.Type){
+                      if(item.color){
+                        lastData[index].color = item.color
+                      }else{
+                        lastData[index].color =  '#'+Math.floor(Math.random()*0xffffff).toString(16);
+                      }
+                    
+                      if(initData.time == ''){
+                        initData.time = item.TaskStartTime
+                      }
+                      lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime.split('T')[0],lastData[index].schedule.length*1+1])
+                      // if(lastData.schedule.length == 0){
+                      //     lastData.schedule.push([item.TaskStartTime,item.TaskName.split('_')[1].split('F')[0]*1],item.TaskID,0,initData.Guid,item.TaskStartTime,lastData.schedule.length*1+1)
+                      // }else{
+                      //     lastData.schedule.push([item.TaskStartTime,item.TaskName.split('_')[1].split('F')[0]*1],item.TaskID,0,initData.Guid,initData.time,lastData.schedule.length*1+1)
+                      // }
+                      initData.Guid = item.TaskID
+                      initData.time = item.TaskStartTime.split('T')[0]
+                      
+                  }
+              }else{
+                if(data == item.FlowSection){
+                      if(item.color){
+                        lastData[index].color = item.color
+                      }else{
+                        lastData[index].color =  '#'+Math.floor(Math.random()*0xffffff).toString(16);
+                      }
+                    
+                      if(initData.time == ''){
+                        initData.time = item.TaskStartTime
+                      }
+                      lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime.split('T')[0],lastData[index].schedule.length*1+1])
+                      // if(lastData.schedule.length == 0){
+                      //     lastData.schedule.push([item.TaskStartTime,item.TaskName.split('_')[1].split('F')[0]*1],item.TaskID,0,initData.Guid,item.TaskStartTime,lastData.schedule.length*1+1)
+                      // }else{
+                      //     lastData.schedule.push([item.TaskStartTime,item.TaskName.split('_')[1].split('F')[0]*1],item.TaskID,0,initData.Guid,initData.time,lastData.schedule.length*1+1)
+                      // }
+                      initData.Guid = item.TaskID
+                      initData.time = item.TaskStartTime.split('T')[0]
+                      
+                  }
+              }
+              
+            })
+        })
+        return lastData
+        
+      },
+      initFloorNameToNub(str){//xxxx_1F => 1
+          return str.split('_')[1].split('F')[0]*1
+      },
+      reLoadChat() {
+        this.chart.resize();
+      },
+      chartRender(data) {
+        const loading = this.$loading({
+          lock: true,
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.5)'
+      });
+      
+        this.renderer.render(this.acturalSchedule, this.plannedSchedule,this.initGanttDataToCharts(data));
+        loading.close()
+      },
     },
     mounted() {
       // renderer.default.acturalScheduleUrl = `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${window.ScheduleID}&&IsGantt=false`
@@ -26,7 +127,7 @@
       domElement.style.height = domElement.parentElement.offsetHeight;
       this.chart = echarts.init(domElement);
       this.renderer = new renderer.default.scheduleRenderer(this.chart);
-      this.renderer.render(this.acturalSchedule, this.plannedSchedule);
+      this.renderer.render(this.acturalSchedule, this.plannedSchedule,this.initGanttDataToCharts());
       loading.close()
       //节点点击事件
        this.chart.on('click', function (params) {
@@ -69,29 +170,6 @@
       //     clearInterval(timer)
       //   }
       // },1000)
-    },
-    data() {
-      return {
-        acturalSchedule: true,
-        plannedSchedule: false,
-        chart: null,
-        renderer: null
-      };
-    },
-    methods: {
-      reLoadChat() {
-        this.chart.resize();
-      },
-      chartRender() {
-        const loading = this.$loading({
-          lock: true,
-          text: 'Loading',
-          spinner: 'el-icon-loading',
-          background: 'rgba(0, 0, 0, 0.5)'
-      });
-        this.renderer.render(this.acturalSchedule, this.plannedSchedule);
-        loading.close()
-      },
     }
   };
 </script>

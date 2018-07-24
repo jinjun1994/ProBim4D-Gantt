@@ -313,9 +313,10 @@ class scheduleRenderer {
     })
   }
 
-  async getActuralScheduleAsync() {
+  async getActuralScheduleAsync(ganttData) {
     var a = [];
-    let response = await this.getActuralSchedule();
+    // let response = await this.getActuralSchedule();
+    let response = ganttData
     this.acturalLinkedSchedule = response;
 
     this.acturalSchedule = [];
@@ -337,19 +338,19 @@ class scheduleRenderer {
     })
   }
 
-  getActuralSchedule() {
-    var acturalScheduleUrl = `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${window.ScheduleID}&&IsGantt=false`
-    //  var acturalScheduleUrl = `https://bimcomposer.probim.cn/api/Prj/GetScheduleTask?ProjectID=d975e1ea-7128-ceed-ac77-4a28d3bfd472&ModelID=7625a0b0-ae55-4131-843c-c791f93ff496&ScheduleID=609ec1fd-d973-4c71-a56a-8c7a8cc7d8f5&&IsGantt=false`
-    return new Promise(resolve => {
-      axios.get(acturalScheduleUrl).then(x => {
-        console.log(x)
-        resolve(x.data)
-      })
-    })
+  // getActuralSchedule() {
+  //   var acturalScheduleUrl = `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${window.ScheduleID}&&IsGantt=false`
+  //   //  var acturalScheduleUrl = `https://bimcomposer.probim.cn/api/Prj/GetScheduleTask?ProjectID=d975e1ea-7128-ceed-ac77-4a28d3bfd472&ModelID=7625a0b0-ae55-4131-843c-c791f93ff496&ScheduleID=609ec1fd-d973-4c71-a56a-8c7a8cc7d8f5&&IsGantt=false`
+  //   return new Promise(resolve => {
+  //     axios.get(acturalScheduleUrl).then(x => {
+  //       console.log(x)
+  //       resolve(x.data)
+  //     })
+  //   })
 
-  }
+  // }
 
-  async render(actural, planned) {
+  async render(actural, planned,ganttData) {
     actural = actural || false;
     planned = planned || false;
     let legend_data = [];
@@ -357,7 +358,10 @@ class scheduleRenderer {
     let xAxisData = [];
     let legendColor = []
     if (actural) {
-      let response = await this.createActuralSeries();
+      let response = await this.createActuralSeries(ganttData);
+      response[1].forEach(item => {
+        if (item.color) legendColor.push(item.color)
+      })
       legend_data = legend_data.concat(response[0]);
       series = series.concat(response[1]);
       xAxisData = getDateRange(response[1]);
@@ -451,8 +455,8 @@ class scheduleRenderer {
     this.chart.setOption(options, true);
   }
 
-  async createActuralSeries() {
-    await this.getActuralScheduleAsync();
+  async createActuralSeries(ganttData) {
+    await this.getActuralScheduleAsync(ganttData);
     let data = this.acturalSchedule;
     let legend_data = [];
     let series = [];
