@@ -26,12 +26,12 @@
             </div>
             <gantt class="gantt-wp" v-show="showGantt" :tasks="tasks" :selectScheduleID="selectScheduleID" ref="ganttView" @ganttAddShow=ganttAddShow @reviseTaskDialog=reviseTaskDialog @operationGanttAddView=operationGanttAddView @upDatedGanttDateToCharts=upDatedGanttDateToCharts>
             </gantt>
-            <chats v-if="!showGantt" class="chats-wp" ref="chats" :selectScheduleID="selectScheduleID" :ganttData=ganttOrChartsData></chats>
+            <chats v-if="!showGantt" class="chats-wp" ref="chats" :selectScheduleID="selectScheduleID" :ganttData=ganttData></chats>
             <matchDialog></matchDialog>
             <ganttAdd ref="ganttAdd" @delGanttTask=delGanttTask :selectScheduleID=selectScheduleID @addTaskDialog=addTaskDialog @reviseTaskGantt=reviseTaskGantt :taskDefault=taskDefault :ruleForm=ruleForm></ganttAdd>
         </div>
         <div class="iframe-wp" v-show="show3d"></div>
-        <temporaryDialog ref="temporaryDialog" @listAddItem=listAddItem @saveGanttData=saveGanttData></temporaryDialog>
+        <temporaryDialog ref="temporaryDialog" @listAddItem=listAddItem @saveGanttData=saveGanttData @addScheduleListItem=addScheduleListItem></temporaryDialog>
     </div>
 </template>
 <style>
@@ -167,7 +167,7 @@
                     links: []
                 },
                 show3d: false,
-                selectScheduleID: "", //已选中进度id
+                selectScheduleID: "1", //已选中进度id
                 selectItem:'',//选中列表传过来的 item
                 taskDefault: {
                     queueGanttTask: null, //待处理队列task
@@ -218,6 +218,14 @@
             saveGanttData(data){
                 this.ganttData = data
                 console.log(this.ganttData)
+                this.requestData()
+                
+            },
+            addScheduleListItem(data){
+                this.$refs.scheduleList.addItem({
+                    ScheduleName:data.ScheduleName,
+                    ScheduleID:data.guid
+                })
             },
             clearGanttDataView() {
                 this.showGantt = true
@@ -229,7 +237,7 @@
                     message: '新建进度方案成功',
                     type: 'success'
                 });
-                this.$refs.scheduleList.requestItems()
+                // this.$refs.scheduleList.requestItems()
             },
             temporaryDialogShow() { //临时弹层出发
                 this.$refs.temporaryDialog.temporaryDialog = true
@@ -326,76 +334,42 @@
                 return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
             },
             requestData(item) {
-                if (!item) {
-                    return;
+                // if (!item) {
+                //     return;
+                // }
+                // const loading = this.$loading({
+                //     lock: true,
+                //     text: 'Loading',
+                //     spinner: 'el-icon-loading',
+                //     background: 'rgba(0, 0, 0, 0.5)'
+                // });
+                if(this.showGantt){
+                    this.initGantt()
+                }else{
+                    console.log(this.ganttData)
+                    this.$refs.chats.chartRender(_this.ganttData)
                 }
-                const loading = this.$loading({
-                    lock: true,
-                    text: 'Loading',
-                    spinner: 'el-icon-loading',
-                    background: 'rgba(0, 0, 0, 0.5)'
-                });
-                this.selectItem = item
-                window.ScheduleID = item.ScheduleID;
-                var _this = this;
-                this.selectScheduleID = item.ScheduleID;
-                this.$axios.get(`${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${item.ScheduleID}&&IsGantt=true`).then(res=>{
-                     _this.ganttOrChartsData = res.data
-                     if(_this.showGantt){
-                           _this.initGantt()
-                     }else{
-                         _this.$refs.chats.chartRender(_this.ganttOrChartsData)
-                     }
-                      loading.close()
-                }).catch(res=>{
-                    console.log('甘特图接口报错' + res)
-                     loading.close()
-                })
-                // this.$axios
-                //     .get(
-                //         `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${
-                //         window.ProjectID
-                //       }&ModelID=${window.ModelID}&ScheduleID=${
-                //         item.ScheduleID
-                //       }&&IsGantt=${this.showGantt}`
-                //     )
-                //     .then(res => {
-                //         console.log(res)
-                //         if (this.showGantt) { //甘特
-                //             if (res.data.length == 0) {
-                //                 _this.tasks.data = res.data;
-                //             } else {
-                //                 _this.tasks.data.length = 0;
-                //                 res.data.forEach((item, index) => {
-                //                     var data1 = {
-                //                         id: item.TaskID,
-                //                         text: item.TaskName,
-                //                         start_date: _this.initDate(item.TaskStartTime),
-                //                         end_date: _this.initDate(item.TaskEndTime),
-                //                         parent: item.ParentID,
-                //                         plan_start_date: _this.initDate(item.TaskPlanStartTime) ?
-                //                             item.TaskPlanStartTime : "",
-                //                         plan_end_date: _this.initDate(item.TaskPlanEndTime) ?
-                //                             item.TaskPlanEndTime : "",
-                //                         additionaltext: _this.FilterValue
-                //                     };
-                //                     _this.tasks.data.push(data1);
-                //                 });
-                //             }
-                //             _this.$refs.ganttView.Repaint();
-                //         } else {//echears
-                //             _this.$refs.chats.chartRender()
-                //         }
-                //         loading.close()
-                //     })
-                //     .catch(res => {
-                //         loading.close()
-                //         console.log("请求甘特图数据错误，原因" + res);
-                //     });
+                // this.selectItem = item
+                // window.ScheduleID = item.ScheduleID;
+                // var _this = this;
+                // this.selectScheduleID = item.ScheduleID;
+                // this.$axios.get(`${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${item.ScheduleID}&&IsGantt=true`).then(res=>{
+                //      _this.ganttOrChartsData = res.data
+                //      if(_this.showGantt){
+                //            _this.initGantt()
+                //      }else{
+                //          _this.$refs.chats.chartRender(_this.ganttOrChartsData)
+                //      }
+                //       loading.close()
+                // }).catch(res=>{
+                //     console.log('甘特图接口报错' + res)
+                //      loading.close()
+                // })
+                
             },
             initGantt(){
                  this.tasks.data.length = 0;
-                 this.ganttOrChartsData.forEach((item,index)=>{
+                 this.ganttData.forEach((item,index)=>{
                      var data ={
                          id: item.TaskID,
                          text: item.TaskName,

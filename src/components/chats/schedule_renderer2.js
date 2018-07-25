@@ -441,7 +441,7 @@ class scheduleRenderer {
         type: 'value',
         boundaryGap: [0, '100%'],
         max: 33,
-        min: 0,
+        min: -2,
         scale: true,
         interval: 1,
         splitLine: {

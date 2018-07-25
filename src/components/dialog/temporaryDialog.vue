@@ -154,7 +154,7 @@
             <div class="sub-btn">
                 <ul>
                     <li @click="addMultipSubmit">确定</li>
-                    <!-- <li>确定</li> -->
+                    <li class="ml20" @click="addMultipleBuild=false">取消</li>
                 </ul>
             </div>
         </div>
@@ -331,40 +331,42 @@
             },
             deleteRow(index) {
                 this.floorTableData.splice(index, 1)
+                this.nub -= 1
+                this.nub == 0?this.nub = -1: this.nub = this.nub
             },
             submitClick() {
-                var _this = this
-                var data = {
-                    ScheduleName: this.temData.name,
-                    StartTime: this.temData.startTime,
-                    IsHaveClimbing: this.temData.useClimbing,
-                    BasicForm: this.temData.basics,
-                    ModelLevels: []
-                }
-                this.floorTableData.forEach(item => {
-                    data.ModelLevels.push({
-                        LevelNumber: item.floorID,
-                        LevelName: item.floorName,
-                        LevelCategoryName: item.floorType,
-                        LevelDscription: item.describe == "双击修改描述" ? '' : item.describe
-                    })
-                })
-                var formData = new FormData()
-                formData.append('ModelProcess', JSON.stringify(data))
-                formData.append('ProjectID', window.ProjectID)
-                formData.append('ModelID', window.ModelID)
-                this.$axios.post(` ${window.urlConfig}/api/Prj/AutoCreateSchedule`, formData).then(res => {
-                    if (res.status == 200) {
-                        _this.$emit('listAddItem')
-                        _this.temporaryDialog = false
-                    }
-                })
+                // var _this = this
+                // var data = {
+                //     ScheduleName: this.temData.name,
+                //     StartTime: this.temData.startTime,
+                //     IsHaveClimbing: this.temData.useClimbing,
+                //     BasicForm: this.temData.basics,
+                //     ModelLevels: []
+                // }
+                // this.floorTableData.forEach(item => {
+                //     data.ModelLevels.push({
+                //         LevelNumber: item.floorID,
+                //         LevelName: item.floorName,
+                //         LevelCategoryName: item.floorType,
+                //         LevelDscription: item.describe == "双击修改描述" ? '' : item.describe
+                //     })
+                // })
+                // var formData = new FormData()
+                // formData.append('ModelProcess', JSON.stringify(data))
+                // formData.append('ProjectID', window.ProjectID)
+                // formData.append('ModelID', window.ModelID)
+                // this.$axios.post(` ${window.urlConfig}/api/Prj/AutoCreateSchedule`, formData).then(res => {
+                //     if (res.status == 200) {
+                //         _this.$emit('listAddItem')
+                //         _this.temporaryDialog = false
+                //     }
+                // })
 
 
 
 
                 //前端算gantt数据
-                /*
+                
                 let _this = this
                 let data = []
                 let userInpitTime = new Date(this.temData.startTime)
@@ -374,11 +376,12 @@
                             if(process.ProcessId == processConfig.ProcessId){
                                 processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
                                     if(LevelCategory.LevelCategory == floorTableitem.floorType){
+                                            if(process.Interval){//技术间隔时间
+                                                _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + process.Interval*1))))
+                                            }
                                             let formatDateStrat = _this.formatDate(userInpitTime)
                                             let formatDateStr = _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
-                                            if(process.Interval){//技术间隔时间
-                                                 _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + process.Interval*1))))
-                                            }
+                                            
                                             data.push({
                                                 color:processConfig.ProcessColor,
                                                 TaskStartTime:formatDateStrat,
@@ -401,7 +404,13 @@
                         
                 })
                 _this.$emit('saveGanttData',data)
-                */
+                var a = {
+                    ScheduleName:this.temData.name,
+                    guid:this.GUID()
+                }
+                _this.$emit('addScheduleListItem',a)
+                _this.temporaryDialog = false
+                
                 
             },
             formatDate(date){
