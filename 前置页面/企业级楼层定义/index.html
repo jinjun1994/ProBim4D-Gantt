@@ -546,7 +546,7 @@
             </div>
             <div class="tem-center" v-show="!showTemDialog && showName == 'tem'">
                 <h1>标准工序模板</h1>
-                <el-table :data="procedureTempTableData" stripe style="overflow-y: auto;max-height: 200px;">
+                <el-table :data="procedureTempTableData" stripe style="overflow-y: auto;max-height: 200px;" height="200">
                     <el-table-column prop="nodeName" label="节点名称" width="100">
                     </el-table-column>
                     <el-table-column prop=prepositionNode label="前置节点" width="100">
