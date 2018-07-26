@@ -119,8 +119,8 @@ let createArrowRenderItem = (data, color) => {
     let point = api.coord([_data[dataIndex][0], _data[dataIndex][1]]);
     let startDatePoint = api.coord([_data[dataIndex][5], _data[dataIndex][1]]);
     let graphics = [];
-
-
+    
+    
     // if (postPoint) {
     postPoints && postPoints.forEach(x =>
       graphics.push({
@@ -135,18 +135,7 @@ let createArrowRenderItem = (data, color) => {
         },
       }));
     // }
-    graphics.push({
-      type: 'line',
-      position: point,
-      shape: {
-        x1: startDatePoint[0] - point[0]
-      },
-      style: {
-        stroke: color,
-        lineWidth: 2
-
-      }
-    })
+   
     graphics.push({
       type: 'circle',
       position: point,

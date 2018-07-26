@@ -295,7 +295,8 @@
                 temporaryDialog: false,
                 addMultipleBuild: false,
                 batchInputVal:'',
-                floorConfig:''
+                floorConfig:'',
+                setDateNub:0
             };
         },
         methods: {
@@ -334,6 +335,32 @@
                 this.nub -= 1
                 this.nub == 0?this.nub = -1: this.nub = this.nub
             },
+            recursionReturnNub(item,floorName){
+                this.setDateNub += item.Interval*1
+                
+                if(item.BeforeProcessId != ''){
+                    this.floorConfig.ProcessNode.forEach(process=>{
+                        if(item.BeforeProcessId == process.guid){
+                            if(process.BeforeProcessId == ""){
+                                
+                            }else{
+                                this.recursionReturnNub(process)
+                                this.floorConfig.Process.forEach(processConfig=>{
+                                    if(item.ProcessId == processConfig.ProcessId){
+                                        processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
+                                            if(LevelCategory.LevelCategory == floorName){
+                                                this.setDateNub += LevelCategory.LevelCycle*1
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                            
+                        }
+                    })
+                }
+
+            },
             submitClick() {
                 // var _this = this
                 // var data = {
@@ -366,9 +393,10 @@
 
 
                 //前端算gantt数据
-                
                 let _this = this
                 let data = []
+                // var date = null
+                // let endTime = null
                 let userInpitTime = new Date(this.temData.startTime)
                 this.floorTableData.forEach((floorTableitem,index)=>{//遍历选择项
                     this.floorConfig.ProcessNode.forEach((process,processIndex)=>{
@@ -376,23 +404,55 @@
                             if(process.ProcessId == processConfig.ProcessId){
                                 processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
                                     if(LevelCategory.LevelCategory == floorTableitem.floorType){
-                                            if(process.Interval){//技术间隔时间
-                                                _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + process.Interval*1))))
-                                            }
-                                            let formatDateStrat = _this.formatDate(userInpitTime)
-                                            let formatDateStr = _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
                                             
-                                            data.push({
-                                                color:processConfig.ProcessColor,
-                                                TaskStartTime:formatDateStrat,
-                                                TaskID:_this.GUID(),
-                                                TaskEndTime:formatDateStr,
-                                                TaskName:process.ProcessNodeName + '_' + floorTableitem.floorName,
-                                                TaskPlanStartTime:formatDateStrat,
-                                                TaskPlanEndTime:formatDateStr,
-                                                Type:process.ProcessNodeName
+                                            if(process.Interval*1){//技术间隔时间
+                                                let date = new Date(userInpitTime)
+                                                _this.recursionReturnNub(process,floorTableitem.floorType)
+                                               _this.formatDate(new Date(date.setDate((date.getDate() + _this.setDateNub))))
+                                               _this.setDateNub = 0
+                                                let datestr = _this.formatDate(new Date(date))
+                                                let formatDateStr = _this.formatDate(new Date(date.setDate((date.getDate() + LevelCategory.LevelCycle*1))))
+                                                data.push({
+                                                    color:processConfig.ProcessColor,
+                                                    TaskStartTime:datestr,
+                                                    TaskID:_this.GUID(),
+                                                    TaskEndTime:formatDateStr,
+                                                    TaskName:process.relationName + '_' + floorTableitem.floorName,
+                                                    TaskPlanStartTime:datestr,
+                                                    TaskPlanEndTime:formatDateStr,
+                                                    Type:process.ProcessNodeName
 
-                                            })
+                                                })
+                                            }else{
+                                                
+                                                let formatDateStrat = _this.formatDate(userInpitTime)
+                                                let formatDateStr = _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
+                                                
+                                                data.push({
+                                                    color:processConfig.ProcessColor,
+                                                    TaskStartTime:formatDateStrat,
+                                                    TaskID:_this.GUID(),
+                                                    TaskEndTime:formatDateStr,
+                                                    TaskName:process.relationName + '_' + floorTableitem.floorName,
+                                                    TaskPlanStartTime:formatDateStrat,
+                                                    TaskPlanEndTime:formatDateStr,
+                                                    Type:process.ProcessNodeName
+
+                                                })
+                                            }
+                                           
+                                            
+                                            // data.push({
+                                            //     color:processConfig.ProcessColor,
+                                            //     TaskStartTime:formatDateStrat,
+                                            //     TaskID:_this.GUID(),
+                                            //     TaskEndTime:formatDateStr,
+                                            //     TaskName:process.relationName + '_' + floorTableitem.floorName,
+                                            //     TaskPlanStartTime:formatDateStrat,
+                                            //     TaskPlanEndTime:formatDateStr,
+                                            //     Type:process.ProcessNodeName
+
+                                            // })
                                     }
                                     
                                    
@@ -401,9 +461,10 @@
                         })
                     })
                     
-                        
+                       
                 })
                 _this.$emit('saveGanttData',data)
+
                 var a = {
                     ScheduleName:this.temData.name,
                     guid:this.GUID()

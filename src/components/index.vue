@@ -16,10 +16,17 @@
                     </div>
                     <div class="fr">
                         <ul>
+                            <li>
+                                <el-checkbox-group v-model="checkedCharts" @change="cheackedChartsFun">
+                                    <el-checkbox :label="'plan'">计划</el-checkbox>
+                                    <el-checkbox :label="'actual'">实际</el-checkbox>
+                                </el-checkbox-group>
+                            </li>
                             <li :class="{'no-click':!show3d}"><img src="./mock.svg">模拟</li>
                             <li class="no-click"><img src="./import.svg">导入</li>
                             <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}"><img src="./table.svg">网络图/甘特图</li>
                             <li class="no-click"><img src="./export.svg">导出</li>
+
                         </ul>
                     </div>
                 </div>
@@ -35,6 +42,9 @@
     </div>
 </template>
 <style>
+    .el-checkbox{
+        color: #fff
+    }
     body{
         user-select: none;
     }
@@ -160,6 +170,7 @@
         },
         data() {
             return {
+                checkedCharts:[],
                 ganttData:{},
                 showGantt: true,
                 tasks: {
@@ -187,6 +198,8 @@
             };
         },
         methods: {
+            cheackedChartsFun(val){
+            },
             serverDateInit(time){
                 var date = new Date(time)
                  var year = date.getFullYear(),
@@ -434,12 +447,12 @@
                     window.showOrHideComposer(val);
                 }
             },
-            showGantt:function(val,oldval){
-                if(val){
-                    this.requestData(this.selectItem)
-                }
+            // showGantt:function(val,oldval){
+            //     if(val){
+            //         this.requestData(this.selectItem)
+            //     }
                 
-            }
+            // }
         }
     };
 </script>
