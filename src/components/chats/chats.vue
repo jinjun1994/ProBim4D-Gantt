@@ -57,11 +57,12 @@
                       if(initData.time == ''){
                         initData.time = item.TaskStartTime
                       }
+                      
                       lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime.split('T')[0],lastData[index].schedule.length*1+1])
                       // if(lastData.schedule.length == 0){
-                      //     lastData.schedule.push([item.TaskStartTime,item.TaskName.split('_')[1].split('F')[0]*1],item.TaskID,0,initData.Guid,item.TaskStartTime,lastData.schedule.length*1+1)
+                      //     lastData.schedule.push([item.TaskStartTime,item.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime,lastData.schedule.length*1+1)
                       // }else{
-                      //     lastData.schedule.push([item.TaskStartTime,item.TaskName.split('_')[1].split('F')[0]*1],item.TaskID,0,initData.Guid,initData.time,lastData.schedule.length*1+1)
+                      //     lastData.schedule.push([item.TaskStartTime,item.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,initData.time,lastData.schedule.length*1+1)
                       // }
                       initData.Guid = item.TaskID
                       initData.time = item.TaskStartTime.split('T')[0]
@@ -78,7 +79,7 @@
                       if(initData.time == ''){
                         initData.time = item.TaskStartTime
                       }
-                      lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime.split('T')[0],lastData[index].schedule.length*1+1])
+                      lastData[index].schedule.push([item.TaskEndTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime.split('T')[0],lastData[index].schedule.length*1+1])
                       // if(lastData.schedule.length == 0){
                       //     lastData.schedule.push([item.TaskStartTime,item.TaskName.split('_')[1].split('F')[0]*1],item.TaskID,0,initData.Guid,item.TaskStartTime,lastData.schedule.length*1+1)
                       // }else{
@@ -132,7 +133,7 @@
       //节点点击事件
        this.chart.on('click', function (params) {
           // window.open('https://www.baidu.com/s?wd=' + encodeURIComponent(params.name));
-          alert('节点被电击了')
+          // alert('节点被电击了')
           console.log(params)
       });
       // var a=0,b=100;

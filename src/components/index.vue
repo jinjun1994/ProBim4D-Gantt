@@ -16,12 +16,12 @@
                     </div>
                     <div class="fr">
                         <ul>
-                            <li>
+                            <!-- <li>
                                 <el-checkbox-group v-model="checkedCharts" @change="cheackedChartsFun">
                                     <el-checkbox :label="'plan'">计划</el-checkbox>
                                     <el-checkbox :label="'actual'">实际</el-checkbox>
                                 </el-checkbox-group>
-                            </li>
+                            </li> -->
                             <li :class="{'no-click':!show3d}"><img src="./mock.svg">模拟</li>
                             <li class="no-click"><img src="./import.svg">导入</li>
                             <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}"><img src="./table.svg">网络图/甘特图</li>

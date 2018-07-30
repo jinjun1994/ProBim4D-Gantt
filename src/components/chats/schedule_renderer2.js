@@ -119,21 +119,31 @@ let createArrowRenderItem = (data, color) => {
     let point = api.coord([_data[dataIndex][0], _data[dataIndex][1]]);
     let startDatePoint = api.coord([_data[dataIndex][5], _data[dataIndex][1]]);
     let graphics = [];
-    
-    
     // if (postPoint) {
-    postPoints && postPoints.forEach(x =>
-      graphics.push({
-        type: 'line',
-        position: point,
-        shape: {
-          y1: x[1] - point[1]
-        },
-        style: {
-          stroke: color,
-          lineWidth: 2
-        },
-      }));
+    // postPoints && postPoints.forEach((x,index) =>
+    //   graphics.push({
+    //     type: 'line',
+    //     position: point,
+    //     shape: {
+    //        y1: x[1] - point[1]
+    //     },
+    //     style: {
+    //       stroke: color,
+    //       lineWidth: 2
+    //     },
+    //   }));
+    //   graphics.push({
+    //     type:'line',
+    //     position:point,
+    //     shape:{
+    //       x1:startDatePoint[0] -point[0]
+    //     },
+    //     style:{
+    //       stroke:color,
+    //       lineWidth:2
+    //     }
+    //   })
+    
     // }
    
     graphics.push({
@@ -147,30 +157,33 @@ let createArrowRenderItem = (data, color) => {
         fill: '#fff'
       }
     });
-    graphics = graphics.concat([{
-      type: 'text',
-      position: point,
-      style: {
-        text: _data[dataIndex][6],
-        textAlign: 'center',
-        textVerticalAlign: 'center'
-      }
-    }, {
-      type: 'path',
-      shape: {
-        pathData: 'M-256 0 1024 512 -256 1024Z',
-        x: -arrowSize - 8,
-        y: -arrowSize / 2,
-        width: arrowSize,
-        height: arrowSize
-      },
-      position: point,
-      style: api.style({
-        stroke: color,
-        fill: color,
-        lineWidth: 1,
-      })
-    }])
+      graphics = graphics.concat([{
+        type: 'text',
+        position: point,
+        style: {
+          text: _data[dataIndex][6],
+          textAlign: 'center',
+          textVerticalAlign: 'center'
+        }
+      }, {
+        type: 'path',
+        shape: {
+          //pathData: 'M-256 0 1024 512 -256 1024Z',
+          pathData: 'M1024 0 512 -512 0 0Z',
+          x: -arrowSize+8,
+          y: arrowSize/2 -1,
+          width: arrowSize,
+          height: arrowSize
+        },
+        position: point,
+        style: api.style({
+          stroke: color,
+          fill: color,
+          lineWidth: 1,
+        })
+      }])
+      
+   
     return {
       type: 'group',
       children: graphics
@@ -457,15 +470,15 @@ class scheduleRenderer {
         lineStyle: {
           color: schedule.color,
           type: 'solid',
-          opacity: 0.4,
+          opacity: 1,
           lineWidth: 2
         },
         data: schedule.schedule,
-        step: 'start'
+        step: 'end'
       })
     });
     this.acturalLinkedSchedule = this.acturalLinkedSchedule
-    this.acturalLinkedSchedule.forEach(schedule => {
+    this.acturalLinkedSchedule.forEach((schedule) => {
       legend_data.push(schedule.business);
       series.push({
         name: schedule.business,

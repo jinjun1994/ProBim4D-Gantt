@@ -362,114 +362,102 @@
 
             },
             submitClick() {
-                // var _this = this
-                // var data = {
-                //     ScheduleName: this.temData.name,
-                //     StartTime: this.temData.startTime,
-                //     IsHaveClimbing: this.temData.useClimbing,
-                //     BasicForm: this.temData.basics,
-                //     ModelLevels: []
-                // }
-                // this.floorTableData.forEach(item => {
-                //     data.ModelLevels.push({
-                //         LevelNumber: item.floorID,
-                //         LevelName: item.floorName,
-                //         LevelCategoryName: item.floorType,
-                //         LevelDscription: item.describe == "双击修改描述" ? '' : item.describe
-                //     })
-                // })
-                // var formData = new FormData()
-                // formData.append('ModelProcess', JSON.stringify(data))
-                // formData.append('ProjectID', window.ProjectID)
-                // formData.append('ModelID', window.ModelID)
-                // this.$axios.post(` ${window.urlConfig}/api/Prj/AutoCreateSchedule`, formData).then(res => {
-                //     if (res.status == 200) {
-                //         _this.$emit('listAddItem')
-                //         _this.temporaryDialog = false
-                //     }
-                // })
-
-
-
-
                 //前端算gantt数据
                 let _this = this
                 let data = []
                 // var date = null
-                // let endTime = null
+                 let rootProcess = null
                 let userInpitTime = new Date(this.temData.startTime)
-                this.floorTableData.forEach((floorTableitem,index)=>{//遍历选择项
-                    this.floorConfig.ProcessNode.forEach((process,processIndex)=>{
-                        this.floorConfig.Process.forEach((processConfig,processConfigIndex)=>{
+                this.floorConfig.ProcessNode.forEach(process => {
+                    if(process.BeforeProcessId == ''){//判断是无前置工序
+                        this.floorConfig.Process.forEach(processConfig=>{
                             if(process.ProcessId == processConfig.ProcessId){
-                                processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
-                                    if(LevelCategory.LevelCategory == floorTableitem.floorType){
-                                            
-                                            if(process.Interval*1){//技术间隔时间
-                                                let date = new Date(userInpitTime)
-                                                _this.recursionReturnNub(process,floorTableitem.floorType)
-                                               _this.formatDate(new Date(date.setDate((date.getDate() + _this.setDateNub))))
-                                               _this.setDateNub = 0
-                                                let datestr = _this.formatDate(new Date(date))
-                                                let formatDateStr = _this.formatDate(new Date(date.setDate((date.getDate() + LevelCategory.LevelCycle*1))))
-                                                data.push({
-                                                    color:processConfig.ProcessColor,
-                                                    TaskStartTime:datestr,
-                                                    TaskID:_this.GUID(),
-                                                    TaskEndTime:formatDateStr,
-                                                    TaskName:process.relationName + '_' + floorTableitem.floorName,
-                                                    TaskPlanStartTime:datestr,
-                                                    TaskPlanEndTime:formatDateStr,
-                                                    Type:process.ProcessNodeName
-
-                                                })
-                                            }else{
-                                                
+                                 this.floorTableData.forEach((floorTableItem,index) =>{
+                                     processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
+                                          if(LevelCategory.LevelCategory == floorTableItem.floorType){
                                                 let formatDateStrat = _this.formatDate(userInpitTime)
-                                                let formatDateStr = _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
-                                                
+                                                let formatDateEnd= _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
                                                 data.push({
                                                     color:processConfig.ProcessColor,
                                                     TaskStartTime:formatDateStrat,
                                                     TaskID:_this.GUID(),
-                                                    TaskEndTime:formatDateStr,
-                                                    TaskName:process.relationName + '_' + floorTableitem.floorName,
+                                                    TaskEndTime:formatDateEnd,
+                                                    TaskName:process.relationName + '_' + floorTableItem.floorName,
                                                     TaskPlanStartTime:formatDateStrat,
-                                                    TaskPlanEndTime:formatDateStr,
+                                                    TaskPlanEndTime:formatDateEnd,
                                                     Type:process.ProcessNodeName
 
                                                 })
-                                            }
-                                           
-                                            
-                                            // data.push({
-                                            //     color:processConfig.ProcessColor,
-                                            //     TaskStartTime:formatDateStrat,
-                                            //     TaskID:_this.GUID(),
-                                            //     TaskEndTime:formatDateStr,
-                                            //     TaskName:process.relationName + '_' + floorTableitem.floorName,
-                                            //     TaskPlanStartTime:formatDateStrat,
-                                            //     TaskPlanEndTime:formatDateStr,
-                                            //     Type:process.ProcessNodeName
-
-                                            // })
-                                    }
-                                    
-                                   
+                                          }
+                                     })
                                 })
                             }
                         })
-                    })
+                       
+
+                    
+                    }
+                });
+
+                // this.floorTableData.forEach((floorTableitem,index)=>{//遍历选择项
+                //     this.floorConfig.ProcessNode.forEach((process,processIndex)=>{
+                //         this.floorConfig.Process.forEach((processConfig)=>{
+                //             if(process.ProcessId == processConfig.ProcessId){
+                //                 processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
+                //                     if(LevelCategory.LevelCategory == floorTableitem.floorType){
+
+                //                             if(process.Interval*1 != 0){//技术间隔时间
+                //                                 let date = new Date(userInpitTime)
+                //                                 _this.recursionReturnNub(process,floorTableitem.floorType)
+                                                
+                //                                new Date(date.setDate((date.getDate() + _this.setDateNub)))
+                //                                 let datestr = _this.formatDate(new Date(date))
+                //                                _this.setDateNub = 0
+                                               
+                //                                 let formatDateStr = _this.formatDate(new Date(date.setDate((date.getDate() + LevelCategory.LevelCycle*1))))
+                //                                 data.push({
+                //                                     color:processConfig.ProcessColor,
+                //                                     TaskStartTime:datestr,
+                //                                     TaskID:_this.GUID(),
+                //                                     TaskEndTime:formatDateStr,
+                //                                     TaskName:process.relationName + '_' + floorTableitem.floorName,
+                //                                     TaskPlanStartTime:datestr,
+                //                                     TaskPlanEndTime:formatDateStr,
+                //                                     Type:process.ProcessNodeName
+
+                //                                 })
+                //                             }else{
+                                                
+                //                                 let formatDateStrat = _this.formatDate(userInpitTime)
+                //                                 let formatDateStr = _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
+                                                
+                //                                 data.push({
+                //                                     color:processConfig.ProcessColor,
+                //                                     TaskStartTime:formatDateStrat,
+                //                                     TaskID:_this.GUID(),
+                //                                     TaskEndTime:formatDateStr,
+                //                                     TaskName:process.relationName + '_' + floorTableitem.floorName,
+                //                                     TaskPlanStartTime:formatDateStrat,
+                //                                     TaskPlanEndTime:formatDateStr,
+                //                                     Type:process.ProcessNodeName
+
+                //                                 })
+                //                             }
+                //                     }
+                                    
+                                   
+                //                 })
+                //             }
+                //         })
+                //     })
                     
                        
-                })
+                // })
                 _this.$emit('saveGanttData',data)
-
-                var a = {
+                _this.$emit('addScheduleListItem',{
                     ScheduleName:this.temData.name,
                     guid:this.GUID()
-                }
-                _this.$emit('addScheduleListItem',a)
+                })
                 _this.temporaryDialog = false
                 
                 
@@ -545,8 +533,19 @@
         },
         mounted() {
             var _this = this
-            this.$axios.get(`${window.urlConfig}/api/sys/GetSchedule`).then(res => {
-                console.log(res)
+            let ComPanyId;
+            if(top.ComPanyId){
+                ComPanyId = top.ComPanyId
+            }else{
+                ComPanyId =  '997223d1-fe87-48df-9eea-cf01c8a57dbf'
+            }
+            this.$axios.get(`https://api.probim.cn/CompanyData/GetCompanyData?CompanyId=${ComPanyId}`).then(res => {
+                if(!res.data.Message){
+                    return false
+                }
+                res.data = JSON.parse(res.data.Message) 
+                
+                res.data = JSON.parse(res.data.JsonData)
                 this.floorConfig = res.data
                 res.data.LevelCategory.forEach(item => {
                     _this.navOptions.push({
