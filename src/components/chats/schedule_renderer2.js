@@ -462,20 +462,37 @@ class scheduleRenderer {
     let data = this.acturalSchedule;
     let legend_data = [];
     let series = [];
-    data.forEach(schedule => {
-      series.push({
-        z: 0,
-        name: schedule.business,
-        type: 'line',
-        lineStyle: {
-          color: schedule.color,
-          type: 'solid',
-          opacity: 1,
-          lineWidth: 2
-        },
-        data: schedule.schedule,
-        step: 'end'
-      })
+    data.forEach((schedule,index) => {
+      if(index == 0){
+        series.push({
+          z: 0,
+          name: schedule.business,
+          type: 'line',
+          lineStyle: {
+            color: schedule.color,
+            type: 'solid',
+            opacity: 1,
+            lineWidth: 2
+          },
+          data: schedule.schedule,
+          step: 'start'
+        })
+      }else{
+        series.push({
+          z: 0,
+          name: schedule.business,
+          type: 'line',
+          lineStyle: {
+            color: schedule.color,
+            type: 'solid',
+            opacity: 1,
+            lineWidth: 2
+          },
+          data: schedule.schedule,
+          step: 'end'
+        })
+      }
+      
     });
     this.acturalLinkedSchedule = this.acturalLinkedSchedule
     this.acturalLinkedSchedule.forEach((schedule) => {

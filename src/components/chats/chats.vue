@@ -45,7 +45,7 @@
               schedule:[]
 
             })
-            passData.forEach(item=>{
+            passData.forEach((item,index1)=>{
               if(item.Type){
                   if(data == item.Type){
                       if(item.color){
@@ -58,7 +58,7 @@
                         initData.time = item.TaskStartTime
                       }
                       
-                      lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime.split('T')[0],lastData[index].schedule.length*1+1])
+                      lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, initData.time,lastData[index].schedule.length*1+1])
                       // if(lastData.schedule.length == 0){
                       //     lastData.schedule.push([item.TaskStartTime,item.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime,lastData.schedule.length*1+1)
                       // }else{
@@ -93,6 +93,14 @@
               
             })
         })
+        lastData.forEach((last,index)=>{
+          last.schedule.reverse()
+            last.schedule.forEach((sc,index1)=>{
+              if(index != 0){ sc[6] = index1 + 1}
+              
+            })
+        })
+        console.log(lastData)
         return lastData
         
       },

@@ -335,7 +335,7 @@
                 this.nub -= 1
                 this.nub == 0?this.nub = -1: this.nub = this.nub
             },
-            recursionReturnNub(item,floorName){
+            recursionReturnNub(item){
                 this.setDateNub += item.Interval*1
                 
                 if(item.BeforeProcessId != ''){
@@ -345,21 +345,20 @@
                                 
                             }else{
                                 this.recursionReturnNub(process)
-                                this.floorConfig.Process.forEach(processConfig=>{
-                                    if(item.ProcessId == processConfig.ProcessId){
-                                        processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
-                                            if(LevelCategory.LevelCategory == floorName){
-                                                this.setDateNub += LevelCategory.LevelCycle*1
-                                            }
-                                        })
-                                    }
-                                })
                             }
                             
                         }
                     })
                 }
 
+            },
+            floorNameToNubmer(str){
+                var nub = str.split('F')[0] * 1
+                if(nub == -1){
+                    return 1
+                }else{
+                    return nub +=1
+                }
             },
             submitClick() {
                 //前端算gantt数据
@@ -368,7 +367,11 @@
                 // var date = null
                  let rootProcess = null
                 let userInpitTime = new Date(this.temData.startTime)
+                let absoluteStartData = [],absoluteEndData=[]
+                var judge = false
                 this.floorConfig.ProcessNode.forEach(process => {
+                    
+
                     if(process.BeforeProcessId == ''){//判断是无前置工序
                         this.floorConfig.Process.forEach(processConfig=>{
                             if(process.ProcessId == processConfig.ProcessId){
@@ -377,6 +380,8 @@
                                           if(LevelCategory.LevelCategory == floorTableItem.floorType){
                                                 let formatDateStrat = _this.formatDate(userInpitTime)
                                                 let formatDateEnd= _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
+                                                absoluteStartData.push(formatDateStrat)
+                                                absoluteEndData.push(formatDateEnd)
                                                 data.push({
                                                     color:processConfig.ProcessColor,
                                                     TaskStartTime:formatDateStrat,
@@ -396,6 +401,48 @@
                        
 
                     
+                    }else{
+                        if(!judge){
+                            this.floorTableData.reverse()
+                            judge = true
+                        }
+                        this.setDateNub = 0
+                        this.recursionReturnNub(process)
+                        let absoluteDate = new Date(absoluteEndData[absoluteEndData.length-1])
+                        absoluteDate.setDate(absoluteDate.getDate() + this.setDateNub)
+                        this.floorConfig.Process.forEach(processConfig=>{
+                            if(process.ProcessId == processConfig.ProcessId){
+                                 this.floorTableData.forEach((floorTableItem,index) =>{
+                                     processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
+                                          if(LevelCategory.LevelCategory == floorTableItem.floorType){
+                                                let formatDateStrat
+                                                if(index == 0){
+                                                    formatDateStrat = _this.formatDate(absoluteDate)
+                                                }else{
+                                                    absoluteDate.setDate(absoluteDate.getDate() - (LevelCategory.LevelCycle*1))
+                                                    formatDateStrat = _this.formatDate(absoluteDate)
+                                                }
+                                                 
+                                                 let formatDateStratStr = new Date(formatDateStrat)
+                                                 formatDateStratStr.setDate(formatDateStratStr.getDate() + LevelCategory.LevelCycle*1 ) 
+                                                 let formatDateEnd= _this.formatDate(formatDateStratStr)
+                                                data.push({
+                                                    color:processConfig.ProcessColor,
+                                                    TaskStartTime:formatDateStrat,
+                                                    TaskID:_this.GUID(),
+                                                    TaskEndTime:formatDateEnd,
+                                                    TaskName:process.relationName + '_' + floorTableItem.floorName,
+                                                    TaskPlanStartTime:formatDateStrat,
+                                                    TaskPlanEndTime:formatDateEnd,
+                                                    Type:process.ProcessNodeName
+
+                                                })
+                                          }
+                                     })
+                                })
+                            }
+                        })
+                        
                     }
                 });
 

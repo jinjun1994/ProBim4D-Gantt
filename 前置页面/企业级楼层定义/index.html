@@ -953,7 +953,7 @@
                     if (res.data.Message == null) return false
                     res.data = JSON.parse(res.data.Message)
                 	if(res.data.CompanydataId){
-                		this.KeyVal = CompanydataId
+                		this.KeyVal = res.data.CompanydataId
                 	}
                     res.data = JSON.parse(res.data.JsonData)
                 	console.log(res)
