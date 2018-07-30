@@ -628,6 +628,7 @@
                     },
                     relationNameOptions: [],
                     prepositionNodeOptions: [],
+                    KeyVal:''
 
                 }
             },
@@ -764,12 +765,40 @@
 
                         })
                     })
-                    console.log(schedule)
-                    var formData = new FormData()
-                    formData.append('Schedule', JSON.stringify(schedule))
-                    axios.post(`${this.urlConfig}/api/Sys/AddOrUpdateSchedule`, formData).then(res => {
-                        top.dialogClose('OuterPage_Setting')
-                    })
+                    // formData.append('Schedule', JSON.stringify(schedule))
+                    let CompanyId = null
+                    if (top.CompanyId) {
+                        CompanyId = top.CompanyId
+                    } else {
+                        CompanyId = '997223d1-fe87-48df-9eea-cf01c8a57dbf'
+                    }
+                    
+                    if(this.KeyVal == ''){
+                    	var obj = {
+	                    	CompanyId:CompanyId,
+	                    	JsonData:JSON.stringify(schedule)
+	                    }
+                    	top.$.post(`${this.urlConfig}/CompanyData/Save`, obj, function (res) {
+	                        console.log(res)
+	                        top.dialogClose('OuterPage_Setting')
+	                    }, 'json')
+                    }else{
+                    	var obj ={
+                    		KeyVal:this.KeyVal,
+                    		CompanyId:CompanyId,
+	                    	JsonData:JSON.stringify(schedule)
+                    	}
+                    	top.$.post(`${this.urlConfig}/CompanyData/Update`, obj, function (res) {
+	                        console.log(res)
+	                        top.dialogClose('OuterPage_Setting')
+	                    }, 'json')
+                    }
+                    
+                    //axios.post(`${this.urlConfig}/CompanyData/Save`, obj, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(res => {
+                    //    top.dialogClose('OuterPage_Setting')
+                    //}).catch(res => {
+                    //    console.log(res)
+                    //})
 
                 },
                 procedureAddDialogCancel() {
@@ -912,9 +941,22 @@
             },
             mounted() {
                 
-                this.urlConfig = "https://bimcomposer.probim.cn"
-                axios.get(`${this.urlConfig}/api/sys/GetSchedule`).then(res=>{
-                    console.log(res)
+                this.urlConfig = "https://api.probim.cn"
+                let CompanyId = null
+                if(top.CompanyId){
+                	CompanyId = top.CompanyId
+                }else{
+                	CompanyId = '997223d1-fe87-48df-9eea-cf01c8a57dbf'
+                }
+                axios.get(`${this.urlConfig}/CompanyData/GetCompanyData?CompanyId=${CompanyId}`).then(res=>{
+                	console.log(res)
+                    if (res.data.Message == null) return false
+                    res.data = JSON.parse(res.data.Message)
+                	if(res.data.CompanydataId){
+                		this.KeyVal = CompanydataId
+                	}
+                    res.data = JSON.parse(res.data.JsonData)
+                	console.log(res)
                     if(res.data.LevelCategory.length>0){
                         res.data.LevelCategory.forEach(item=>{//类型定义
                             this.tableData.push({
