@@ -220,7 +220,7 @@
       },
       requestItems() {
         this.$axios(
-          `${window.urlConfig}/api/Prj/GetModelSchedules?ProjectID=${ window.ProjectID}&ModelID=${window.ModelID}`
+          `${window.urlConfig}/api/Prj/GetScheduleByModel?ProjectID=${ window.ProjectID}&ModelID=${window.ModelID}`
         ).then(res => {
           console.log(res.data);
           if (res.data.length > 0) {

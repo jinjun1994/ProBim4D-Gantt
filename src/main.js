@@ -9,7 +9,7 @@ import axios from 'axios'
 import ElementUI from 'element-ui'
 import "babel-polyfill"
 // Vue.use(vuex)
- require('./mock.js')
+//  require('./mock.js')
 Vue.use(ElementUI)
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios

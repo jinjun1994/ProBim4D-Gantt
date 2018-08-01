@@ -33,6 +33,7 @@ let createPlannedArrowRenderItem = (data, color) => {
           height: arrowSize
         },
         position: point,
+
         style: api.style({
           stroke: color,
           fill: color,
@@ -109,8 +110,8 @@ let createArrowRenderItem = (data, color) => {
     let postDataIndex = dataIndex + 1;
     let preData = preDataIndex > -1 ? _data[preDataIndex] : null;
     let postData = postDataIndex < _data.length ? _data[postDataIndex] : null;
-    // let prePoint = preData && api.coord([preData[0], preData[1]]);
-    let prePoint = key_data[_data[dataIndex][4]];
+     let prePoint = preData && api.coord([preData[0], preData[1]]);
+    // let prePoint = key_data[_data[dataIndex][4]];
     let postPoint = postData && api.coord([postData[0], postData[1]]);
     let postPointIds = key_index[_data[dataIndex][2]];
     let postPoints = postPointIds && postPointIds.map(x => {
@@ -119,13 +120,15 @@ let createArrowRenderItem = (data, color) => {
     let point = api.coord([_data[dataIndex][0], _data[dataIndex][1]]);
     let startDatePoint = api.coord([_data[dataIndex][5], _data[dataIndex][1]]);
     let graphics = [];
+
+    
     // if (postPoint) {
     // postPoints && postPoints.forEach((x,index) =>
     //   graphics.push({
     //     type: 'line',
     //     position: point,
     //     shape: {
-    //        y1: x[1] - point[1]
+    //        y1: startDatePoint[0] -point[0]
     //     },
     //     style: {
     //       stroke: color,
@@ -136,7 +139,7 @@ let createArrowRenderItem = (data, color) => {
     //     type:'line',
     //     position:point,
     //     shape:{
-    //       x1:startDatePoint[0] -point[0]
+    //       x1:x[1] - point[1]
     //     },
     //     style:{
     //       stroke:color,
@@ -168,10 +171,10 @@ let createArrowRenderItem = (data, color) => {
       }, {
         type: 'path',
         shape: {
-          //pathData: 'M-256 0 1024 512 -256 1024Z',
-          pathData: 'M1024 0 512 -512 0 0Z',
-          x: -arrowSize+8,
-          y: arrowSize/2 -1,
+          pathData: 'M-256 0 1024 512 -256 1024Z',
+          //pathData: 'M1024 0 512 -512 0 0Z',
+          x: -arrowSize - 8,
+          y: arrowSize/2 -14 ,
           width: arrowSize,
           height: arrowSize
         },
@@ -181,12 +184,14 @@ let createArrowRenderItem = (data, color) => {
           fill: color,
           lineWidth: 1,
         })
-      }])
+      },
+    ])
       
    
     return {
       type: 'group',
       children: graphics
+      
     }
 
 
@@ -443,7 +448,7 @@ class scheduleRenderer {
         type: 'value',
         boundaryGap: [0, '100%'],
         max: 33,
-        min: -2,
+        min: -3,
         scale: true,
         interval: 1,
         splitLine: {
@@ -475,7 +480,7 @@ class scheduleRenderer {
             lineWidth: 2
           },
           data: schedule.schedule,
-          step: 'start'
+          step: 'end'
         })
       }else{
         series.push({
@@ -489,7 +494,7 @@ class scheduleRenderer {
             lineWidth: 2
           },
           data: schedule.schedule,
-          step: 'end'
+          step: 'start'
         })
       }
       

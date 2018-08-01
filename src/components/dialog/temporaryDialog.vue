@@ -390,7 +390,7 @@
                                                     TaskName:process.relationName + '_' + floorTableItem.floorName,
                                                     TaskPlanStartTime:formatDateStrat,
                                                     TaskPlanEndTime:formatDateEnd,
-                                                    Type:process.ProcessNodeName
+                                                    Category:process.ProcessNodeName
 
                                                 })
                                           }
@@ -413,18 +413,21 @@
                         this.floorConfig.Process.forEach(processConfig=>{
                             if(process.ProcessId == processConfig.ProcessId){
                                  this.floorTableData.forEach((floorTableItem,index) =>{
-                                     processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
-                                          if(LevelCategory.LevelCategory == floorTableItem.floorType){
+                                     for(let i = 0;i<processConfig.LevelCategory2Cycle.length;i++){
+                                         if(processConfig.LevelCategory2Cycle[i].LevelCycle == 0){
+                                             continue
+                                         }
+                                         if(processConfig.LevelCategory2Cycle[i].LevelCategory == floorTableItem.floorType){
                                                 let formatDateStrat
                                                 if(index == 0){
                                                     formatDateStrat = _this.formatDate(absoluteDate)
                                                 }else{
-                                                    absoluteDate.setDate(absoluteDate.getDate() - (LevelCategory.LevelCycle*1))
+                                                    absoluteDate.setDate(absoluteDate.getDate() - (processConfig.LevelCategory2Cycle[i].LevelCycle*1))
                                                     formatDateStrat = _this.formatDate(absoluteDate)
                                                 }
                                                  
                                                  let formatDateStratStr = new Date(formatDateStrat)
-                                                 formatDateStratStr.setDate(formatDateStratStr.getDate() + LevelCategory.LevelCycle*1 ) 
+                                                 formatDateStratStr.setDate(formatDateStratStr.getDate() + processConfig.LevelCategory2Cycle[i].LevelCycle*1 ) 
                                                  let formatDateEnd= _this.formatDate(formatDateStratStr)
                                                 data.push({
                                                     color:processConfig.ProcessColor,
@@ -434,11 +437,37 @@
                                                     TaskName:process.relationName + '_' + floorTableItem.floorName,
                                                     TaskPlanStartTime:formatDateStrat,
                                                     TaskPlanEndTime:formatDateEnd,
-                                                    Type:process.ProcessNodeName
+                                                    Category:process.ProcessNodeName
 
                                                 })
                                           }
-                                     })
+                                     }
+                                    //  processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
+                                    //       if(LevelCategory.LevelCategory == floorTableItem.floorType){
+                                    //             let formatDateStrat
+                                    //             if(index == 0){
+                                    //                 formatDateStrat = _this.formatDate(absoluteDate)
+                                    //             }else{
+                                    //                 absoluteDate.setDate(absoluteDate.getDate() - (LevelCategory.LevelCycle*1))
+                                    //                 formatDateStrat = _this.formatDate(absoluteDate)
+                                    //             }
+                                                 
+                                    //              let formatDateStratStr = new Date(formatDateStrat)
+                                    //              formatDateStratStr.setDate(formatDateStratStr.getDate() + LevelCategory.LevelCycle*1 ) 
+                                    //              let formatDateEnd= _this.formatDate(formatDateStratStr)
+                                    //             data.push({
+                                    //                 color:processConfig.ProcessColor,
+                                    //                 TaskStartTime:formatDateStrat,
+                                    //                 TaskID:_this.GUID(),
+                                    //                 TaskEndTime:formatDateEnd,
+                                    //                 TaskName:process.relationName + '_' + floorTableItem.floorName,
+                                    //                 TaskPlanStartTime:formatDateStrat,
+                                    //                 TaskPlanEndTime:formatDateEnd,
+                                    //                 Type:process.ProcessNodeName
+
+                                    //             })
+                                    //       }
+                                    //  })
                                 })
                             }
                         })
@@ -500,11 +529,53 @@
                     
                        
                 // })
-                _this.$emit('saveGanttData',data)
-                _this.$emit('addScheduleListItem',{
+                if(data.length > 0){
+                let str = data[0].color,arr1=[],arr2=[];
+                data.forEach(item => {
+                    if(str == item.color){
+                        arr1.push(item)
+                    }else{
+                        arr2.push(item)
+                    }
+                });
+                data = arr1.concat(arr2.reverse())
+                }
+                var formData = new FormData()
+                formData.append('ProjectID',window.ProjectID)
+                var obj = {
+                    ModelID:window.ModelID,
                     ScheduleName:this.temData.name,
-                    guid:this.GUID()
+                    ScheduleStartTime:this.temData.startTime,
+                    ExternalField:JSON.stringify(data)
+                }
+                formData.append('Schedule',JSON.stringify(obj))
+                // var obj = {
+                //     ProjectID:window.ProjectID,
+                //     Schedule:{
+                //         ModelID:window.ModelID,
+                //         ScheduleName:this.temData.name,
+                //         DateTime:this.temData.startTime,
+                //         ExternalField:data
+
+
+                //     }
+                // }
+                this.$axios.post(`${window.urlConfig}/api/Prj/AddSchedule`,formData).then(res=>{
+                     _this.$emit('listAddItem')
+                     var formData1 = new FormData()
+                     formData1.append('ProjectID',window.ProjectID)
+                     formData1.append('ScheduleTasks',JSON.stringify(data))
+                    this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`,formData1).then(res=>{
+                        console.log(res)
+                    }).catch(res=>{
+                        console.log('批量添加数据错误，原因' + res)
+                    })
+                }).catch(res=>{
+                   
+                    console.log('创建数据错误，原因：'+ res)
                 })
+                //  _this.$emit('saveGanttData',data)
+                
                 _this.temporaryDialog = false
                 
                 

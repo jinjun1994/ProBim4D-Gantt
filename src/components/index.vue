@@ -171,7 +171,7 @@
         data() {
             return {
                 checkedCharts:[],
-                ganttData:{},
+                ganttData:'',
                 showGantt: true,
                 tasks: {
                     data: [],
@@ -218,7 +218,7 @@
                 //         taskArrData = task
                 //     }
                 // })
-                this.ganttOrChartsData.forEach(item=>{
+                this.ganttData.forEach(item=>{
                     if(item.TaskID == task.id){
                         item.TaskStartTime = this.serverDateInit(task.start_date)
                         item.TaskEndTime = this.serverDateInit(task.end_date)
@@ -230,7 +230,6 @@
             },
             saveGanttData(data){
                 this.ganttData = data
-                console.log(this.ganttData)
                 this.requestData()
                 
             },
@@ -250,7 +249,7 @@
                     message: '新建进度方案成功',
                     type: 'success'
                 });
-                // this.$refs.scheduleList.requestItems()
+                this.$refs.scheduleList.requestItems()
             },
             temporaryDialogShow() { //临时弹层出发
                 this.$refs.temporaryDialog.temporaryDialog = true
@@ -347,37 +346,36 @@
                 return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
             },
             requestData(item) {
-                // if (!item) {
-                //     return;
-                // }
-                // const loading = this.$loading({
-                //     lock: true,
-                //     text: 'Loading',
-                //     spinner: 'el-icon-loading',
-                //     background: 'rgba(0, 0, 0, 0.5)'
-                // });
-                if(this.showGantt){
-                    this.initGantt()
-                }else{
-                    console.log(this.ganttData)
-                    this.$refs.chats.chartRender(_this.ganttData)
+                if (!item) {
+                    return;
                 }
-                // this.selectItem = item
-                // window.ScheduleID = item.ScheduleID;
-                // var _this = this;
-                // this.selectScheduleID = item.ScheduleID;
-                // this.$axios.get(`${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${item.ScheduleID}&&IsGantt=true`).then(res=>{
-                //      _this.ganttOrChartsData = res.data
-                //      if(_this.showGantt){
-                //            _this.initGantt()
-                //      }else{
-                //          _this.$refs.chats.chartRender(_this.ganttOrChartsData)
-                //      }
-                //       loading.close()
-                // }).catch(res=>{
-                //     console.log('甘特图接口报错' + res)
-                //      loading.close()
-                // })
+                const loading = this.$loading({//loading
+                    lock: true,
+                    text: 'Loading',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.5)'
+                });
+                loading.close()
+                // if(this.showGantt){
+                //     this.initGantt()
+                // }else{
+                //     console.log(this.ganttData)
+                //     this.$refs.chats.chartRender(_this.ganttData)
+                // }
+                this.selectItem = item
+                window.ScheduleID = item.ScheduleID;
+                var _this = this;
+                this.selectScheduleID = item.ScheduleID;
+                // var formData = new FormData()
+                // formData.append('ProjectID',window.ProjectID)
+                // formData.append('ScheduleID',item.ScheduleID)
+                this.$axios.get(`${window.urlConfig}/api/Prj/GetScheduleTasks?ProjectID=${window.ProjectID}&ScheduleID=${item.ScheduleID}`).then(res=>{
+                    console.log(res)
+                    loading.close()
+                }).catch(res=>{
+                    console.log('gantt接口报错，原因' + res)
+                    loading.close()
+                })
                 
             },
             initGantt(){
@@ -427,12 +425,12 @@
             }
         },
         created() {
+            
+            window.urlConfig = "https://bimcomposer.probim.cn";
             if (this.getQueryString('ProjectID') == null) {
-                window.urlConfig = "https://bimcomposer.probim.cn";
                 window.ProjectID = "7e951a17-556b-46ee-9fb8-634d97940635";
                 window.ModelID = "c1e76e74-220c-4bee-93ce-b1779fa3e70c"
             } else {
-                window.urlConfig = this.getQueryString('urlConfig')
                 window.ProjectID = this.getQueryString('ProjectID')
                 window.ModelID = this.getQueryString('ModelID')
             }

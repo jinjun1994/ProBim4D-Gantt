@@ -26,8 +26,8 @@
         passData?passData = passData: passData = this.$props.ganttData
         let dataNub = [],lastData =[];
        passData.forEach(item => {//获取所有类型
-            if(item.Type){
-                dataNub.push(item.Type)
+            if(item.Category){
+                dataNub.push(item.Category)
             }else{
               dataNub.push(item.FlowSection)
             }
@@ -38,6 +38,7 @@
           Guid:"00000000-0000-0000-0000-000000000000",
           time:''
         }
+        
         dataNub.forEach((data,index)=>{
             lastData.push({
               business:data,
@@ -45,9 +46,13 @@
               schedule:[]
 
             })
+            initData = {
+          Guid:"00000000-0000-0000-0000-000000000000",
+          time:''
+        }
             passData.forEach((item,index1)=>{
-              if(item.Type){
-                  if(data == item.Type){
+              if(item.Category){
+                  if(data == item.Category){
                       if(item.color){
                         lastData[index].color = item.color
                       }else{
@@ -58,7 +63,7 @@
                         initData.time = item.TaskStartTime
                       }
                       
-                      lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, initData.time,lastData[index].schedule.length*1+1])
+                      lastData[index].schedule.push([item.TaskEndTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskStartTime.split('T')[0],lastData[index].schedule.length*1+1])
                       // if(lastData.schedule.length == 0){
                       //     lastData.schedule.push([item.TaskStartTime,item.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime,lastData.schedule.length*1+1)
                       // }else{
@@ -96,7 +101,11 @@
         lastData.forEach((last,index)=>{
           last.schedule.reverse()
             last.schedule.forEach((sc,index1)=>{
-              if(index != 0){ sc[6] = index1 + 1}
+              if(index != 0){
+                 sc[6] = index1 + 1
+              }else if(sc[1] * 1  == -1){
+                sc[4] = '00000000-0000-0000-0000-000000000000'
+              }
               
             })
         })
@@ -105,7 +114,15 @@
         
       },
       initFloorNameToNub(str){//xxxx_1F => 1
-          return str.split('_')[1].split('F')[0]*1
+          // return str.split('_')[1].split('F')[0]*1
+          var a =  str.split('_')[1].split('F')[0]*1
+          if(a == -1) {
+            return -2
+          }else if(a == 1){
+            return -1
+          }else{
+            return a -1
+          }
       },
       reLoadChat() {
         this.chart.resize();

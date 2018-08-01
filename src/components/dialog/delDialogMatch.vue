@@ -68,6 +68,11 @@
             .then(res => {
               console.log(res);
               this.$emit("requestItems");
+              this.$message({
+                    showClose: true,
+                    message: '删除成功',
+                    type: 'success'
+                });
               this.showDialog = false;
             })
             .catch(res => {
