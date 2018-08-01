@@ -99,7 +99,7 @@
             })
         })
         lastData.forEach((last,index)=>{
-          last.schedule.reverse()
+          // last.schedule.reverse()
             last.schedule.forEach((sc,index1)=>{
               if(index != 0){
                  sc[6] = index1 + 1

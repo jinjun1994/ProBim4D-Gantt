@@ -139,7 +139,7 @@
                     formData.append('ProjectID', window.ProjectID)
                     formData.append('ModelID', window.ModelID)
                     formData.append('ScheduleTask', JSON.stringify(data))
-                    this.$axios.post(`${window.urlConfig}/api/Prj/AddOrUpdateScheduleTask`, formData).then(res => {
+                    this.$axios.post(`${window.urlConfig}/api/Prj/UpateScheduleTask`, formData).then(res => {
                         _this.$emit('operationGanttAddView', false)
                         // gantt.changeTaskId(id, res.data);
                         _this.Repaint()
@@ -148,8 +148,14 @@
                     })
                 });
                 gantt.attachEvent("onAfterTaskDelete", id => {
-                    this.$axios.get(`${window.urlConfig}/api/Prj/DeleteScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${this.$props.selectScheduleID}&ScheduleTaskID=${id}`).then(res => {
+                    
+                    this.$axios.get(`${window.urlConfig}/api/Prj/DeleteScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${this.$props.selectScheduleID}&ScheduleTaskIDs=${id}`).then(res => {
                         console.log('成功删除任务' + res)
+                        this.$message({
+                            showClose: true,
+                            message: '删除任务成功',
+                            type: 'success'
+                        });
                         _this.$emit('operationGanttAddView', false)
                     }).catch(res => {
                         console.log('甘特图删除错误，原因' + res)
@@ -266,7 +272,7 @@
                     var el = document.createElement('div')
                     el.innerHTML = task.text + '--计划时间'
                     el.className = 'baseline'
-                    el.style.left = sizes.left + 'px'
+                    el.style.left = sizes.left-23 + 'px'
                     el.style.width = sizes.width + 'px'
                     el.style.top = sizes.top + gantt.config.task_height + 13 + 'px'
                     return el;

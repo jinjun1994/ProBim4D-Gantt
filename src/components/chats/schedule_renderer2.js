@@ -468,8 +468,7 @@ class scheduleRenderer {
     let legend_data = [];
     let series = [];
     data.forEach((schedule,index) => {
-      if(index == 0){
-        series.push({
+          series.push({
           z: 0,
           name: schedule.business,
           type: 'line',
@@ -480,23 +479,36 @@ class scheduleRenderer {
             lineWidth: 2
           },
           data: schedule.schedule,
-          step: 'end'
-        })
-      }else{
-        series.push({
-          z: 0,
-          name: schedule.business,
-          type: 'line',
-          lineStyle: {
-            color: schedule.color,
-            type: 'solid',
-            opacity: 1,
-            lineWidth: 2
-          },
-          data: schedule.schedule,
-          step: 'start'
-        })
-      }
+          step: 'start'})
+      // if(index == 0){
+      //   series.push({
+      //     z: 0,
+      //     name: schedule.business,
+      //     type: 'line',
+      //     lineStyle: {
+      //       color: schedule.color,
+      //       type: 'solid',
+      //       opacity: 1,
+      //       lineWidth: 2
+      //     },
+      //     data: schedule.schedule,
+      //     step: 'end'
+      //   })
+      // }else{
+      //   series.push({
+      //     z: 0,
+      //     name: schedule.business,
+      //     type: 'line',
+      //     lineStyle: {
+      //       color: schedule.color,
+      //       type: 'solid',
+      //       opacity: 1,
+      //       lineWidth: 2
+      //     },
+      //     data: schedule.schedule,
+      //     step: 'start'
+      //   })
+      // }
       
     });
     this.acturalLinkedSchedule = this.acturalLinkedSchedule

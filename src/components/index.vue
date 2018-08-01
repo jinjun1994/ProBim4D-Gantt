@@ -342,6 +342,7 @@
                 if (!time) {
                     return null;
                 }
+                time = time.split('T')[0]
                 var date = new Date(time);
                 return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
             },
@@ -356,12 +357,7 @@
                     background: 'rgba(0, 0, 0, 0.5)'
                 });
                 loading.close()
-                // if(this.showGantt){
-                //     this.initGantt()
-                // }else{
-                //     console.log(this.ganttData)
-                //     this.$refs.chats.chartRender(_this.ganttData)
-                // }
+                
                 this.selectItem = item
                 window.ScheduleID = item.ScheduleID;
                 var _this = this;
@@ -371,6 +367,16 @@
                 // formData.append('ScheduleID',item.ScheduleID)
                 this.$axios.get(`${window.urlConfig}/api/Prj/GetScheduleTasks?ProjectID=${window.ProjectID}&ScheduleID=${item.ScheduleID}`).then(res=>{
                     console.log(res)
+                    this.ganttData = res.data
+                    this.ganttData.forEach(item=>{
+                        item.Type = item.Category
+                        item.color = item.Color
+                    })
+                    if(this.showGantt){
+                        this.initGantt()
+                    }else{
+                        this.$refs.chats.chartRender(_this.ganttData)
+                    }
                     loading.close()
                 }).catch(res=>{
                     console.log('gantt接口报错，原因' + res)
@@ -387,8 +393,8 @@
                          start_date: this.initDate(item.TaskStartTime),
                          end_date: this.initDate(item.TaskEndTime),
                          parent: item.ParentID,
-                         plan_start_date: this.initDate(item.TaskPlanStartTime) ? item.TaskPlanStartTime : "",
-                         plan_end_date: this.initDate(item.TaskPlanEndTime) ?item.TaskPlanEndTime : "",
+                         plan_start_date: this.initDate(item.TaskPlanStartTime) ? item.TaskPlanStartTime.split('T')[0] : "",
+                         plan_end_date: this.initDate(item.TaskPlanEndTime) ?item.TaskPlanEndTime.split('T')[0] : "",
                          additionaltext: this.FilterValue
                      }
                      this.tasks.data.push(data)

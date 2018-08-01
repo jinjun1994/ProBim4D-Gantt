@@ -564,7 +564,12 @@
                      _this.$emit('listAddItem')
                      var formData1 = new FormData()
                      formData1.append('ProjectID',window.ProjectID)
+                     data.forEach(item=>{
+                         item.ScheduleID = res.data
+                         item.Color = item.color
+                     })
                      formData1.append('ScheduleTasks',JSON.stringify(data))
+
                     this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`,formData1).then(res=>{
                         console.log(res)
                     }).catch(res=>{
