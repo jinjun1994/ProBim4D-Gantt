@@ -144,7 +144,7 @@
                     this.$emit('upDatedGanttDateToCharts',task)
                     formData.append('ProjectID', window.ProjectID)
                     // formData.append('ModelID', window.ModelID)
-                    formData.append('Schedule', JSON.stringify(data))
+                    formData.append('ScheduleTask', JSON.stringify(data))
                     this.$axios.post(`${window.urlConfig}/api/Prj/UpdateScheduleTask`, formData).then(res => {
                         _this.$emit('operationGanttAddView', false)
                         // gantt.changeTaskId(id, res.data);
