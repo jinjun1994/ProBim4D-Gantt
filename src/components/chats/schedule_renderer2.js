@@ -400,15 +400,16 @@ class scheduleRenderer {
       // },
 
       grid: {
-        y: 20,
+        y: 30,
         x2: 50,
+        left: '3%'
       },
       color: legendColor,
       legend: {
         data: legend_data,
-        orient: 'vertical', //垂直显示
-        y: 'center', //延Y轴居中
-        x: 'left' //居右显示
+        orient: 'horizontal', //垂直显示
+        y: 'top', //延Y轴居中
+        x: 'center' //居右显示
       },
       xAxis: {
         type: 'time',

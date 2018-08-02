@@ -546,7 +546,7 @@
                     ModelID:window.ModelID,
                     ScheduleName:this.temData.name,
                     ScheduleStartTime:this.temData.startTime,
-                    ExternalField:JSON.stringify(data)
+                    ExternalField:JSON.stringify(this.floorTableData)
                 }
                 formData.append('Schedule',JSON.stringify(obj))
                 // var obj = {

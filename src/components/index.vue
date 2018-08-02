@@ -395,7 +395,14 @@
                          parent: item.ParentID,
                          plan_start_date: this.initDate(item.TaskPlanStartTime) ? item.TaskPlanStartTime.split('T')[0] : "",
                          plan_end_date: this.initDate(item.TaskPlanEndTime) ?item.TaskPlanEndTime.split('T')[0] : "",
-                         additionaltext: this.FilterValue
+                         additionaltext: this.FilterValue,
+                         Category:item.Category,
+                         Color:item.Color,
+                         ScheduleID:item.ScheduleID,
+                         TaskDesc:item.TaskDesc,
+                         ExternalProperty:item.ExternalProperty,
+                         HasChildren:item.HasChildren,
+                         Section:item.Section
                      }
                      this.tasks.data.push(data)
                  })

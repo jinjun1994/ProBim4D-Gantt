@@ -129,17 +129,23 @@
                         TaskEndTime: _this.initCnDate(task.end_date),
                         TaskPlanStartTime: _this.initCnDate(task.plan_start_date),
                         TaskPlanEndTime: _this.initCnDate(task.plan_end_date),
+                        Color:task.Color,
+                        Category:task.Category,
+                        Section:task.Section,
+                        HasChildren:task.HasChildren,
+                        ExternalProperty:task.ExternalProperty,
+                        TaskDesc:task.TaskDesc
                     }
                     if (task.parent == 0) {
-                        data.ParentId = ''
+                        data.ParentID = ''
                     } else {
                         data.ParentID = task.parent
                     }
                     this.$emit('upDatedGanttDateToCharts',task)
                     formData.append('ProjectID', window.ProjectID)
-                    formData.append('ModelID', window.ModelID)
-                    formData.append('ScheduleTask', JSON.stringify(data))
-                    this.$axios.post(`${window.urlConfig}/api/Prj/UpateScheduleTask`, formData).then(res => {
+                    // formData.append('ModelID', window.ModelID)
+                    formData.append('Schedule', JSON.stringify(data))
+                    this.$axios.post(`${window.urlConfig}/api/Prj/UpdateScheduleTask`, formData).then(res => {
                         _this.$emit('operationGanttAddView', false)
                         // gantt.changeTaskId(id, res.data);
                         _this.Repaint()
