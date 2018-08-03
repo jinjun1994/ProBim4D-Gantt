@@ -11,6 +11,26 @@
                         <el-form-item label=" " prop="name">
                             <el-input v-model="ruleForm.name" placeholder="请输入进度名称"></el-input>
                         </el-form-item>
+                        <el-form-item label=" " prop="floor">
+                            <el-select v-model="ruleForm.floor" placeholder="请选择楼层">
+                                <el-option
+                                v-for="item in floorSelect"
+                                :key="item"
+                                :label="item"
+                                :value="item">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label=" " prop="floor">
+                           <el-select v-model="ruleForm.type" placeholder="请选择工序">
+                                <el-option
+                                v-for="item in floorConfig.ProcessNode"
+                                :key="item.ProcessId"
+                                :label="item.ProcessNodeName"
+                                :value="item.ProcessId">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
                         <el-form-item label=" " prop="actualdate">
                             <el-date-picker v-model="ruleForm.actualdate" type="daterange" align="left" size='small' unlink-panels range-separator="-" start-placeholder="实际开始日期" end-placeholder="实际结束日期">
                             </el-date-picker>
@@ -37,6 +57,16 @@
     </div>
 </template>
 <style>
+.el-select{
+    height: 30px;
+    line-height: 30px;
+}
+.el-form-item__content{
+    line-height: 30px;
+}
+.el-select .el-input .el-select__caret{
+    line-height: 30px;
+}
     .gantt-add-dialog {
         position: fixed;
         top: 0;
@@ -47,7 +77,7 @@
     }
     .add-center {
         width: 400px;
-        height: 280px;
+        height: 360px;
         background: #fff;
         position: absolute;
         top: 0;
@@ -88,11 +118,18 @@
                         plandate: "",
                         actualdate: '',
                         additionaltext: "",
+                        type:"",
+                        floor:"",
                         judgeAdd: null
                     };
                 }
             },
-            selectScheduleID: String,
+            selectSchedule: {
+                type:Object,
+                default(){
+                    return {}
+                }
+            },
             taskDefault: {
                 type: Object,
                 default () {
@@ -114,6 +151,11 @@
                         }
                         // { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
                     ],
+                    floor:[{
+                        required:true,
+                        message:" ",
+                         trigger: "blur"
+                    }],
                     actualdate: [{
                         required: true,
                         message: " ",
@@ -125,6 +167,8 @@
                         trigger: "blur"
                     }]
                 },
+                floorConfig:'',
+                floorSelect:[]
             }
         },
         methods: {
@@ -170,7 +214,22 @@
             }
         },
         mounted() {
-            console.log(this.$props.ruleForm)
+            var _this = this
+            let ComPanyId;
+            if(top.ComPanyId){
+                ComPanyId = top.ComPanyId
+            }else{
+                ComPanyId =  '997223d1-fe87-48df-9eea-cf01c8a57dbf'
+            }
+            this.$axios.get(`https://api.probim.cn/CompanyData/GetCompanyData?CompanyId=${ComPanyId}`).then(res => {
+                if(!res.data.Message){
+                    return false
+                }
+                res.data = JSON.parse(res.data.Message) 
+                
+                res.data = JSON.parse(res.data.JsonData)
+               this.floorConfig = res.data
+            })
         },
         watch: {
             /*
@@ -211,6 +270,11 @@
                     this.$props.ruleForm.plandate = []
                     this.$props.ruleForm.actualdate = []
                     this.$props.ruleForm.additionaltext = ''
+                }else{
+                    let w = JSON.parse(this.$props.selectSchedule.ExternalField)
+                    w.forEach(element => {
+                        this.floorSelect.push(element.floorID)
+                    });
                 }
             }
         }

@@ -160,7 +160,7 @@
         </div>
     </div>
 </template>
-<style scope>
+<style >
     .el-input-number--small{
         width: 95%;
     }
@@ -197,8 +197,8 @@
         background: #fff;
         border-radius: 10px;
     }
-    .el-input--suffix .el-input__inner {
-        background: #fff
+    .temporary-dialog .el-input--suffix .el-input__inner {
+        background: #fff !important
     }
     .add-btn {
         text-align: right;

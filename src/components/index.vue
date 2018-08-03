@@ -35,7 +35,14 @@
             </gantt>
             <chats v-if="!showGantt" class="chats-wp" ref="chats" :selectScheduleID="selectScheduleID" :ganttData=ganttData></chats>
             <matchDialog></matchDialog>
-            <ganttAdd ref="ganttAdd" @delGanttTask=delGanttTask :selectScheduleID=selectScheduleID @addTaskDialog=addTaskDialog @reviseTaskGantt=reviseTaskGantt :taskDefault=taskDefault :ruleForm=ruleForm></ganttAdd>
+            <ganttAdd ref="ganttAdd" 
+                @delGanttTask=delGanttTask 
+                :selectSchedule=selectItem 
+                @addTaskDialog=addTaskDialog 
+                @reviseTaskGantt=reviseTaskGantt 
+                :taskDefault=taskDefault 
+                :ruleForm=ruleForm>
+            </ganttAdd>
         </div>
         <div class="iframe-wp" v-show="show3d"></div>
         <temporaryDialog ref="temporaryDialog" @listAddItem=listAddItem @saveGanttData=saveGanttData @addScheduleListItem=addScheduleListItem></temporaryDialog>
@@ -178,8 +185,8 @@
                     links: []
                 },
                 show3d: false,
-                selectScheduleID: "1", //已选中进度id
-                selectItem:'',//选中列表传过来的 item
+                selectScheduleID: "", //已选中进度id
+                selectItem:{},//选中列表传过来的 item
                 taskDefault: {
                     queueGanttTask: null, //待处理队列task
                     taskParentId: ""
@@ -277,6 +284,7 @@
             },
             reviseTaskDialog(task) {
                 //修改gantt
+                console.log(task)
                 if (!task) return false;
                 this.ruleForm.id = task.id;
                 this.ruleForm.name = task.text;

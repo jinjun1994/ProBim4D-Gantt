@@ -24,6 +24,7 @@
     methods: {
       initGanttDataToCharts(passData){
         passData?passData = passData: passData = this.$props.ganttData
+        console.log(passData)
         let dataNub = [],lastData =[];
        passData.forEach(item => {//获取所有类型
             if(item.Category){
@@ -63,7 +64,10 @@
                         initData.time = item.TaskStartTime
                       }
                       
-                      lastData[index].schedule.push([item.TaskEndTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskStartTime.split('T')[0],lastData[index].schedule.length*1+1])
+
+                        lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime.split('T')[0],lastData[index].schedule.length*1+1])
+                      
+                      
                       // if(lastData.schedule.length == 0){
                       //     lastData.schedule.push([item.TaskStartTime,item.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime,lastData.schedule.length*1+1)
                       // }else{
@@ -84,7 +88,9 @@
                       if(initData.time == ''){
                         initData.time = item.TaskStartTime
                       }
-                      lastData[index].schedule.push([item.TaskEndTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,item.TaskStartTime.split('T')[0],lastData[index].schedule.length*1+1])
+                      
+                        lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime.split('T')[0],lastData[index].schedule.length*1+1])
+                      
                       // if(lastData.schedule.length == 0){
                       //     lastData.schedule.push([item.TaskStartTime,item.TaskName.split('_')[1].split('F')[0]*1],item.TaskID,0,initData.Guid,item.TaskStartTime,lastData.schedule.length*1+1)
                       // }else{
@@ -105,7 +111,20 @@
                  sc[6] = index1 + 1
               }else if(sc[1] * 1  == -1){
                 sc[4] = '00000000-0000-0000-0000-000000000000'
+              } 
+              if(index1 == last.schedule.length-1){
+                  if(sc[1] == -1){
+                    last.schedule.push(
+                      [sc[5],sc[1]*1 +2,sc[2],sc[3],sc[4],sc[5],sc[6]+1]
+                    )
+                  }else{
+                    last.schedule.push(
+                      [sc[5],sc[1]*1 +1,sc[2],sc[3],sc[4],sc[5],sc[6]+1]
+                    )
+                  }
+                  
               }
+              
               
             })
         })

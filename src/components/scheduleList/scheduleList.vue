@@ -96,6 +96,7 @@
         }
       },
       itemClick(item) {
+        console.log(item)
         this.clickItem = item
         this.$emit("requestData", item);
       },
@@ -219,19 +220,15 @@
         this.navList.hoverJudge = false;
       },
       requestItems() {
-        this.$axios(
-          `${window.urlConfig}/api/Prj/GetScheduleByModel?ProjectID=${ window.ProjectID}&ModelID=${window.ModelID}`
-        ).then(res => {
-          console.log(res.data);
+        this.$axios(`${window.urlConfig}/api/Prj/GetScheduleByModel?ProjectID=${ window.ProjectID}&ModelID=${window.ModelID}`).then(res => {
           if (res.data.length > 0) {
             this.items = res.data;
           }else{
             this.items = []
           }
           if(this.clickItem){
-            if(this.thisScheduleID == this.clickItem.ScheduleID){
+            if(this.thisScheduleID == this.clickItem.ScheduleID){//判断是否删除的是已展示页面
               this.$emit('clearGanttDataView')
-              console.log('展示页面 == 删除页面')
             }
           }
           

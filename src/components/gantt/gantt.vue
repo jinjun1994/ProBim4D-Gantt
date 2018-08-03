@@ -256,6 +256,14 @@
             },
             stopMarker(){
                 clearTimeout(this.timer)
+            },
+            initTimer(str){//时间小时 分钟补0
+                if( (typeof str=='string')&&str.constructor==String){
+                    console.log()
+                    return str + ' 00:00:00'
+                }else{
+                    return str
+                }
             }
         },
         mounted() {
@@ -274,11 +282,11 @@
             gantt.config.row_height = 40;
             gantt.addTaskLayer(function draw_planned(task) {
                 if (task.plan_start_date && task.plan_end_date) {
-                    var sizes = gantt.getTaskPosition(task, new Date(task.plan_start_date), new Date(task.plan_end_date))
+                    var sizes = gantt.getTaskPosition(task, new Date(_this.initTimer(task.plan_start_date)), new Date(_this.initTimer(task.plan_end_date)))
                     var el = document.createElement('div')
                     el.innerHTML = task.text + '--计划时间'
                     el.className = 'baseline'
-                    el.style.left = sizes.left-23 + 'px'
+                    el.style.left = sizes.left + 'px'
                     el.style.width = sizes.width + 'px'
                     el.style.top = sizes.top + gantt.config.task_height + 13 + 'px'
                     return el;
