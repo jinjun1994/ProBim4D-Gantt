@@ -226,11 +226,12 @@
                 //     }
                 // })
                 this.ganttData.forEach(item=>{
-                    if(item.TaskID == task.id){
-                        item.TaskStartTime = this.serverDateInit(task.start_date)
-                        item.TaskEndTime = this.serverDateInit(task.end_date)
+                    if(item.TaskID == task.TaskID){
+                        item.TaskStartTime = this.serverDateInit(task.TaskStartTime)
+                        item.TaskEndTime = this.serverDateInit(task.TaskEndTime)
                     }
                 })
+                console.log(this.ganttData)
             },
             randomColor(){
                 return '#'+Math.floor(Math.random()*0xffffff).toString(16);
@@ -301,8 +302,39 @@
                 this.ruleForm.parent = task.parent;
                 this.$refs.ganttAdd.showDialog = true;
             },
+            floorNameToNub(str){//楼层=>number
+                return str.split('_')[1].split('F')[0]*1
+            },
             addTaskDialog(task) {
-                console.log(task);
+                /**
+                 *color:processConfig.ProcessColor,
+                                                    TaskStartTime:formatDateStrat,
+                                                    TaskID:_this.GUID(),
+                                                    TaskEndTime:formatDateEnd,
+                                                    TaskName:process.relationName + '_' + floorTableItem.floorName,
+                                                    TaskPlanStartTime:formatDateStrat,
+                                                    TaskPlanEndTime:formatDateEnd,
+                                                    Category:process.ProcessNodeName 
+                 */
+                let _this = this,index=0;
+                console.log(this.ganttData)
+                console.log(task.floorNumber)
+                for(let i = 0;i<this.ganttData.length;i++){
+                    if(_this.floorNameToNub(_this.ganttData[i].TaskName) == task.floorNumber){
+                        index = i
+                    }
+                }
+                let data = {
+                    TaskStartTime:task.start_date,
+                    TaskEndTime:task.end_date,
+                    TaskPlanStartTime:task.start_date,
+                    TaskPlanEndTime:task.end_date,
+                    TaskName:task.text,
+                    color:task.color,
+                    Category:task.type
+                }
+                this.ganttData.splice(index, 0, data);
+
                 task.start_date = this.initDate(task.start_date);
                 task.end_date = this.initDate(task.end_date);
                 this.$refs.ganttView.addTask(task);
@@ -349,6 +381,10 @@
             initDate(time) {
                 if (!time) {
                     return null;
+                }
+                if((typeof time !='string')&&time.constructor!=String){
+                    let date = new Date(time)
+                    return  `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
                 }
                 time = time.split('T')[0]
                 var date = new Date(time);

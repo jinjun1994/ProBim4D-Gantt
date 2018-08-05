@@ -1,6 +1,6 @@
 <template>
     <div class="gantt-add-dialog" @click="showDialog = false" v-if="showDialog">
-        <div class="add-center" @click.stop>
+        <div class="add-center" @click.stop :class="{'height300':ruleForm.judgeAdd =='xiugai'}">
             <div class="dialog-header">
                 <h2 class="fl">新增任务</h2>
                 <img src="./addblack.svg" alt="" class="fr" @click="showDialog = false">
@@ -9,25 +9,25 @@
                 <el-row>
                     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="30px" class="demo-ruleForm">
                         <el-form-item label=" " prop="name">
-                            <el-input v-model="ruleForm.name" placeholder="请输入进度名称"></el-input>
+                            <el-input v-model="ruleForm.name" placeholder="请输入进度名称" ></el-input>
                         </el-form-item>
-                        <el-form-item label=" " prop="floor">
-                            <el-select v-model="ruleForm.floor" placeholder="请选择楼层">
+                        <el-form-item label=" " prop="floor"    v-if="ruleForm.judgeAdd !='xiugai'">
+                            <el-select v-model="ruleForm.floor" placeholder="请选择楼层" @change="selectChange">
                                 <el-option
                                 v-for="item in floorSelect"
-                                :key="item"
-                                :label="item"
-                                :value="item">
+                                :key="item.id"
+                                :label="item.id"
+                                :value="item.type">
                                 </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label=" " prop="floor">
+                        <el-form-item label=" " prop="floor" v-if="ruleForm.judgeAdd !='xiugai'">
                            <el-select v-model="ruleForm.type" placeholder="请选择工序">
                                 <el-option
-                                v-for="item in floorConfig.ProcessNode"
-                                :key="item.ProcessId"
-                                :label="item.ProcessNodeName"
-                                :value="item.ProcessId">
+                                v-for="item in floorProcedure"
+                                :key="item.id"
+                                :label="item.name"
+                                :value="item.id">
                                 </el-option>
                             </el-select>
                         </el-form-item>
@@ -57,6 +57,7 @@
     </div>
 </template>
 <style>
+
 .el-select{
     height: 30px;
     line-height: 30px;
@@ -106,6 +107,9 @@
     .gantt-del {
         float: left;
     }
+    .height300{
+    height: 300px;
+}
 </style>
 <script>
     export default {
@@ -168,10 +172,32 @@
                     }]
                 },
                 floorConfig:'',
-                floorSelect:[]
+                floorSelect:[],
+                floorProcedure:[]
             }
         },
         methods: {
+            selectChange(){
+                console.log(this.$props.ruleForm.floor)
+                this.floorProcedure.length = 0
+                this.floorConfig.ProcessNode.forEach(process=>{
+                    this.floorConfig.Process.forEach(processConfig=>{
+                        if(process.ProcessId == processConfig.ProcessId){
+                            console.log( this.$props.ruleForm.floor)
+                            processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
+                                if(LevelCategory.LevelCategory == this.$props.ruleForm.floor && LevelCategory.LevelCycle*1 == 0){
+                                    this.floorProcedure.push({
+                                        name:process.ProcessNodeName,
+                                        id:process.guid
+                                    })
+                                }
+                            })
+                        }
+                    })
+                })
+                console.log(this.$props.ruleForm.type)
+                // this.$props.ruleForm.floor
+            },
             delTask() {
                 this.$emit('delGanttTask', this.$props.ruleForm)
             },
@@ -184,26 +210,52 @@
             },
             submitForm() {
                 var _this = this
+                let color = ''
+                let type = ''
                 _this.$refs.ruleForm.validate(valid => {
                     if (valid) {
+                        this.floorConfig.ProcessNode.forEach(processConfig=>{
+                            if(processConfig.guid == this.$props.ruleForm.type){
+                                this.floorConfig.Process.forEach(process=>{
+                                    if(process.ProcessId == processConfig.ProcessId){
+                                        color = process.ProcessColor 
+                                        type = processConfig.relationName
+                                    }
+                                })
+                            }
+                        })
+                        let floornumber = ''
+                        this.floorSelect.forEach(floor=>{
+                            if(this.$props.ruleForm.floor ==  floor.type){
+                                floornumber = floor.id
+                            }
+                        })
                         if (this.$props.taskDefault.queueGanttTask) {
                             var task = {
                                 id: this.$props.queueGanttTask,
-                                text: this.$props.ruleForm.name,
+                                text: this.$props.ruleForm.name + '_' + floornumber + 'F',
                                 start_date: this.$props.ruleForm.actualdate[0],
                                 end_date: this.$props.ruleForm.actualdate[1],
                                 parent: this.$props.taskDefault.taskParentId,
                                 plan_start_date: this.$props.ruleForm.plandate[0],
-                                plan_end_date: this.$props.ruleForm.plandate[1]
+                                plan_end_date: this.$props.ruleForm.plandate[1],
+                                color:color,
+                                type:type,
+                                floorNumber:floornumber,
+                                allFloorNumber:this.floorSelect.length*1 + 1
                             }
                         } else {
                             var task = {
-                                text: this.$props.ruleForm.name,
+                                text: this.$props.ruleForm.name + '_' + floornumber + 'F',
                                 start_date: this.$props.ruleForm.actualdate[0],
                                 end_date: this.$props.ruleForm.actualdate[1],
                                 parent: this.$props.taskDefault.taskParentId,
                                 plan_start_date: this.$props.ruleForm.plandate[0],
-                                plan_end_date: this.$props.ruleForm.plandate[1]
+                                plan_end_date: this.$props.ruleForm.plandate[1],
+                                color:color,
+                                type:type,
+                                floorNumber:floornumber,
+                                allFloorNumber:this.floorSelect.length*1 + 1
                             }
                         }
                         this.$emit('addTaskDialog', task)
@@ -246,34 +298,30 @@
                 }
             },
             */
+           ruleForm:function(val,oldval){
+               console.log(val.floor,oldval)
+           },
             showDialog: function(val, oldval) {
-                // if(this.$props.ruleForm.judgeAdd == null){
-                //     if(val == false){
-                //          this.$props.ruleForm.judgeAdd = null
-                //          this.$props.ruleForm.name = ''
-                //          this.$props.ruleForm.plandate = []
-                //          this.$props.ruleForm.actualdate = []
-                //          this.$props.ruleForm.additionaltext = ''
-                //     }
-                // }else{
-                //     if(val == false){
-                //          this.$props.ruleForm.judgeAdd = null
-                //          this.$props.ruleForm.name = ''
-                //          this.$props.ruleForm.plandate = []
-                //          this.$props.ruleForm.actualdate = []
-                //          this.$props.ruleForm.additionaltext = ''
-                //     }
-                // }
                 if (val == false) {
                     this.$props.ruleForm.judgeAdd = null
                     this.$props.ruleForm.name = ''
                     this.$props.ruleForm.plandate = []
                     this.$props.ruleForm.actualdate = []
                     this.$props.ruleForm.additionaltext = ''
+                    this.$props.ruleForm.type = ''
+                    this.$props.ruleForm.floor = ''
+                    //data数据初始化
+                    this.floorSelect = []
+                    this.floorProcedure = []
+
                 }else{
                     let w = JSON.parse(this.$props.selectSchedule.ExternalField)
+                    console.log(w)
                     w.forEach(element => {
-                        this.floorSelect.push(element.floorID)
+                        this.floorSelect.push({
+                            id:element.floorID,
+                            type:element.floorType    
+                        })
                     });
                 }
             }

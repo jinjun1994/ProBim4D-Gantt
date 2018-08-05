@@ -64,8 +64,13 @@
                         initData.time = item.TaskStartTime
                       }
                       
-
+                      if((typeof item.TaskStartTime !='string')&&item.TaskStartTime.constructor!=String){
+                        lastData[index].schedule.push([item.TaskStartTime,this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime,lastData[index].schedule.length*1+1])
+                        initData.time = item.TaskStartTime
+                      }else{
                         lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime.split('T')[0],lastData[index].schedule.length*1+1])
+                        initData.time = item.TaskStartTime.split('T')[0]
+                      }
                       
                       
                       // if(lastData.schedule.length == 0){
@@ -74,7 +79,7 @@
                       //     lastData.schedule.push([item.TaskStartTime,item.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid,initData.time,lastData.schedule.length*1+1)
                       // }
                       initData.Guid = item.TaskID
-                      initData.time = item.TaskStartTime.split('T')[0]
+                      
                       
                   }
               }else{
