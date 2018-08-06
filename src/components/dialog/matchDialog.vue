@@ -5,34 +5,48 @@
         <h2 class="fl">新增匹配规则</h2>
         <img src="./addblack.svg" alt="" class="fr" @click="showDialog = false">
       </div>
-      <div class="dialog-center wzw">
+      <div class="dialog-center wzw" style="margin-top:20px;">
         <el-row>
-          <el-form :model="ruleForm" ref="ruleForm" label-width="30px" class="demo-ruleForm">
-            <el-form-item label=" *">
-              <el-select v-model="ruleForm.selectval" placeholder="请选择匹配规则">
-                <el-option label="任务名称" value="1"></el-option>
-                <el-option label="构件属性" value="2"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="" v-show="ruleForm.selectval == 1 || ruleForm.selectval == '任务名称'">
-              <el-radio-group v-model="ruleForm.selectn1">
-                <el-radio label="构件类型"></el-radio>
-                <el-radio label="构件类别"></el-radio>
-                <el-radio label="构件名称"></el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <input type="text" placeholder="请输入属性值" class="zdy" v-show="ruleForm.selectval == 2 || ruleForm.selectval == '构件属性'" v-model="ruleForm.inputVal">
-          </el-form>
+            <el-tabs v-model="activeName" @tab-click="handleClick">
+                <el-tab-pane label="匹配字段" name="first">
+                    <el-radio-group v-model="ruleForm.selectn1">
+                        <el-radio label="构件名称" class="mt20"></el-radio>
+                        <el-radio label="构件类别" class="mt20"></el-radio>
+                        <el-radio label="构件类型" class="mt20"></el-radio>
+                        <el-radio label="族名称" class="mt20"></el-radio>
+                        <el-radio label="构件属性" class="mt20"></el-radio>
+                         
+                    </el-radio-group>
+                    <input type="text" placeholder="请输入属性值" class="zdy"  v-model="ruleForm.inputVal" :disabled="inputDisabled" :class="{'none-cursor':inputDisabled}">
+                </el-tab-pane>
+                <el-tab-pane label="目标字段" name="second">
+                    <el-radio-group v-model="ruleForm.selectn2">
+                        <el-radio label="任务名称" class="mt20"></el-radio>
+                        <el-radio label="任务附加字段" class="mt20"></el-radio>
+                         
+                    </el-radio-group>
+                </el-tab-pane>
+            </el-tabs>
+
         </el-row>
       </div>
       <div class="dialog-footer">
         <div @click="showDialog = false">取消</div>
-        <div @click="submitForm" :class="{'submitOk':(ruleForm.selectval!= '' && ruleForm.selectn1 != '')||(ruleForm.selectval!='' && ruleForm.inputVal!='')}">确定</div>
+        <div @click="submitForm" :class="{'submitOk':submitBtnJudge()}">确定</div>
       </div>
     </div>
   </div>
 </template>
 <style>
+.none-cursor{
+    cursor: no-drop;
+}
+input::-webkit-input-placeholder{
+            color:#606266;
+        }
+input:focus{
+    outline: none
+}
   .submitOk {
     color: #417fcd !important;
   }
@@ -45,13 +59,16 @@
     background: rgba(0, 0, 0, 0.4);
     z-index: 99;
   }
-  form input.zdy {
-    width: 322px;
+  input.zdy {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 220px;
     background: #f5f9fc;
     border: none;
     padding-right: 30px;
-    height: 30px;
-    line-height: 30px;
+    height: 24px;
+    line-height: 24px;
     margin-left: 30px;
     padding-left: 15px;
     color: #606266;
@@ -64,7 +81,7 @@
   }
   .dialog-wp .makser {
     width: 400px;
-    height: 264px;
+    height: 340px;
     background-color: #ffffff;
     box-shadow: 0px 18px 49px -30px rgba(87, 89, 89, 0.5);
     border-radius: 2px;
@@ -110,7 +127,7 @@
         type: Object,
         default () {
           return {
-            selectval: "",
+            selectn2: "",
             selectn1: "",
             inputVal: "",
             judge: null
@@ -120,66 +137,78 @@
     },
     data() {
       return {
-        showDialog: false
+        showDialog: false,
+        activeName:'first',
+        inputDisabled:true
       };
     },
     methods: {
+        submitBtnJudge(){
+            if(this.$props.ruleForm.selectn1 == '构件属性'){
+                if(this.$props.ruleForm.inputVal != '' && this.$props.ruleForm.selectn2 != ''){
+                    return true
+                }else{
+                    return false
+                }
+            }else{
+                if(this.$props.ruleForm.selectn2 != '' && this.$props.ruleForm.selectn1 != ''){
+                    return true
+                }else{
+                    return false
+                }
+            }
+        },
+        handleClick(){
+            console.log(this.$props)
+        },
       initForm() {
         this.ruleForm.selectn1 = "";
         this.ruleForm.inputVal = "";
       },
       submitForm() {
         if (
-          (this.ruleForm.selectval == "" && this.ruleForm.selectn1 == "") ||
-          (this.ruleForm.selectval == "" && this.ruleForm.inputVal == "")
+          (this.ruleForm.selectn2 == "" && this.ruleForm.selectn1 == "") ||
+          (this.ruleForm.selectn1 == "" && this.ruleForm.inputVal == "")
         ) {
           return;
         }
         var formData = new FormData();
         formData.append("ProjectID", window.ProjectID);
-        formData.append("ModelID", window.ModelID);
-        formData.append("FilterLogic", 1); //写死
         formData.append("ScheduleID", this.$props.scheduleId);
-        if (this.$props.ruleForm.selectval == 1) {
-          formData.append("FilterType", 1);
-          if (this.$props.ruleForm.selectn1 == "构件名称") {
-            formData.append("FilterTypeKey", 1);
-          } else if (this.$props.ruleForm.selectn1 == "构件类别") {
-            formData.append("FilterTypeKey", 2);
-          } else if (this.$props.ruleForm.selectn1 == "构件类型") {
-            formData.append("FilterTypeKey", 3);
-          }
-          formData.append("FilterPropertyKey", this.$props.ruleForm.inputVal);
-        } else {
-          formData.append("FilterType", 2);
-          formData.append("FilterPropertyKey", this.$props.ruleForm.inputVal);
-          formData.append("FilterTypeKey", 0);
+        if(this.$props.ruleForm.selectn2 == '任务名称'){//第二页
+            formData.append('MatchType',0)
+        }else if(this.$props.selectn2 == '任务附加字段'){
+            formData.append('MatchType',1)
         }
-        if (this.$props.ruleForm.judge == 1) { //新建
-          this.$axios
-            .post(`${window.urlConfig}/api/Prj/AddMatchingRules`, formData)
-            .then(res => {
-              console.log(res);
-              this.$emit("requestItems");
-              this.showDialog = false;
-            })
-            .catch(res => {
-              console.log("新增匹配规则" + res);
-            });
-        } else {
-          this.$axios.post(`${window.urlConfig}/api/Prj/UpdateMatchingRules`, formData).then(res => {
+
+        if(this.$props.ruleForm.selectn1 == '构件名称'){
+            formData.append('MatchValueField',0)
+        }else if(this.$props.ruleForm.selectn1 == '构件类别'){
+            formData.append('MatchValueField',1)
+        }else if(this.$props.ruleForm.selectn1 == '构件类型'){
+            formData.append('MatchValueField',2)
+        }else if(this. $props.ruleForm.selectn1 == '族名称'){
+            formData.append('MatchValueField',3)
+        }else if(this.$props.ruleForm.selectn1 == '构件属性'){
+            formData.append('MatchValueField',this.$props.ruleForm.inputVal)
+        }
+        formData.append('MatchExpression',1)
+        this.$axios.post(`${window.urlConfig}/api/Prj/UpdateMatchingRules`,formData).then(res=>{
             console.log(res)
-          }).catch(res => {
-            console.log('更新匹配规则失败，原因' + res)
-          })
-        }
-      },
+        }).catch(res=>{
+            console.log('新增修改匹配规则失败 原因：' + res)
+        })
+      }
+      
     },
     watch: {
-      "ruleForm.selectval": {
+      "ruleForm.selectn1": {
         handler: function(val, oldVal) {
-          if (this.$props.ruleForm.judge == 2) return
-          if (val != oldVal) this.initForm();
+          if(val == '构件属性'){
+              this.inputDisabled = false
+          }else{
+              this.inputDisabled = true
+          }
         },
         immediate: true
       }

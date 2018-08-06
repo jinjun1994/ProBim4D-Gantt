@@ -56,7 +56,7 @@
           ScheduleID: null
         },
         dialogAddPpgz: {
-          selectval: "",
+          selectn2: "",
           selectn1: "",
           inputVal: "",
           judge: null
@@ -221,7 +221,8 @@
       },
       requestItems() {
         this.$axios(`${window.urlConfig}/api/Prj/GetScheduleByModel?ProjectID=${ window.ProjectID}&ModelID=${window.ModelID}`).then(res => {
-          if (res.data.length > 0) {
+         console.log(res)
+         if (res.data.length > 0) {
             this.items = res.data;
           }else{
             this.items = []

@@ -390,7 +390,7 @@
                                                     TaskName:process.relationName + '_' + floorTableItem.floorName,
                                                     TaskPlanStartTime:formatDateStrat,
                                                     TaskPlanEndTime:formatDateEnd,
-                                                    Category:process.ProcessNodeName
+                                                    Category:process.relationName
 
                                                 })
                                           }
@@ -437,7 +437,7 @@
                                                     TaskName:process.relationName + '_' + floorTableItem.floorName,
                                                     TaskPlanStartTime:formatDateStrat,
                                                     TaskPlanEndTime:formatDateEnd,
-                                                    Category:process.ProcessNodeName
+                                                    Category:process.relationName
 
                                                 })
                                           }

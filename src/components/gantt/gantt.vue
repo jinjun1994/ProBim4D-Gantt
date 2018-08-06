@@ -89,20 +89,43 @@
                         TaskID: task.id,
                         ScheduleID: _this.$props.selectScheduleID,
                         TaskName: task.text,
+                        TaskDesc:'',
                         TaskStartTime: task.start_date,
                         TaskEndTime: task.end_date,
                         TaskPlanStartTime: task.plan_start_date,
-                        TaskPlanEndTime: task.plan_end_date
+                        TaskPlanEndTime: task.plan_end_date,
+                        Color:task.color,
+                        Category:task.type
                     }
                     if (task.parent == 0) {
                         data.ParentId = ''
                     } else {
                         data.ParentID = task.parent
                     }
+                    /*
+                    var formData = {
+                    ProjectID:window.ProjectID,
+                    ScheduleTask:{
+                        ScheduleID:this.selectScheduleID,
+                        TaskID:task.id,
+                        TaskDesc:'',
+                        TaskStartTime:task.start_date,
+                        TaskEndTime:task.end_date,
+                        TaskPlanStartTime:task.start_date,
+                        TaskPlanEndTime:task.end_date,
+                        TaskName:task.text,
+                        Color:task.color,
+                        ParentID:task.parent?task.parent:''
+                    }
+                    
+                }
+                this.$axios.post(`${window.urlConfig}/api/Prj/AddScheduleTask`,formData).then(res=>{
+                    console.log(res)
+                })*/
                     formData.append('ProjectID', window.ProjectID)
                     formData.append('ModelID', window.ModelID)
                     formData.append('ScheduleTask', JSON.stringify(data))
-                    this.$axios.post(`${window.urlConfig}/api/Prj/AddOrUpdateScheduleTask`, formData).then(res => {
+                    this.$axios.post(`${window.urlConfig}/api/Prj/AddScheduleTask`, formData).then(res => {
                         // gantt.changeTaskId(id, res.data);
                         // _this.Repaint()
                         gantt.setSizes()

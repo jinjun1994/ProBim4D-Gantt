@@ -120,7 +120,7 @@
             right: 0;
             bottom: 0;
             margin: auto;
-            width: 550px;
+            width: 650px;
             min-height: 300px;
             max-height: 70%;
             background: #fff;
@@ -166,7 +166,7 @@
             bottom: 0;
             margin: auto;
             width: 400px;
-            height: 300px;
+            height: 340px;
             background: #fff;
             padding: 20px 20px 20px 0;
             border-radius: 10px;
@@ -393,6 +393,8 @@
                             </el-table-column>
                             <el-table-column prop="describe" label="描述" width="100">
                             </el-table-column>
+                            <el-table-column prop="match" label="匹配" width="100">
+                            </el-table-column>
                             <el-table-column fixed="right" label="操作" width="80">
                                 <template slot-scope="scope">
                                     <el-button @click.native.prevent="deleteRowUp(scope.$index, procedureTableData,customData)" type="text" size="small">
@@ -446,6 +448,15 @@
                     </el-col>
                     <el-col :span="4" class="label">
                         <el-color-picker v-model="procedureAddDialogData.color" size="small"></el-color-picker>
+                    </el-col>
+                </el-row>
+                <el-row class="mt20">
+                    <el-col :span="6" class="label">
+                        附加字段：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-input type="text" placeholder="请输入附加字段" resize='none' v-model="procedureAddDialogData.match">
+                        </el-input>
                     </el-col>
                 </el-row>
                 <el-row class="mt20">
@@ -601,7 +612,8 @@
                     procedureAddDialogData: {
                         floorType: '',
                         describe: '',
-                        color: ''
+                        color: '',
+                        match:''
                     },
                     input: '',
                     color2: '',
@@ -719,6 +731,7 @@
                             ProcessName: item.floorType,
                             ProcessDescription: item.describe,
                             ProcessColor: item.color,
+                            ProcessMatch:item.match,
                             ProcessNumber: index,
                             LevelCategory2Cycle: []
                         }
@@ -855,7 +868,8 @@
                         guid: this.GUID(),
                         floorType: this.procedureAddDialogData.floorType,
                         describe: this.procedureAddDialogData.describe,
-                        color: this.procedureAddDialogData.color
+                        color: this.procedureAddDialogData.color,
+                        match:this.procedureAddDialogData.match
                     })
                     this.procedureViewShow = true
                     this.procedureAddDialog = false

@@ -22,6 +22,7 @@
                                     <el-checkbox :label="'actual'">实际</el-checkbox>
                                 </el-checkbox-group>
                             </li> -->
+                            <li @click="MatchElementTask">匹配测试</li>
                             <li :class="{'no-click':!show3d}"><img src="./mock.svg">模拟</li>
                             <li class="no-click"><img src="./import.svg">导入</li>
                             <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}"><img src="./table.svg">网络图/甘特图</li>
@@ -334,10 +335,20 @@
                     Category:task.type
                 }
                 this.ganttData.splice(index, 0, data);
-
+                
                 task.start_date = this.initDate(task.start_date);
                 task.end_date = this.initDate(task.end_date);
                 this.$refs.ganttView.addTask(task);
+            },
+            GUID(){
+                let guid = '';
+                for (let i = 1; i <= 32; i++) {
+                let n = Math.floor(Math.random() * 16.0).toString(16);
+                guid += n;
+                if ((i === 8) || (i === 12) || (i === 16) || (i === 20))
+                    guid += '-';
+                }
+                return guid;
             },
             isRealNum(val) {
                 if (val === "" || val == null) {
@@ -479,14 +490,34 @@
                 var r = window.location.search.substr(1).match(reg);
                 if (r != null) return unescape(r[2]);
                 return null;
+            },
+            MatchElementTask(){//测试匹配规则
+                var formData = new FormData()
+                formData.append('ProjectID',window.ProjectID)
+                formData.append('ModelID',window.ModelID)
+                formData.append('VersionNo','')
+                let data = this.ganttData[0]
+
+                formData.append('Section',data.TaskName.split('_')[1])
+                formData.append('MatchValueField',this.selectItem.MatchValueField)
+                if(this.selectItem.MatchType == 0){
+                    formData.append('MatchValue',(data.TaskName.split('_')[0]))
+                }else if(this.selectItem.MatchType == 1){
+                    formData.append('MatchValue',data.ExternalProperty)
+                }
+                this.$axios.post(`${window.urlConfig}/api/Model/MatchElement2Task`,formData).then(res=>{
+                    console.log(res)
+                }).catch(res=>{
+                    console.log('匹配规则报错 原因' + res)
+                })
             }
         },
         created() {
             
             window.urlConfig = "https://bimcomposer.probim.cn";
             if (this.getQueryString('ProjectID') == null) {
-                window.ProjectID = "7e951a17-556b-46ee-9fb8-634d97940635";
-                window.ModelID = "c1e76e74-220c-4bee-93ce-b1779fa3e70c"
+                window.ProjectID = "18a9e792-6b0d-2bc6-2595-2de55708e58e";
+                window.ModelID = "09db5c33-41c6-4bdc-8921-fc9df2dd625d"
             } else {
                 window.ProjectID = this.getQueryString('ProjectID')
                 window.ModelID = this.getQueryString('ModelID')
