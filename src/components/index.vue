@@ -496,13 +496,14 @@
                 formData.append('ProjectID',window.ProjectID)
                 formData.append('ModelID',window.ModelID)
                 formData.append('VersionNo','')
-                let data = this.ganttData[0]
+                let data = this.ganttData[4]
 
                 formData.append('Section',data.TaskName.split('_')[1])
                 formData.append('MatchValueField',this.selectItem.MatchValueField)
-                if(this.selectItem.MatchType == 0){
+                formData.append('ScheduleTaskID',data.TaskID)
+                if(this.selectItem.MatchExpression == 0){
                     formData.append('MatchValue',(data.TaskName.split('_')[0]))
-                }else if(this.selectItem.MatchType == 1){
+                }else if(this.selectItem.MatchExpression == 1){
                     formData.append('MatchValue',data.ExternalProperty)
                 }
                 this.$axios.post(`${window.urlConfig}/api/Model/MatchElement2Task`,formData).then(res=>{

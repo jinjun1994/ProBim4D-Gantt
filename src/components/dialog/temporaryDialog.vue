@@ -390,8 +390,8 @@
                                                     TaskName:process.relationName + '_' + floorTableItem.floorName,
                                                     TaskPlanStartTime:formatDateStrat,
                                                     TaskPlanEndTime:formatDateEnd,
-                                                    Category:process.relationName
-
+                                                    Category:process.relationName,
+                                                    ExternalProperty:processConfig.ProcessMatch
                                                 })
                                           }
                                      })
@@ -437,8 +437,8 @@
                                                     TaskName:process.relationName + '_' + floorTableItem.floorName,
                                                     TaskPlanStartTime:formatDateStrat,
                                                     TaskPlanEndTime:formatDateEnd,
-                                                    Category:process.relationName
-
+                                                    Category:process.relationName,
+                                                    ExternalProperty:processConfig.ProcessMatch
                                                 })
                                           }
                                      }
