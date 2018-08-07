@@ -107,22 +107,26 @@
         this.thisItem = item;
         if (this.thisScheduleID != item.ScheduleID)
           this.thisScheduleID = item.ScheduleID;
-        if (item.FilterType == 0 || item.FilterType == undefined) {
+        if (item.MatchValueField == '' || item.MatchType == '') {
           this.ppgzDialog = false;
           this.showAddOrDel = true
           return false;
-        } else if (item.FilterType == 1) {
-          this.ppgzHover.textLeft = "任务名称";
-          if (item.FilterTypeValue == 1) {
-            this.ppgzHover.textRight = "构件名称";
-          } else if (item.FilterTypeValue == 2) {
-            this.ppgzHover.textRight = "构件类别";
-          } else {
-            this.ppgzHover.textRight = "构件类型";
-          }
-        } else {
-          this.ppgzHover.textLeft = "构件属性";
-          this.ppgzHover.textRight = item.FilterPropertyKey;
+        } else if (item.MatchValueField == 0) {
+          this.ppgzHover.textLeft = "构件名称";
+        } else if(item.MatchValueField == 1){
+          this.ppgzHover.textLeft = '构件类别'
+        }else if(item.MatchValueField == 2){
+          this.ppgzHover.textLeft = '构件类型'
+        }else if(item.MatchValueField == 3){
+          this.ppgzHover.textLeft = '族名称'
+        }else {
+          this.ppgzHover.textLeft = '构件属性'
+        }
+
+        if(item.MatchType == 0){
+          this.ppgzHover.textRight = '任务名称'
+        }else{
+          this.ppgzHover.textRight = '任务附加字段'
         }
         this.ppgzDialog = true;
         this.showAddOrDel = false
@@ -146,19 +150,25 @@
           } else if (judgeConter == 2) {
             //修改
             this.dialogAddPpgz.judge = 2;
-            if (this.thisItem.FilterType == 1) {
-              this.dialogAddPpgz.selectval = "任务名称";
-            } else if (this.thisItem.FilterType == 2) {
-              this.dialogAddPpgz.selectval = "构件属性";
+            if (this.thisItem.MatchType == 0) {
+              this.dialogAddPpgz.selectn2 = "任务名称";
+            } else if (this.thisItem.MatchType == 1) {
+              this.dialogAddPpgz.selectn2 = "任务附加字段";
             }
-            if (this.thisItem.FilterTypeValue == 1) {
-              this.dialogAddPpgz.selectn1 = "构件名称";
-            } else if (this.thisItem.FilterTypeValue == 2) {
+            if (this.thisItem.MatchValueField == 1) {
               this.dialogAddPpgz.selectn1 = "构件类别";
-            } else if (this.thisItem.FilterTypeValue == 3) {
+            } else if (this.thisItem.MatchValueField == 2) {
               this.dialogAddPpgz.selectn1 = "构件类型";
+            } else if (this.thisItem.MatchValueField == 3) {
+              this.dialogAddPpgz.selectn1 = "族名称";
+            }else if(this.thisItem.MatchValueField == 0) {
+               this.dialogAddPpgz.selectn1 = "构件名称";
+            }else if(this.thisItem.MatchValueField == ''){
+
+            }else{
+              this.dialogAddPpgz.selectn1 = "构件属性";
+              this.dialogAddPpgz.inputVal = this.thisItem.MatchValueField
             }
-            this.dialogAddPpgz.inputVal = this.thisItem.FilterPropertyKey;
           }
           this.$refs.matchDialog.showDialog = true;
         } else if (nub == 2) {

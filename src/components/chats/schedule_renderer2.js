@@ -282,12 +282,12 @@ class scheduleRenderer {
 
   }
 
-  async getPlannedScheduleAsync() {
+  async getPlannedScheduleAsync(ganttData) {
     var a = [];
-    let response = await this.getPlannedSchedule();
+    let response = ganttData
     console.log(response)
     this.plannedSchedule = [];
-    response.date.forEach(d => {
+    response.forEach(d => {
       let schedule = [];
       d.schedule.forEach(s => {
         let groupIndex = s[3];
@@ -305,20 +305,20 @@ class scheduleRenderer {
     })
   }
 
-  getPlannedSchedule() {
-    // var plannedScheduleUrl = `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${window.ScheduleID}&&IsGantt=false`
-    return new Promise(resolve => {
-      axios.get(plannedScheduleUrl).then(x => {
-        console.log(x.data)
-        resolve(x.data)
-      })
-      // $.get(plannedScheduleUrl).done(
-      //     x => {
-      //         resolve(x)
-      //     }
-      // )
-    })
-  }
+  // getPlannedSchedule() {
+  //   // var plannedScheduleUrl = `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${window.ScheduleID}&&IsGantt=false`
+  //   return new Promise(resolve => {
+  //     axios.get(plannedScheduleUrl).then(x => {
+  //       console.log(x.data)
+  //       resolve(x.data)
+  //     })
+  //     // $.get(plannedScheduleUrl).done(
+  //     //     x => {
+  //     //         resolve(x)
+  //     //     }
+  //     // )
+  //   })
+  // }
 
   async getActuralScheduleAsync(ganttData) {
     var a = [];
@@ -365,7 +365,7 @@ class scheduleRenderer {
     let xAxisData = [];
     let legendColor = []
     if (actural) {
-      let response = await this.createActuralSeries(ganttData);
+      let response = await this.createActuralSeries(ganttData.actural);
       response[1].forEach(item => {
         if (item.color) legendColor.push(item.color)
       })
@@ -374,7 +374,7 @@ class scheduleRenderer {
       xAxisData = getDateRange(response[1]);
     }
     if (planned) {
-      let response = await this.createPlannedSeries();
+      let response = await this.createPlannedSeries(ganttData.planned);
       console.log(response)
       response[1].forEach(item => {
         if (item.color) legendColor.push(item.color)
@@ -527,8 +527,8 @@ class scheduleRenderer {
     return [legend_data, series];
   }
 
-  async createPlannedSeries() {
-    await this.getPlannedScheduleAsync();
+  async createPlannedSeries(ganttData) {
+    await this.getPlannedScheduleAsync(ganttData);
     console.log(this.plannedSchedule)
     let data = this.plannedSchedule;
     let legend_data = [];

@@ -177,7 +177,7 @@ input:focus{
         formData.append("ScheduleID", this.$props.scheduleId);
         if(this.$props.ruleForm.selectn2 == '任务名称'){//第二页
             formData.append('MatchType',0)
-        }else if(this.$props.selectn2 == '任务附加字段'){
+        }else if(this.$props.ruleForm.selectn2 == '任务附加字段'){
             formData.append('MatchType',1)
         }
 
@@ -195,6 +195,8 @@ input:focus{
         formData.append('MatchExpression',1)
         this.$axios.post(`${window.urlConfig}/api/Prj/UpdateMatchingRules`,formData).then(res=>{
             console.log(res)
+            this.showDialog = false 
+            this.$emit('requestItems')
         }).catch(res=>{
             console.log('新增修改匹配规则失败 原因：' + res)
         })

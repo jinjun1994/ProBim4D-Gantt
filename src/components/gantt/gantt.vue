@@ -57,6 +57,7 @@
                 if (gantt.$_eventsInitialized) return;
                 gantt.attachEvent("onTaskSelected", id => {
                     let task = gantt.getTask(id);
+                    console.log(1)
                     this.$emit("task-selected", task);
                 });
                 gantt.attachEvent("onTaskCreated", (task) => { //点击加号

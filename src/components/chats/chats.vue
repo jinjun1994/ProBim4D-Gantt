@@ -16,16 +16,29 @@
     data() {
       return {
         acturalSchedule: true,
-        plannedSchedule: false,
+        plannedSchedule: true,
         chart: null,
         renderer: null
       };
     },
     methods: {
       initGanttDataToCharts(passData){
+        var _this = this
         passData?passData = passData: passData = this.$props.ganttData
         console.log(passData)
-        let dataNub = [],lastData =[];
+        passData = passData.sort(function(a,b){
+          if(_this.initFloorNameToNubSort(a.TaskName) > _this.initFloorNameToNubSort(b.TaskName)){
+              return 1
+          }else if(_this.initFloorNameToNubSort(a.TaskName) < _this.initFloorNameToNubSort(b.TaskName)){
+              return -1
+          }else{
+            return 0
+          }
+        })
+        let dataNub = [],lastData ={
+          planned:[],
+          actural:[]
+        };
        passData.forEach(item => {//获取所有类型
             if(item.Category){
                 dataNub.push(item.Category)
@@ -37,39 +50,56 @@
         dataNub = [...new Set(dataNub)] //去重
         let initData = {
           Guid:"00000000-0000-0000-0000-000000000000",
-          time:''
+          time:'',
+          plannedTime:''
         }
         
         dataNub.forEach((data,index)=>{
-            lastData.push({
+            lastData.actural.push({
               business:data,
               color:null,
               schedule:[]
 
             })
+            lastData.planned.push({
+              business:data,
+              color:null,
+              schedule:[]
+            })
             initData = {
-          Guid:"00000000-0000-0000-0000-000000000000",
-          time:''
-        }
+              Guid:"00000000-0000-0000-0000-000000000000",
+              time:'',
+              plannedTime:''
+            }
             passData.forEach((item,index1)=>{
               if(item.Category){
                   if(data == item.Category){
                       if(item.color){
-                        lastData[index].color = item.color
+                        lastData.actural[index].color = item.color
+                        lastData.planned[index].color = item.color
                       }else{
-                        lastData[index].color =  '#'+Math.floor(Math.random()*0xffffff).toString(16);
+                        lastData.actural[index].color =  '#'+Math.floor(Math.random()*0xffffff).toString(16);
+                        lastData.planned[index].color =  '#'+Math.floor(Math.random()*0xffffff).toString(16);
                       }
                     
                       if(initData.time == ''){
                         initData.time = item.TaskStartTime
                       }
+                      if(initData.plannedTime == ''){
+                        initData.plannedTime = item.TaskPlanStartTime
+                      }
                       
                       if((typeof item.TaskStartTime !='string')&&item.TaskStartTime.constructor!=String){
-                        lastData[index].schedule.push([item.TaskStartTime,this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime,lastData[index].schedule.length*1+1])
+                        lastData.actural[index].schedule.push([item.TaskStartTime,this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime,lastData.actural[index].schedule.length*1+1])
+                        lastData.planned[index].schedule.push([item.TaskPlanStartTime,this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskPlanEndTime,lastData.planned[index].schedule.length*1+1])
+                        
                         initData.time = item.TaskStartTime
+                        initData.plannedTime = item.TaskPlanStartTime
                       }else{
-                        lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime.split('T')[0],lastData[index].schedule.length*1+1])
+                        lastData.actural[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime.split('T')[0],lastData.actural[index].schedule.length*1+1])
+                        lastData.planned[index].schedule.push([item.TaskPlanStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskPlanEndTime.split('T')[0],lastData.planned[index].schedule.length*1+1])
                         initData.time = item.TaskStartTime.split('T')[0]
+                        initData.plannedTime = item.TaskPlanStartTime.split('T')[0]
                       }
                       
                       
@@ -85,16 +115,32 @@
               }else{
                 if(data == item.FlowSection){
                       if(item.color){
-                        lastData[index].color = item.color
+                        lastData.actural[index].color = item.color
+                        lastData.planned[index].color = item.color
                       }else{
-                        lastData[index].color =  '#'+Math.floor(Math.random()*0xffffff).toString(16);
+                        lastData.actural[index].color =  '#'+Math.floor(Math.random()*0xffffff).toString(16);
+                        lastData.planned[index].color =  '#'+Math.floor(Math.random()*0xffffff).toString(16);
                       }
                     
                       if(initData.time == ''){
                         initData.time = item.TaskStartTime
                       }
-                      
-                        lastData[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime.split('T')[0],lastData[index].schedule.length*1+1])
+                       if(initData.plannedTime == ''){
+                        initData.plannedTime = item.TaskPlanStartTime
+                      }
+                      if((typeof item.TaskStartTime !='string')&&item.TaskStartTime.constructor!=String){
+                        lastData.actural[index].schedule.push([item.TaskStartTime,this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime,lastData.actural[index].schedule.length*1+1])
+                        lastData.planned[index].schedule.push([item.TaskPlanStartTime,this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskPlanEndTime,lastData.planned[index].schedule.length*1+1])
+                        
+                        initData.time = item.TaskStartTime
+                        initData.plannedTime = item.TaskPlanStartTime
+                      }else{
+                        lastData.actural[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime.split('T')[0],lastData.actural[index].schedule.length*1+1])
+                        lastData.planned[index].schedule.push([item.TaskPlanStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskPlanEndTime.split('T')[0],lastData.planned[index].schedule.length*1+1])
+                        initData.time = item.TaskStartTime.split('T')[0]
+                        initData.plannedTime = item.TaskPlanStartTime.split('T')[0]
+                      }
+                        // lastData.actural[index].schedule.push([item.TaskStartTime.split('T')[0],this.initFloorNameToNub(item.TaskName),item.TaskID,0,initData.Guid, item.TaskEndTime.split('T')[0],lastData[index].schedule.length*1+1])
                       
                       // if(lastData.schedule.length == 0){
                       //     lastData.schedule.push([item.TaskStartTime,item.TaskName.split('_')[1].split('F')[0]*1],item.TaskID,0,initData.Guid,item.TaskStartTime,lastData.schedule.length*1+1)
@@ -103,13 +149,37 @@
                       // }
                       initData.Guid = item.TaskID
                       initData.time = item.TaskStartTime.split('T')[0]
-                      
+                       initData.plannedTime = item.TaskPlanStartTime.split('T')[0]
                   }
               }
               
             })
         })
-        lastData.forEach((last,index)=>{
+        lastData.actural.forEach((last,index)=>{
+          // last.schedule.reverse()
+            last.schedule.forEach((sc,index1)=>{
+              if(index != 0){
+                 sc[6] = index1 + 1
+              }else if(sc[1] * 1  == -1){
+                sc[4] = '00000000-0000-0000-0000-000000000000'
+              } 
+              if(index1 == last.schedule.length-1){
+                  if(sc[1] == -1){
+                    last.schedule.push(
+                      [sc[5],sc[1]*1 +2,sc[2],sc[3],sc[4],sc[5],sc[6]+1]
+                    )
+                  }else{
+                    last.schedule.push(
+                      [sc[5],sc[1]*1 +1,sc[2],sc[3],sc[4],sc[5],sc[6]+1]
+                    )
+                  }
+                  
+              }
+              
+              
+            })
+        })
+        lastData.planned.forEach((last,index)=>{
           // last.schedule.reverse()
             last.schedule.forEach((sc,index1)=>{
               if(index != 0){
@@ -136,6 +206,9 @@
         console.log(lastData)
         return lastData
         
+      },
+      initFloorNameToNubSort(str){
+        return str.split('_')[1].split('F')[0]*1
       },
       initFloorNameToNub(str){//xxxx_1F => 1
           // return str.split('_')[1].split('F')[0]*1

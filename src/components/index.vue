@@ -22,7 +22,7 @@
                                     <el-checkbox :label="'actual'">实际</el-checkbox>
                                 </el-checkbox-group>
                             </li> -->
-                            <li @click="MatchElementTask">匹配测试</li>
+                            <li @click="MatchElementTask">构件匹配</li>
                             <li :class="{'no-click':!show3d}"><img src="./mock.svg">模拟</li>
                             <li class="no-click"><img src="./import.svg">导入</li>
                             <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}"><img src="./table.svg">网络图/甘特图</li>
@@ -46,10 +46,35 @@
             </ganttAdd>
         </div>
         <div class="iframe-wp" v-show="show3d"></div>
+        <div class="match-loading" v-show="matchLoadingConfig.show">
+            <el-progress type="circle" :percentage="matchLoadingConfig.number" class="loading" :width=300 :color="matchLoadingConfig.color"></el-progress>
+        </div>
         <temporaryDialog ref="temporaryDialog" @listAddItem=listAddItem @saveGanttData=saveGanttData @addScheduleListItem=addScheduleListItem></temporaryDialog>
     </div>
 </template>
 <style>
+    .match-loading{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, .5);
+        z-index: 999;
+    }
+    .match-loading .loading{
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 300px;
+        height: 300px;;
+        margin: auto
+    }
+    .match-loading .el-progress--circle .el-progress__text{
+        color: #fff
+    }
     .el-checkbox{
         color: #fff
     }
@@ -202,7 +227,15 @@
                     parent: 0,
                     id: ""
                 },
-                ganttOrChartsData:''
+                ganttOrChartsData:'',
+                matchLoadingConfig:{
+                    color:'#000',
+                    number:0,
+                    show:false,
+                    success:0,
+                    fail:0
+
+                }
             };
         },
         methods: {
@@ -491,26 +524,74 @@
                 if (r != null) return unescape(r[2]);
                 return null;
             },
-            MatchElementTask(){//测试匹配规则
-                var formData = new FormData()
+            
+            recursionMatchElementTask(index){
+                if(this.matchLoadingConfig.number == 100){
+                    this.matchLoadingConfig.show = false
+                    this.$alert('共'+this.ganttData.length + '条数据 <br> 成功'+this.matchLoadingConfig.success+'条  <br>  失败'+this.matchLoadingConfig.fail+'条', '匹配完成',
+                    {
+                        dangerouslyUseHTMLString:true,
+                        callback: action => {
+                            this.matchLoadingConfig.success = 0
+                            this.matchLoadingConfig.fail = 0
+                        }
+                    });
+                    this.matchLoadingConfig.number = 0
+                    return false
+                }
+                let formData = new FormData()
+                let i = index?index:0
+                let data = this.ganttData[i]
                 formData.append('ProjectID',window.ProjectID)
                 formData.append('ModelID',window.ModelID)
                 formData.append('VersionNo','')
-                let data = this.ganttData[4]
-
                 formData.append('Section',data.TaskName.split('_')[1])
                 formData.append('MatchValueField',this.selectItem.MatchValueField)
-                formData.append('ScheduleTaskID',data.TaskID)
-                if(this.selectItem.MatchExpression == 0){
+                if(this.selectItem.MatchType == 0){
                     formData.append('MatchValue',(data.TaskName.split('_')[0]))
-                }else if(this.selectItem.MatchExpression == 1){
+                }else if(this.selectItem.MatchType == 1){
                     formData.append('MatchValue',data.ExternalProperty)
                 }
                 this.$axios.post(`${window.urlConfig}/api/Model/MatchElement2Task`,formData).then(res=>{
-                    console.log(res)
+                        
+                        i += 1
+                        this.matchLoadingConfig.number = Math.floor(i/this.ganttData.length *100)
+                        this.matchLoadingConfig.color = '#'+Math.floor(Math.random()*0xffffff).toString(16);
+                        
+                        this.matchLoadingConfig.success += 1
+                        this.recursionMatchElementTask(i)
+                    
                 }).catch(res=>{
                     console.log('匹配规则报错 原因' + res)
+                        i += 1
+                        this.matchLoadingConfig.number = Math.floor(i/this.ganttData.length *100)
+                        this.matchLoadingConfig.color = '#'+Math.floor(Math.random()*0xffffff).toString(16);
+                        
+                        this.matchLoadingConfig.fail += 1
+                        this.recursionMatchElementTask(i)
                 })
+            },
+            MatchElementTask(){//测试匹配规则
+                this.recursionMatchElementTask()
+                this.matchLoadingConfig.show = true
+                // var formData = new FormData()
+                // formData.append('ProjectID',window.ProjectID)
+                // formData.append('ModelID',window.ModelID)
+                // formData.append('VersionNo','')
+                // let data = this.ganttData[4]
+                
+                // formData.append('Section',data.TaskName.split('_')[1])
+                // formData.append('MatchValueField',this.selectItem.MatchValueField)
+                // if(this.selectItem.MatchType == 0){
+                //     formData.append('MatchValue',(data.TaskName.split('_')[0]))
+                // }else if(this.selectItem.MatchType == 1){
+                //     formData.append('MatchValue',data.ExternalProperty)
+                // }
+                // this.$axios.post(`${window.urlConfig}/api/Model/MatchElement2Task`,formData).then(res=>{
+                //     console.log(res)
+                // }).catch(res=>{
+                //     console.log('匹配规则报错 原因' + res)
+                // })
             }
         },
         created() {

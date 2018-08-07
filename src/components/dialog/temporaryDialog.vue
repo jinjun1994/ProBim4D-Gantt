@@ -360,6 +360,9 @@
                     return nub +=1
                 }
             },
+            initFloorNameToNubSort(str){
+                return str.split('F')[0]
+            },
             submitClick() {
                 //前端算gantt数据
                 let _this = this
@@ -369,8 +372,17 @@
                 let userInpitTime = new Date(this.temData.startTime)
                 let absoluteStartData = [],absoluteEndData=[]
                 var judge = false
+                
                 this.floorConfig.ProcessNode.forEach(process => {
-                    
+                    this.floorTableData = this.floorTableData.sort(function(a,b){
+                        if(_this.initFloorNameToNubSort(a.floorName) > _this.initFloorNameToNubSort(b.floorName)){
+                            return 1
+                        }else if(_this.initFloorNameToNubSort(a.floorName) < _this.initFloorNameToNubSort(b.floorName)){
+                            return -1
+                        }else{
+                            return 0
+                        }
+                    })
 
                     if(process.BeforeProcessId == ''){//判断是无前置工序
                         this.floorConfig.Process.forEach(processConfig=>{
@@ -392,6 +404,7 @@
                                                     TaskPlanEndTime:formatDateEnd,
                                                     Category:process.relationName,
                                                     ExternalProperty:processConfig.ProcessMatch
+
                                                 })
                                           }
                                      })
@@ -402,10 +415,19 @@
 
                     
                     }else{
-                        if(!judge){
-                            this.floorTableData.reverse()
-                            judge = true
-                        }
+                        // if(!judge){
+                        //     this.floorTableData.reverse()
+                        //     judge = true
+                        // }
+                        this.floorTableData = this.floorTableData.sort(function(b,a){
+                            if(_this.initFloorNameToNubSort(a.floorName) > _this.initFloorNameToNubSort(b.floorName)){
+                                return 1
+                            }else if(_this.initFloorNameToNubSort(a.floorName) < _this.initFloorNameToNubSort(b.floorName)){
+                                return -1
+                            }else{
+                                return 0
+                            }
+                        })
                         this.setDateNub = 0
                         this.recursionReturnNub(process)
                         let absoluteDate = new Date(absoluteEndData[absoluteEndData.length-1])
@@ -439,6 +461,7 @@
                                                     TaskPlanEndTime:formatDateEnd,
                                                     Category:process.relationName,
                                                     ExternalProperty:processConfig.ProcessMatch
+
                                                 })
                                           }
                                      }
