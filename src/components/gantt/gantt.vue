@@ -8,7 +8,6 @@
     import "dhtmlx-gantt/codebase/locale/locale_cn.js";
     import "dhtmlx-gantt/codebase/ext/dhtmlxgantt_marker.js";
     import './ganttExport.js'
-    
     export default {
         name: "gantt",
         props: {
@@ -22,18 +21,20 @@
                     };
                 }
             },
-            selectScheduleID: String
+            selectScheduleID: String,
+            show3d:Boolean
         },
-        data(){
+        data() {
             return {
-                markerDate:'',
-                timer:'',
-                i : 0,
-                date_to_str:''
+                markerDate: '',
+                timer: '',
+                i: 0,
+                date_to_str: '',
+                loading: ''
             }
         },
         methods: {
-            clearGanttDataView(){
+            clearGanttDataView() {
                 gantt.clearAll()
             },
             isRealNum(val) {
@@ -54,12 +55,40 @@
             },
             $_initGanttEvents: function() {
                 var _this = this
+                
                 if (gantt.$_eventsInitialized) return;
                 gantt.attachEvent("onTaskSelected", id => {
+                    
+                    if(!_this.$props.show3d) return false
                     let task = gantt.getTask(id);
-                    console.log(1)
-                    this.$emit("task-selected", task);
+                    if (task.ElementIDS == '') {
+                        _this.$message('无关联的构件');
+                    } else {
+                        var a = task.ElementIDS.split(',')
+                        var b = []
+                        a.forEach(element => {
+                            b.push(
+                                window.ModelID + '^' + element
+                            )
+                            
+                        });
+                        // b = b.join(',')
+                        console.log(b)
+                        window.parent.BIMe.control.BIMeSelector.selectorElementByElementId(b)
+                    }
+                    // this.$emit("task-selected", task);
                 });
+                gantt.attachEvent("onBeforeDataRender", () => { //gantt数据前
+                    _this.loading = this.$loading({ //loading
+                        lock: true,
+                        text: 'Loading',
+                        spinner: 'el-icon-loading',
+                        background: 'rgba(0, 0, 0, 0.5)'
+                    });
+                })
+                gantt.attachEvent("onDataRender", () => {
+                    _this.loading.close()
+                })
                 gantt.attachEvent("onTaskCreated", (task) => { //点击加号
                     if (task.parent) {
                         _this.$emit('ganttAddShow', {
@@ -75,8 +104,8 @@
                 gantt.attachEvent("onTaskDblClick", function(id, el) {
                     _this.$emit('reviseTaskDialog', gantt.getTask(id))
                 });
-                gantt.attachEvent("onTaskOpened", function(id) {
-                    console.log(1)
+                gantt.attachEvent("onTaskOpened", function(id, a) {
+                    console.log(id, a)
                 });
                 // gantt.attachEvent("onTaskClick", function(id, el) {
                 //   _this.$emit('ganttAddShow',{parentId:id})
@@ -90,13 +119,13 @@
                         TaskID: task.id,
                         ScheduleID: _this.$props.selectScheduleID,
                         TaskName: task.text,
-                        TaskDesc:'',
+                        TaskDesc: '',
                         TaskStartTime: task.start_date,
                         TaskEndTime: task.end_date,
                         TaskPlanStartTime: task.plan_start_date,
                         TaskPlanEndTime: task.plan_end_date,
-                        Color:task.color,
-                        Category:task.type
+                        Color: task.color,
+                        Category: task.type
                     }
                     if (task.parent == 0) {
                         data.ParentId = ''
@@ -104,25 +133,25 @@
                         data.ParentID = task.parent
                     }
                     /*
-                    var formData = {
-                    ProjectID:window.ProjectID,
-                    ScheduleTask:{
-                        ScheduleID:this.selectScheduleID,
-                        TaskID:task.id,
-                        TaskDesc:'',
-                        TaskStartTime:task.start_date,
-                        TaskEndTime:task.end_date,
-                        TaskPlanStartTime:task.start_date,
-                        TaskPlanEndTime:task.end_date,
-                        TaskName:task.text,
-                        Color:task.color,
-                        ParentID:task.parent?task.parent:''
+                        var formData = {
+                        ProjectID:window.ProjectID,
+                        ScheduleTask:{
+                            ScheduleID:this.selectScheduleID,
+                            TaskID:task.id,
+                            TaskDesc:'',
+                            TaskStartTime:task.start_date,
+                            TaskEndTime:task.end_date,
+                            TaskPlanStartTime:task.start_date,
+                            TaskPlanEndTime:task.end_date,
+                            TaskName:task.text,
+                            Color:task.color,
+                            ParentID:task.parent?task.parent:''
+                        }
+                        
                     }
-                    
-                }
-                this.$axios.post(`${window.urlConfig}/api/Prj/AddScheduleTask`,formData).then(res=>{
-                    console.log(res)
-                })*/
+                    this.$axios.post(`${window.urlConfig}/api/Prj/AddScheduleTask`,formData).then(res=>{
+                        console.log(res)
+                    })*/
                     formData.append('ProjectID', window.ProjectID)
                     formData.append('ModelID', window.ModelID)
                     formData.append('ScheduleTask', JSON.stringify(data))
@@ -139,7 +168,7 @@
                     //     this.$emit("task-selected", task);
                     // }
                 });
-                gantt.attachEvent("onGridResize", function(old_width, new_width){
+                gantt.attachEvent("onGridResize", function(old_width, new_width) {
                     gantt.renderMarkers()
                 });
                 gantt.attachEvent("onAfterTaskUpdate", (id, task) => { //修改回调
@@ -153,19 +182,19 @@
                         TaskEndTime: _this.initCnDate(task.end_date),
                         TaskPlanStartTime: _this.initCnDate(task.plan_start_date),
                         TaskPlanEndTime: _this.initCnDate(task.plan_end_date),
-                        Color:task.Color,
-                        Category:task.Category,
-                        Section:task.Section,
-                        HasChildren:task.HasChildren,
-                        ExternalProperty:task.ExternalProperty,
-                        TaskDesc:task.TaskDesc
+                        Color: task.Color,
+                        Category: task.Category,
+                        Section: task.Section,
+                        HasChildren: task.HasChildren,
+                        ExternalProperty: task.ExternalProperty,
+                        TaskDesc: task.TaskDesc
                     }
                     if (task.parent == 0) {
                         data.ParentID = ''
                     } else {
                         data.ParentID = task.parent
                     }
-                    this.$emit('upDatedGanttDateToCharts',data)
+                    this.$emit('upDatedGanttDateToCharts', data)
                     formData.append('ProjectID', window.ProjectID)
                     // formData.append('ModelID', window.ModelID)
                     formData.append('ScheduleTask', JSON.stringify(data))
@@ -178,7 +207,6 @@
                     })
                 });
                 gantt.attachEvent("onAfterTaskDelete", id => {
-                    
                     this.$axios.get(`${window.urlConfig}/api/Prj/DeleteScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${this.$props.selectScheduleID}&ScheduleTaskIDs=${id}`).then(res => {
                         console.log('成功删除任务' + res)
                         this.$message({
@@ -251,41 +279,40 @@
                 var date = new Date(time)
                 return `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`
             },
-            addMarker(date){
+            addMarker(date) {
                 var _this = this
                 this.markerDate = gantt.addMarker({
-                    start_date : new Date(date),
-                    css:'today',
-                    title:_this.date_to_str(new Date(date))
+                    start_date: new Date(date),
+                    css: 'today',
+                    title: _this.date_to_str(new Date(date))
                 })
                 gantt.render();
-                
             },
-            runMarker(timeDateArr){//接受date数组
+            runMarker(timeDateArr) { //接受date数组
                 var _this = this
                 this.timer = setTimeout(() => {
-                    console.log(_this.markerDate) 
+                    console.log(_this.markerDate)
                     var dayDate = gantt.getMarker(_this.markerDate)
-                    console.log(dayDate) 
+                    console.log(dayDate)
                     dayDate.start_date = new Date(timeDateArr[_this.i])
                     dayDate.title = _this.date_to_str(dayDate.start_date)
                     gantt.updateMarker(_this.markerDate)
                     _this.i += 1
-                    if(_this.i != timeDateArr.length) {
+                    if (_this.i != timeDateArr.length) {
                         _this.runMarker(timeDateArr)
-                    }else{
+                    } else {
                         _this.i = 0
                     }
                 }, 1000);
             },
-            stopMarker(){
+            stopMarker() {
                 clearTimeout(this.timer)
             },
-            initTimer(str){//时间小时 分钟补0
-                if( (typeof str=='string')&&str.constructor==String){
+            initTimer(str) { //时间小时 分钟补0
+                if ((typeof str == 'string') && str.constructor == String) {
                     console.log()
                     return str + ' 00:00:00'
-                }else{
+                } else {
                     return str
                 }
             }
@@ -294,7 +321,6 @@
             window.stopMarker = this.stopMarker
             window.addMarker = this.addMarker
             window.runMarker = this.runMarker
-            
             var _this = this;
             gantt.config.scale_unit = "day";
             // gantt.config.date_scale = "%d, %M,%Y";
@@ -355,7 +381,6 @@
             //   var today = gantt.getMarker(id);
             // var timer = setInterval(function() {
             //     console.log(id)
-              
             //   console.log(today)
             //   today.start_date = new Date(arr[i]);
             //   today.title = date_to_str(today.start_date);

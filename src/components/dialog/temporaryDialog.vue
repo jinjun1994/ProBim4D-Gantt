@@ -375,9 +375,9 @@
                 
                 this.floorConfig.ProcessNode.forEach(process => {
                     this.floorTableData = this.floorTableData.sort(function(a,b){
-                        if(_this.initFloorNameToNubSort(a.floorName) > _this.initFloorNameToNubSort(b.floorName)){
+                        if(_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName)>0){
                             return 1
-                        }else if(_this.initFloorNameToNubSort(a.floorName) < _this.initFloorNameToNubSort(b.floorName)){
+                        }else if(_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) <0){
                             return -1
                         }else{
                             return 0
@@ -406,6 +406,7 @@
                                                     ExternalProperty:processConfig.ProcessMatch
 
                                                 })
+                                                
                                           }
                                      })
                                 })
@@ -420,14 +421,15 @@
                         //     judge = true
                         // }
                         this.floorTableData = this.floorTableData.sort(function(b,a){
-                            if(_this.initFloorNameToNubSort(a.floorName) > _this.initFloorNameToNubSort(b.floorName)){
+                            if(_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) > 0){
                                 return 1
-                            }else if(_this.initFloorNameToNubSort(a.floorName) < _this.initFloorNameToNubSort(b.floorName)){
+                            }else if(_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) < 0){
                                 return -1
                             }else{
                                 return 0
                             }
                         })
+                        console.log(this.floorTableData)
                         this.setDateNub = 0
                         this.recursionReturnNub(process)
                         let absoluteDate = new Date(absoluteEndData[absoluteEndData.length-1])
@@ -451,6 +453,7 @@
                                                  let formatDateStratStr = new Date(formatDateStrat)
                                                  formatDateStratStr.setDate(formatDateStratStr.getDate() + processConfig.LevelCategory2Cycle[i].LevelCycle*1 ) 
                                                  let formatDateEnd= _this.formatDate(formatDateStratStr)
+
                                                 data.push({
                                                     color:processConfig.ProcessColor,
                                                     TaskStartTime:formatDateStrat,
@@ -552,6 +555,17 @@
                     
                        
                 // })
+                
+                // data = data.sort((a,b)=>{
+                //     if(_this.initFloorNameToNubSort(a.TaskName.split('_')[1]) - _this.initFloorNameToNubSort(b.TaskName.split('_')[1]) >0){
+                //                 return 1
+                //     }else if(_this.initFloorNameToNubSort(a.TaskName.split('_')[1]) - _this.initFloorNameToNubSort(b.TaskName.split('_')[1])<0){
+                //         return -1
+                //     }else{
+                //         return 0
+                //     }
+                // })
+                console.log(data)
                 if(data.length > 0){
                 let str = data[0].color,arr1=[],arr2=[];
                 data.forEach(item => {

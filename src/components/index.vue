@@ -32,7 +32,16 @@
                     </div>
                 </div>
             </div>
-            <gantt class="gantt-wp" v-show="showGantt" :tasks="tasks" :selectScheduleID="selectScheduleID" ref="ganttView" @ganttAddShow=ganttAddShow @reviseTaskDialog=reviseTaskDialog @operationGanttAddView=operationGanttAddView @upDatedGanttDateToCharts=upDatedGanttDateToCharts>
+            <gantt class="gantt-wp" 
+                v-show="showGantt" 
+                :tasks="tasks" 
+                :selectScheduleID="selectScheduleID" 
+                :show3d=show3d
+                ref="ganttView" 
+                @ganttAddShow=ganttAddShow 
+                @reviseTaskDialog=reviseTaskDialog 
+                @operationGanttAddView=operationGanttAddView 
+                @upDatedGanttDateToCharts=upDatedGanttDateToCharts>
             </gantt>
             <chats v-if="!showGantt" class="chats-wp" ref="chats" :selectScheduleID="selectScheduleID" :ganttData=ganttData></chats>
             <matchDialog></matchDialog>
@@ -233,7 +242,9 @@
                     number:0,
                     show:false,
                     success:0,
-                    fail:0
+                    fail:0,
+                    matchSuccess:0,
+                    matchFail:0
 
                 }
             };
@@ -438,13 +449,12 @@
                 if (!item) {
                     return;
                 }
-                const loading = this.$loading({//loading
+                let loading = this.$loading({//loading
                     lock: true,
                     text: 'Loading',
                     spinner: 'el-icon-loading',
                     background: 'rgba(0, 0, 0, 0.5)'
                 });
-                loading.close()
                 
                 this.selectItem = item
                 window.ScheduleID = item.ScheduleID;
@@ -456,6 +466,9 @@
                 this.$axios.get(`${window.urlConfig}/api/Prj/GetScheduleTasks?ProjectID=${window.ProjectID}&ScheduleID=${item.ScheduleID}`).then(res=>{
                     console.log(res)
                     this.ganttData = res.data
+                    this.ganttData = this.ganttData.sort((a,b)=>{
+                        return a.TaskName.split('_')[1].split('F')[0]*1 - b.TaskName.split('_')[1].split('F')[0]*1
+                    })
                     this.ganttData.forEach(item=>{
                         item.Type = item.Category
                         item.color = item.Color
@@ -490,7 +503,8 @@
                          TaskDesc:item.TaskDesc,
                          ExternalProperty:item.ExternalProperty,
                          HasChildren:item.HasChildren,
-                         Section:item.Section
+                         Section:item.Section,
+                         ElementIDS:item.ElementIDS
                      }
                      this.tasks.data.push(data)
                  })
@@ -528,12 +542,13 @@
             recursionMatchElementTask(index){
                 if(this.matchLoadingConfig.number == 100){
                     this.matchLoadingConfig.show = false
-                    this.$alert('共'+this.ganttData.length + '条数据 <br> 成功'+this.matchLoadingConfig.success+'条  <br>  失败'+this.matchLoadingConfig.fail+'条', '匹配完成',
+                    this.$alert('共'+this.ganttData.length + '条数据 <br> 成功'+this.matchLoadingConfig.success+'条  <br>  失败'+this.matchLoadingConfig.fail+'条 <br> 匹配上' + this.matchLoadingConfig.matchSuccess + '条 <br> 未匹配上' + this.matchLoadingConfig.matchFail + '条', '匹配完成',
                     {
                         dangerouslyUseHTMLString:true,
                         callback: action => {
                             this.matchLoadingConfig.success = 0
                             this.matchLoadingConfig.fail = 0
+                            this.requestData(this.selectItem)
                         }
                     });
                     this.matchLoadingConfig.number = 0
@@ -545,6 +560,7 @@
                 formData.append('ProjectID',window.ProjectID)
                 formData.append('ModelID',window.ModelID)
                 formData.append('VersionNo','')
+                formData.append('ScheduleTaskID',data.TaskID)
                 formData.append('Section',data.TaskName.split('_')[1])
                 formData.append('MatchValueField',this.selectItem.MatchValueField)
                 if(this.selectItem.MatchType == 0){
@@ -553,7 +569,13 @@
                     formData.append('MatchValue',data.ExternalProperty)
                 }
                 this.$axios.post(`${window.urlConfig}/api/Model/MatchElement2Task`,formData).then(res=>{
-                        
+                        console.log(res)
+                        if(res.data == ''){
+                            this.matchLoadingConfig.matchFail += 1
+
+                        }else{
+                            this.matchLoadingConfig.matchSuccess += 1
+                        }
                         i += 1
                         this.matchLoadingConfig.number = Math.floor(i/this.ganttData.length *100)
                         this.matchLoadingConfig.color = '#'+Math.floor(Math.random()*0xffffff).toString(16);
