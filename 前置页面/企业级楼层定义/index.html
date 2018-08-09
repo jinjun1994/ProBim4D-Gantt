@@ -674,8 +674,8 @@
                     console.log(row,event)
                     this.procedureAddDialog = true
                     this.procedureViewShow = false
-                    
-                    this.procedureAddDialogData = row
+                    let a = JSON.stringify(row)
+                    this.procedureAddDialogData = JSON.parse(a)
                     this.procedureAddDialogData.upDataNumber = this.procedureTableData.indexOf(row)
                     this.procedureAddDialogData.judge = false
                 },
@@ -849,12 +849,13 @@
 
                 },
                 procedureAddDialogCancel(nub) {
+                    
+                    if(nub == 1 && this.procedureAddDialogData.upDataNumber != null){
+                        this.customData[this.procedureAddDialogData.upDataNumber].index =  this.procedureAddDialogData.floorType
+                    }
                     this.procedureAddDialogData.judge = true
                     this.procedureAddDialog = false
                     this.procedureViewShow = true
-                    if(nub == 1){
-                        this.customData[this.procedureAddDialogData.upDataNumber].index =  this.procedureAddDialogData.floorType
-                    }
                 },
                 tabAddClick() {
                     this.addDialogShow = true
