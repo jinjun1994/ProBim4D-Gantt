@@ -189,21 +189,23 @@
             this.dialogAddJd.region = "";
             this.dialogAddJd.judge = 1;
           } else {
-            console.log(this.thisItem);
-            if (this.thisItem) {
-              this.dialogAddJd.name = this.thisItem.ScheduleName;
-              this.dialogAddJd.date1 = [
-                this.thisItem.ScheduleStartTime,
-                this.thisItem.ScheduleEndTime
-              ];
-              if (this.thisItem.ScheduleCycle == 7) {
-                this.dialogAddJd.region = "工作日(7天)";
-              } else if (this.thisItem.ScheduleCycle == 5) {
-                this.dialogAddJd.region = "工作日(5天)";
-              }
-              this.dialogAddJd.judge = 2;
-              this.dialogAddJd.ScheduleID = this.thisItem.ScheduleID;
-            }
+            this.$emit('temporaryDialogUpdataShow',this.thisItem)
+            return false
+            // console.log(this.thisItem);
+            // if (this.thisItem) {
+            //   this.dialogAddJd.name = this.thisItem.ScheduleName;
+            //   this.dialogAddJd.date1 = [
+            //     this.thisItem.ScheduleStartTime,
+            //     this.thisItem.ScheduleEndTime
+            //   ];
+            //   if (this.thisItem.ScheduleCycle == 7) {
+            //     this.dialogAddJd.region = "工作日(7天)";
+            //   } else if (this.thisItem.ScheduleCycle == 5) {
+            //     this.dialogAddJd.region = "工作日(5天)";
+            //   }
+            //   this.dialogAddJd.judge = 2;
+            //   this.dialogAddJd.ScheduleID = this.thisItem.ScheduleID;
+            // }
           }
           // this.$refs.dialogView.showDialog = true;
           this.$emit('temporaryDialogShow')

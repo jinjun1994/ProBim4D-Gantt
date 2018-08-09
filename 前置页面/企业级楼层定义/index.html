@@ -380,13 +380,13 @@
                     </ul>
                 </div>
             </div>
-            <div class="procedure-center" v-show="procedureViewShow && showName == 'procedure'">
+            <div class="procedure-center" v-show="procedureViewShow && showName == 'procedure'" :style="{'max-height':windowHeight}">
                 <el-row class="mt20">
                     <el-col :span="5" class="label">
                         工序项：
                     </el-col>
                     <el-col :span="18">
-                        <el-table style="overflow-y: auto" :data="procedureTableData" height="250" style="width: 100%" stripe max-hegiht=200>
+                        <el-table style="overflow-y: auto" :data="procedureTableData" height="250" style="width: 100%" stripe max-hegiht=200 @row-dblclick=procedureDbClick>
                             <el-table-column type="index" :index="indexMethod" label="项目序号" width="100">
                             </el-table-column>
                             <el-table-column prop="floorType" label="工序项" width="100">
@@ -427,7 +427,7 @@
                 </el-row>
                 <div class="sub-btn">
                     <ul>
-                        <li @click="procedureAddDialog = true; procedureViewShow = false">添加</li>
+                        <li @click="procedureAddClick">添加</li>
                         <li class="ml20" @click='submitLocalPreStep'>上一步</li>
                         <li @click=submitLocal class="ml20">下一步</li>
                         <!-- <li class="ml20" class="ml20" @click='mainDialog=false'>取消</li> -->
@@ -470,7 +470,8 @@
                 </el-row>
                 <div class="sub-btn">
                     <ul>
-                        <li @click=procedureAddDialogSub>确定</li>
+                        <li @click=procedureAddDialogSub v-if='procedureAddDialogData.judge'>确定</li>
+                        <li  @click="procedureAddDialogCancel(1)" class="ml20" v-if='!procedureAddDialogData.judge'>确定</li>
                         <li class="ml20" @click=procedureAddDialogCancel class="ml20">取消</li>
                     </ul>
                 </div>
@@ -613,7 +614,9 @@
                         floorType: '',
                         describe: '',
                         color: '',
-                        match:''
+                        match:'',
+                        judge:true,
+                        upDataNumber:null
                     },
                     input: '',
                     color2: '',
@@ -640,11 +643,42 @@
                     },
                     relationNameOptions: [],
                     prepositionNodeOptions: [],
-                    KeyVal:''
+                    KeyVal:'',
+                    windowHeight:'70%'
 
                 }
             },
             methods: {
+                procedureAddClick(){
+                   
+                   /*
+                   procedureAddDialogData: {
+                        floorType: '',
+                        describe: '',
+                        color: '',
+                        match:'',
+                        judge:true,
+                        upDataNumber:null
+                    },*/
+                    this.procedureAddDialogData.floorType = ''
+                    this.procedureAddDialogData.describe = ''
+                    this.procedureAddDialogData.color = ''
+                    this.procedureAddDialogData.match = ''
+                    this.procedureAddDialogData.judge = true
+                    this.procedureAddDialogData.upDataNumber = null
+                    this.procedureAddDialog = true; 
+                   this.procedureViewShow = false
+
+                },
+                procedureDbClick(row, event){
+                    console.log(row,event)
+                    this.procedureAddDialog = true
+                    this.procedureViewShow = false
+                    
+                    this.procedureAddDialogData = row
+                    this.procedureAddDialogData.upDataNumber = this.procedureTableData.indexOf(row)
+                    this.procedureAddDialogData.judge = false
+                },
                 inputFocus(val,index){
                     if(val == '双击更改'){
                         this.customData[this.dblClickIndex][ 'propData'+index] = ''
@@ -793,7 +827,7 @@
 	                    }
                     	top.$.post(`${this.urlConfig}/CompanyData/Save`, obj, function (res) {
 	                        console.log(res)
-	                        top.dialogClose('OuterPage_Setting')
+	                        top.dialogClose('SystemManage') 
 	                    }, 'json')
                     }else{
                     	var obj ={
@@ -803,7 +837,7 @@
                     	}
                     	top.$.post(`${this.urlConfig}/CompanyData/Update`, obj, function (res) {
 	                        console.log(res)
-	                        top.dialogClose('OuterPage_Setting')
+	                        top.dialogClose('SystemManage') 
 	                    }, 'json')
                     }
                     
@@ -814,9 +848,13 @@
                     //})
 
                 },
-                procedureAddDialogCancel() {
+                procedureAddDialogCancel(nub) {
+                    this.procedureAddDialogData.judge = true
                     this.procedureAddDialog = false
                     this.procedureViewShow = true
+                    if(nub == 1){
+                        this.customData[this.procedureAddDialogData.upDataNumber].index =  this.procedureAddDialogData.floorType
+                    }
                 },
                 tabAddClick() {
                     this.addDialogShow = true
@@ -954,7 +992,10 @@
                 }
             },
             mounted() {
-                
+                let windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+                if(windowHeight < 700){
+                    this.windowHeight = '100%'
+                }
                 this.urlConfig = "https://api.probim.cn"
                 let CompanyId = null
                 if(top.CompanyId){

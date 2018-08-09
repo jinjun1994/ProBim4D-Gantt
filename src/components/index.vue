@@ -2,7 +2,13 @@
     <div class="index-wp">
         <!-- <scheduleList class="scheduleList-wp" @requestData=requestData v-show="!show3d">
             </scheduleList> -->
-        <scheduleList class="scheduleList-wp" @requestData=requestData v-show="!show3d" @temporaryDialogShow=temporaryDialogShow @clearGanttDataView=clearGanttDataView ref="scheduleList">
+        <scheduleList class="scheduleList-wp" 
+        @requestData=requestData 
+        v-show="!show3d" 
+        @temporaryDialogShow=temporaryDialogShow 
+        @clearGanttDataView=clearGanttDataView 
+        @temporaryDialogUpdataShow=temporaryDialogUpdataShow
+        ref="scheduleList">
         </scheduleList>
         <div class="gantt-nav" style="height:100%;" :class="{'show-3d':show3d}">
             <div class="gantt-head">
@@ -22,7 +28,7 @@
                                     <el-checkbox :label="'actual'">实际</el-checkbox>
                                 </el-checkbox-group>
                             </li> -->
-                            <li @click="MatchElementTask">构件匹配</li>
+                            <li @click="MatchElementTask" v-show="selectScheduleID != ''">构件匹配</li>
                             <li :class="{'no-click':!show3d}"><img src="./mock.svg">模拟</li>
                             <li class="no-click"><img src="./import.svg">导入</li>
                             <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}"><img src="./table.svg">网络图/甘特图</li>
@@ -58,7 +64,12 @@
         <div class="match-loading" v-show="matchLoadingConfig.show">
             <el-progress type="circle" :percentage="matchLoadingConfig.number" class="loading" :width=300 :color="matchLoadingConfig.color"></el-progress>
         </div>
-        <temporaryDialog ref="temporaryDialog" @listAddItem=listAddItem @saveGanttData=saveGanttData @addScheduleListItem=addScheduleListItem></temporaryDialog>
+        <temporaryDialog ref="temporaryDialog"
+            :selectItem=temporarySelectItem 
+            @listAddItem=listAddItem 
+            @saveGanttData=saveGanttData 
+            @addScheduleListItem=addScheduleListItem>
+        </temporaryDialog>
     </div>
 </template>
 <style>
@@ -222,6 +233,7 @@
                 show3d: false,
                 selectScheduleID: "", //已选中进度id
                 selectItem:{},//选中列表传过来的 item
+                temporarySelectItem:{},
                 taskDefault: {
                     queueGanttTask: null, //待处理队列task
                     taskParentId: ""
@@ -305,6 +317,10 @@
                 this.$refs.scheduleList.requestItems()
             },
             temporaryDialogShow() { //临时弹层出发
+                this.$refs.temporaryDialog.temporaryDialog = true
+            },
+            temporaryDialogUpdataShow(item){
+                this.temporarySelectItem = item
                 this.$refs.temporaryDialog.temporaryDialog = true
             },
             initCnDate(time) {
@@ -594,8 +610,14 @@
                 })
             },
             MatchElementTask(){//测试匹配规则
-                this.recursionMatchElementTask()
-                this.matchLoadingConfig.show = true
+                console.log(this.selectItem)
+                if(this.selectItem.MatchValueField != ''){
+                    this.recursionMatchElementTask()
+                    this.matchLoadingConfig.show = true
+                }else{
+                    this.$message.error('请选择匹配规则');
+                }
+                
                 // var formData = new FormData()
                 // formData.append('ProjectID',window.ProjectID)
                 // formData.append('ModelID',window.ModelID)

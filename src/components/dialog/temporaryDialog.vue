@@ -267,6 +267,11 @@
 </style>
 <script>
     export default {
+        props:{
+            selectItem:{
+                type: Object
+            }
+        },
         data() {
             return {
                 num6: 0,
@@ -275,7 +280,8 @@
                     name: '',
                     startTime: "",
                     useClimbing: '',
-                    basics: ''
+                    basics: '',
+                    ScheduleID:''
                 },
                 navOptions: [],
                 nub: -2,
@@ -388,10 +394,13 @@
                         this.floorConfig.Process.forEach(processConfig=>{
                             if(process.ProcessId == processConfig.ProcessId){
                                  this.floorTableData.forEach((floorTableItem,index) =>{
-                                     processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
-                                          if(LevelCategory.LevelCategory == floorTableItem.floorType){
+                                     for(let i =0;i<processConfig.LevelCategory2Cycle.length;i++){
+                                         if(processConfig.LevelCategory2Cycle[i].LevelCycle == 0){
+                                             continue
+                                         }
+                                         if(processConfig.LevelCategory2Cycle[i].LevelCategory == floorTableItem.floorType){
                                                 let formatDateStrat = _this.formatDate(userInpitTime)
-                                                let formatDateEnd= _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
+                                                let formatDateEnd= _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + processConfig.LevelCategory2Cycle[i].LevelCycle*1))))
                                                 absoluteStartData.push(formatDateStrat)
                                                 absoluteEndData.push(formatDateEnd)
                                                 data.push({
@@ -408,7 +417,28 @@
                                                 })
                                                 
                                           }
-                                     })
+                                     }
+                                    //  processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
+                                    //       if(LevelCategory.LevelCategory == floorTableItem.floorType){
+                                    //             let formatDateStrat = _this.formatDate(userInpitTime)
+                                    //             let formatDateEnd= _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
+                                    //             absoluteStartData.push(formatDateStrat)
+                                    //             absoluteEndData.push(formatDateEnd)
+                                    //             data.push({
+                                    //                 color:processConfig.ProcessColor,
+                                    //                 TaskStartTime:formatDateStrat,
+                                    //                 TaskID:_this.GUID(),
+                                    //                 TaskEndTime:formatDateEnd,
+                                    //                 TaskName:process.relationName + '_' + floorTableItem.floorName,
+                                    //                 TaskPlanStartTime:formatDateStrat,
+                                    //                 TaskPlanEndTime:formatDateEnd,
+                                    //                 Category:process.relationName,
+                                    //                 ExternalProperty:processConfig.ProcessMatch
+
+                                    //             })
+                                                
+                                    //       }
+                                    //  })
                                 })
                             }
                         })
@@ -585,7 +615,8 @@
                     ScheduleStartTime:this.temData.startTime,
                     ExternalField:JSON.stringify(this.floorTableData)
                 }
-                formData.append('Schedule',JSON.stringify(obj))
+                
+               
                 // var obj = {
                 //     ProjectID:window.ProjectID,
                 //     Schedule:{
@@ -597,25 +628,51 @@
 
                 //     }
                 // }
-                this.$axios.post(`${window.urlConfig}/api/Prj/AddSchedule`,formData).then(res=>{
-                     _this.$emit('listAddItem')
-                     var formData1 = new FormData()
-                     formData1.append('ProjectID',window.ProjectID)
-                     data.forEach(item=>{
-                         item.ScheduleID = res.data
-                         item.Color = item.color
-                     })
-                     formData1.append('ScheduleTasks',JSON.stringify(data))
+                if(this.temData.ScheduleID != ''){
+                    obj.ScheduleID = this.temData.ScheduleID
+                    formData.append('Schedule',JSON.stringify(obj))
+                    this.$axios.post(`${window.urlConfig}/api/Prj/UpdateSchedule`,formData).then(res=>{
+                        _this.$emit('listAddItem')
+                       var formData1 = new FormData()
+                        formData1.append('ProjectID',window.ProjectID)
+                        data.forEach(item=>{
+                            item.ScheduleID = res.data
+                            item.Color = item.color
+                        })
+                        formData1.append('ScheduleTasks',JSON.stringify(data))
 
-                    this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`,formData1).then(res=>{
-                        console.log(res)
+                        this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`,formData1).then(res=>{
+                            console.log(res)
+                        }).catch(res=>{
+                            console.log('批量添加数据错误，原因' + res)
+                        })
                     }).catch(res=>{
-                        console.log('批量添加数据错误，原因' + res)
+                    
+                        console.log('创建数据错误，原因：'+ res)
                     })
-                }).catch(res=>{
-                   
-                    console.log('创建数据错误，原因：'+ res)
-                })
+                }else{
+                     formData.append('Schedule',JSON.stringify(obj))
+                     this.$axios.post(`${window.urlConfig}/api/Prj/AddSchedule`,formData).then(res=>{
+                        _this.$emit('listAddItem')
+                        var formData1 = new FormData()
+                        formData1.append('ProjectID',window.ProjectID)
+                        data.forEach(item=>{
+                            item.ScheduleID = res.data
+                            item.Color = item.color
+                        })
+                        formData1.append('ScheduleTasks',JSON.stringify(data))
+
+                        this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`,formData1).then(res=>{
+                            console.log(res)
+                        }).catch(res=>{
+                            console.log('批量添加数据错误，原因' + res)
+                        })  
+                    }).catch(res=>{
+                    
+                        console.log('创建数据错误，原因：'+ res)
+                    })
+                }
+                
                 //  _this.$emit('saveGanttData',data)
                 
                 _this.temporaryDialog = false
@@ -715,6 +772,7 @@
                 })
                 console.log(this.floorConfig)
             })
+            
             // var data = {
             //     ComPanyId:this.getQueryString('ComPanyId'),
             //     JsonData:this.getQueryString('JsonData')
@@ -749,8 +807,26 @@
                     this.temData.startTime = ''
                     this.temData.useClimbing = ''
                     this.temData.basics = ''
+                    this.temData.ScheduleID = ''
                     this.num6 = 0
                     this.nub = -2
+                }else{
+                    /**temData: {
+                    name: '',
+                    startTime: "",
+                    useClimbing: '',
+                    basics: ''
+                }, */
+                    if(JSON.stringify(this.$props.selectItem) != "{}"){
+                        let selectItem = this.$props.selectItem
+                        if(selectItem.ExternalField != ''){
+                        this.floorTableData = JSON.parse(selectItem.ExternalField)
+
+                        }
+                        this.temData.name = selectItem.ScheduleName
+                        this.temData.startTime = selectItem.ScheduleStartTime
+                        this.temData.ScheduleID = selectItem.ScheduleID
+                    }
                 }
             }
         }
