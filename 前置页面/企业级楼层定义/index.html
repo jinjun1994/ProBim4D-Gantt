@@ -515,7 +515,7 @@
                     </el-col>
                     <el-col :span="18">
                         <el-select v-model="procedureTempData.relationName" placeholder="请选择" size="small">
-                            <el-option v-for="item in relationNameOptions" :key="item.guid" :label="item.floorType" :value="item.guid">
+                            <el-option v-for="item in relationNameOptions" :key="item.guid" :label="item.floorType" :value="item.floorType">
                             </el-option>
                         </el-select>
                     </el-col>
@@ -526,7 +526,7 @@
                     </el-col>
                     <el-col :span="18">
                         <el-select v-model="procedureTempData.prepositionNode" placeholder="请选择" size="small">
-                            <el-option v-for="item in procedureTempTableData" :key="item.guid" :label="item.nodeName" :value="item.guid">
+                            <el-option v-for="item in procedureTempTableData" :key="item.guid" :label="item.nodeName" :value="item.nodeName">
                             </el-option>
                         </el-select>
                     </el-col>
@@ -558,7 +558,7 @@
             </div>
             <div class="tem-center" v-show="!showTemDialog && showName == 'tem'">
                 <h1>标准工序模板</h1>
-                <el-table :data="procedureTempTableData" stripe style="overflow-y: auto;max-height: 200px;" height="200">
+                <el-table :data="procedureTempTableData" stripe style="overflow-y: auto;max-height: 200px;" height="200" @row-dblclick='lastTabDbClick'>
                     <el-table-column prop="nodeName" label="节点名称" width="100">
                     </el-table-column>
                     <el-table-column prop=prepositionNode label="前置节点" width="100">
@@ -580,7 +580,7 @@
                 <!-- <div class="add-btn mt20" @click="showTemDialog = true">添加</div> -->
                 <div class="sub-btn">
                     <ul>
-                        <li @click="showTemDialog = true">添加</li>
+                        <li @click="showTemDialog=true;procedureTempData.upDataJudge = false">添加</li>
                         <li class="ml20" @click='preStep'>上一步</li>
                         <li @click=finalSubmit class="ml20">确定</li>
                         <li class="ml20" @click=initDialogView>取消</li>
@@ -639,7 +639,8 @@
                         prepositionNode: '', //前置节点
                         relationType: '', //节点类型
                         intervalTime: '', //间隔时间
-
+                        upDataJudge:false, //是否是修改
+                        upDataNumber:0
                     },
                     relationNameOptions: [],
                     prepositionNodeOptions: [],
@@ -649,6 +650,33 @@
                 }
             },
             methods: {
+                lastTabDbClick(row){
+                    /*this.procedureTempTableData.push({
+                        nodeName: this.procedureTempData.nodeName,
+                        relationName: this.ProcessIdInit(this.procedureTempData.relationName),
+                        relationId: this.procedureTempData.relationName,
+                        prepositionNode: this.ProcessIdInit1(this.procedureTempData.prepositionNode),
+                        prepositionNodeId: this.procedureTempData.prepositionNode,
+                        relationType: this.procedureTempData.relationType,
+                        intervalTime: this.procedureTempData.intervalTime,
+                        guid:this.GUID()
+                    })
+                    // var a = this.procedureTempData
+                    // a = JSON.stringify(a)
+                    // this.procedureTempTableData.push(JSON.parse(a))
+                    this.initTemData()
+                    */
+                    console.log(row)
+                    this.procedureTempData.upDataNumber = this.procedureTempTableData.indexOf(row)
+                    this.procedureTempData.upDataJudge = true
+                    this.procedureTempData.nodeName = row.nodeName
+                    this.procedureTempData.relationName = row.relationName
+                    this.procedureTempData.intervalTime = row.intervalTime
+                    this.procedureTempData.prepositionNode = row.prepositionNode
+                    this.procedureTempData.relationType = row.relationType
+                    this.showTemDialog = true
+                    
+                },
                 procedureAddClick(){
                    
                    /*
@@ -669,13 +697,18 @@
                     this.procedureAddDialog = true; 
                    this.procedureViewShow = false
 
+
                 },
                 procedureDbClick(row, event){
                     console.log(row,event)
                     this.procedureAddDialog = true
                     this.procedureViewShow = false
-                    let a = JSON.stringify(row)
-                    this.procedureAddDialogData = JSON.parse(a)
+                    // let a = JSON.stringify(row)
+                    // this.procedureAddDialogData = JSON.parse(a)
+                    this.procedureAddDialogData.color = row.color
+                    this.procedureAddDialogData.describe = row.describe
+                    this.procedureAddDialogData.floorType = row.floorType
+                    this.procedureAddDialogData.match = row.match
                     this.procedureAddDialogData.upDataNumber = this.procedureTableData.indexOf(row)
                     this.procedureAddDialogData.judge = false
                 },
@@ -711,20 +744,20 @@
                     top.dialogClose('OuterPage_Setting')
 
                 },
-                ProcessIdInit(guid) {
+                ProcessIdInit(floorType) {
                     var a = ''
                     this.relationNameOptions.forEach(item => {
-                        if (item.guid == guid) {
-                            a = item.floorType
+                        if (item.floorType == floorType) {
+                            a = item.guid
                         }
                     })
                     return a
                 },
-                ProcessIdInit1(guid){
+                ProcessIdInit1(nodeName){
                     var a = ''
                     this.procedureTempTableData.forEach(item => {
-                        if (item.guid == guid) {
-                            a = item.nodeName
+                        if (item.nodeName == nodeName) {
+                            a = item.guid
                         }
                     })
                     return a
@@ -851,6 +884,10 @@
                 procedureAddDialogCancel(nub) {
                     
                     if(nub == 1 && this.procedureAddDialogData.upDataNumber != null){
+                        this.procedureTableData[this.procedureAddDialogData.upDataNumber].floorType = this.procedureAddDialogData.floorType
+                        this.procedureTableData[this.procedureAddDialogData.upDataNumber].color = this.procedureAddDialogData.color
+                        this.procedureTableData[this.procedureAddDialogData.upDataNumber].describe = this.procedureAddDialogData.describe
+                        this.procedureTableData[this.procedureAddDialogData.upDataNumber].match = this.procedureAddDialogData.match
                         this.customData[this.procedureAddDialogData.upDataNumber].index =  this.procedureAddDialogData.floorType
                     }
                     this.procedureAddDialogData.judge = true
@@ -967,16 +1004,29 @@
                 },
                 //模板
                 submitParent() {
-                    this.procedureTempTableData.push({
-                        nodeName: this.procedureTempData.nodeName,
-                        relationName: this.ProcessIdInit(this.procedureTempData.relationName),
-                        relationId: this.procedureTempData.relationName,
-                        prepositionNode: this.ProcessIdInit1(this.procedureTempData.prepositionNode),
-                        prepositionNodeId: this.procedureTempData.prepositionNode,
-                        relationType: this.procedureTempData.relationType,
-                        intervalTime: this.procedureTempData.intervalTime,
-                        guid:this.GUID()
-                    })
+                    if(this.procedureTempData.upDataJudge){
+                        let a = this.procedureTempTableData[this.procedureTempData.upDataNumber]
+                        a.nodeName = this.procedureTempData.nodeName
+                        a.relationName = this.procedureTempData.relationName
+                        a.relationId = this.ProcessIdInit(this.procedureTempData.relationName)
+                        a.prepositionNode = this.procedureTempData.prepositionNode
+                        a.prepositionNodeId =this.ProcessIdInit1(this.procedureTempData.prepositionNode)
+                        a.relationType =  this.procedureTempData.relationType
+                        a.intervalTime = this.procedureTempData.intervalTime
+                        console.log(a)
+                    }else{
+                        this.procedureTempTableData.push({
+                            nodeName: this.procedureTempData.nodeName,
+                            relationName: this.procedureTempData.relationName,
+                            relationId: this.ProcessIdInit(this.procedureTempData.relationName),
+                            prepositionNode: this.procedureTempData.prepositionNode,
+                            prepositionNodeId: this.ProcessIdInit1(this.procedureTempData.prepositionNode),
+                            relationType: this.procedureTempData.relationType,
+                            intervalTime: this.procedureTempData.intervalTime,
+                            guid:this.GUID()
+                        })
+                    }
+                    
                     // var a = this.procedureTempData
                     // a = JSON.stringify(a)
                     // this.procedureTempTableData.push(JSON.parse(a))
