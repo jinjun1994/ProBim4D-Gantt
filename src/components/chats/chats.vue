@@ -18,7 +18,16 @@
         acturalSchedule: true,
         plannedSchedule: true,
         chart: null,
-        renderer: null
+        renderer: null,
+        chartData:null,
+        timer:null,
+        timeStamp:{
+          start:null,
+          end:null,
+		  EndStamp:null,
+		  nowTime:'',
+		  judge:false //判断是否是暂停后开始
+        }
       };
     },
     methods: {
@@ -204,6 +213,7 @@
             })
         })
         console.log(lastData)
+        this.chartData = lastData
         return lastData
         
       },
@@ -226,15 +236,66 @@
       },
       chartRender(data) {
         const loading = this.$loading({
-          lock: true,
-          text: 'Loading',
-          spinner: 'el-icon-loading',
-          background: 'rgba(0, 0, 0, 0.5)'
-      });
+            lock: true,
+            text: 'Loading',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.5)'
+        });
       
         this.renderer.render(this.acturalSchedule, this.plannedSchedule,this.initGanttDataToCharts(data));
         loading.close()
       },
+      chartAxPointerStart(){
+		  console.log(this.chartData)
+        if(this.timeStamp.start == null){//计算开始及结束时间 
+			var timeArr = []
+			this.chartData.actural.forEach(element => {
+				element.schedule.forEach(s=>{
+					timeArr.push(s[0])
+					timeArr.push(s[5])
+				})
+			});
+
+			timeArr = [...new Set(timeArr)]
+			timeArr.sort((a,b)=>{
+				a = new Date(a).getTime()
+				b = new Date(b).getTime() 
+				if(a-b >0){
+					return 1
+				}else if(a-b<0){
+					return -1
+				}else{
+					return 0
+				}
+			})
+			this.timeStamp.start = timeArr[0]
+			this.timeStamp.end = timeArr[timeArr.length -1]
+			this.timeStamp.EndStamp = new Date(timeArr[timeArr.length -1]).getTime()
+		}
+		let date = null
+		if(this.timeStamp.judge){
+			 date = new Date(this.timeStamp.nowTime)
+		}else{
+			 date = new Date(this.timeStamp.start)
+		}
+		
+        this.timer = setInterval(()=>{
+			if(date.getTime() < this.timeStamp.EndStamp){
+				date.setDate(date.getDate() + 1)
+				this.timeStamp.nowTime = date.getFullYear() + '-' + (date.getMonth() + 1) +'-'+ date.getDate()
+				this.chart.setOption({xAxis:{axisPointer:this.renderer.axisPointer(this.timeStamp.nowTime)}});
+			}else{
+				clearInterval(this.timer)
+				this.timeStamp.judge = false
+			}
+        },1000)
+      },
+      chartAxPointerStop(){
+		  if(this.timer != null){
+			  clearInterval(this.timer)
+			  this.timeStamp.judge = true
+		  }
+      }
     },
     mounted() {
       // renderer.default.acturalScheduleUrl = `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${window.ScheduleID}&&IsGantt=false`
@@ -282,17 +343,21 @@
       //         }
       //     }
       // }
-      // })
-      // var timer = setInterval(()=>{
-      //   if(a!=b){
-      //       a+=10
-      //       b-=10
-      //      this.chart.setOption({dataZoom:_this.renderer.dataZoomSet(a,b)});
-      //      console.log(a,b)
-      //   }else{
-      //     clearInterval(timer)
-      //   }
-      // },1000)
+	  // })
+	  this.chartAxPointerStart()
+    //   var a = 0
+    //   var date = new Date()
+    //   var timer = setInterval(()=>{
+    //     date.setDate(date.getDate() + 1)
+    //     let newDate =  date.getFullYear() + '-' + (date.getMonth() + 1) +'-'+ date.getDate()
+    //     if(a < 10){
+    //       a += 1
+    //        this.chart.setOption({xAxis:{axisPointer:_this.renderer.axisPointer(newDate)}});
+    //        console.log(newDate)
+    //     }else{
+    //       clearInterval(timer)
+    //     }
+    //   },1000)
     }
   };
 </script>

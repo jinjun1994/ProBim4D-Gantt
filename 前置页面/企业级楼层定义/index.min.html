@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><!-- <link rel="stylesheet" href="./reset.css"> --><link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"><title>楼层类型定义（企业级）</title><style>.add-btn,.label,.sub-btn,.submit-btn,h2{color:#666}.label,.procedure-dbl-dialog h1,.submit-btn,.tem-center h1,h2{text-align:center}.el-table__fixed-right::before,.el-table__fixed::before{height:0}*{font-size:12px}.dialog{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99;background-color:rgba(0,0,0,.5)}.dialog .conter,.dialog .conter .add-btn{position:absolute;left:0;bottom:0;background:#fff}.dialog .conter{width:360px;height:250px;top:0;right:0;margin:auto;border-radius:10px;padding:20px 20px 50px}.dialog .conter .add-btn{height:50px;width:100%;line-height:50px;text-align:center;cursor:pointer;z-index:9}.dialog .form-center{width:240px;height:260px;background:#fff;padding:20px 20px 50px;position:absolute;top:0;left:0;right:0;bottom:0;margin:auto;border-radius:10px}.procedure-add-dialog,.procedure-dbl-dialog{height:300px;right:0;margin:auto;position:absolute;top:0;left:0;bottom:0;border-radius:10px;background:#fff}.procedure-center{position:absolute;top:0;left:0;right:0;bottom:0;margin:auto;width:550px;min-height:300px;max-height:60%;background:#fff;padding:20px;border-radius:10px}.boder-top{border-top:1px solid #ccc}.procedure-add-dialog{width:400px;padding:20px 20px 20px 0}.procedure-dbl-dialog{width:300px;padding:20px 20px 50px;overflow-y:auto}.submit-btn{width:100%;height:20px;line-height:20px;cursor:pointer}.tem-center{position:absolute;top:0;left:0;right:0;bottom:0;margin:auto;width:600px;height:310px;padding:20px;background:#fff;border-radius:10px}.tem-center h1{font-size:14px;color:#666}.mt20{margin-top:20px}.add-btn{text-align:right;cursor:pointer}li,ul{list-style:none}.sub-btn ul{display:flex;flex-direction:row;cursor:pointer}.sub-btn{position:absolute;right:20px;bottom:0}.ml20{margin-left:20px}.postion-center{position:absolute;top:0;left:0;right:0;bottom:0;margin:auto}.tem-add-dialog{width:400px;height:300px;padding:20px 20px 50px;background:#fff;border-radius:10px}.label{line-height:32px}.el-select{width:100%}.el-table::before{height:0}.procedure-tab{width:360px;height:250px;background:#fff;padding-bottom:50px}</style></head><body><div id="app"><div class="dialog" v-if="mainDialog"><!-- 楼层定义dom --><div class="conter" v-show="!addDialogShow && showName == ''"><h2>楼层类型定义(企业级)</h2><el-table style="overflow-y:auto" max-height="200" stripe :data="tableData" height="250" @row-dblclick="tableRowDblCkucj" style="width:100%"><el-table-column prop="floorTyoe" label="楼层类型" width="140"></el-table-column><el-table-column prop="describe" label="描述" width="140"></el-table-column><el-table-column fixed="right" label="操作" width="80"><template slot-scope="scope"><el-button @click.native.prevent="deleteRow(scope.$index, tableData)" type="text" size="small">移除</el-button></template></el-table-column></el-table><div class="sub-btn"><ul><li @click="addLocal">下一步</li><li class="ml20" @click="tabAddClick">添加</li></ul></div></div><div class="form-center" v-show="addDialogShow"><el-row><el-col :span="6" class="label">楼层类型：</el-col><el-col :span="18"><el-input size="small" placeholder="请输入楼层类型" v-model="addDialog.floorTyoe" clearable></el-input></el-col></el-row><el-row class="mt20"><el-col :span="6" class="label">描述：</el-col><el-col :span="18"><el-input type="textarea" :autosize="{ minRows:8, maxRows: 8}" placeholder="请输入描述" resize="none" v-model="addDialog.describe"></el-input></el-col></el-row><div class="sub-btn"><ul><li @click="addDialogSub">确定</li><li class="ml20" @click="addDialogCancel">取消</li></ul></div></div><div class="procedure-center" v-show="procedureViewShow && showName == 'procedure'"><el-row class="mt20"><el-col :span="5" class="label">工序项：</el-col><el-col :span="18"><el-table style="overflow-y:auto" :data="procedureTableData" height="250" style="width:100%" stripe max-hegiht="200"><el-table-column type="index" :index="indexMethod" label="项目序号" width="100"></el-table-column><el-table-column prop="floorType" label="工序项" width="100"></el-table-column><el-table-column prop="describe" label="描述" width="100"></el-table-column><el-table-column fixed="right" label="操作" width="80"><template slot-scope="scope"><el-button @click.native.prevent="deleteRow(scope.$index, procedureTableData)" type="text" size="small">移除</el-button></template></el-table-column></el-table><div class="add-btn mt20" @click="procedureAddDialog = true; procedureViewShow = false">添加</div></el-col></el-row><el-row class="mt20 boder-top"><el-col :span="5" class="label">施工时间：</el-col><el-col :span="18"><el-table style="overflow-y:auto" :data="customData" style="width:100%" max-hegiht="200" @row-dblclick="procedureTableRowDblCkucj" stripe><el-table-column prop="index" label="楼层类型" min-width="100"></el-table-column><el-table-column :prop="item.propData" width="100" v-for="(item,index) in customTab" :label="item.labal"></el-table-column><el-table-column fixed="right" label="操作" min-width="80"><template slot-scope="scope"><el-button @click.native.prevent="deleteRow(scope.$index, customData)" type="text" size="small">移除</el-button></template></el-table-column></el-table></el-col></el-row><div class="sub-btn"><ul><li @click="submitLocal">下一步</li><!-- <li class="ml20" class="ml20" @click='mainDialog=false'>取消</li> --></ul></div></div><div class="procedure-add-dialog" v-show="procedureAddDialog && showName == 'procedure'"><el-row><el-col :span="6" class="label">工序项：</el-col><el-col :span="10"><el-input size="small" placeholder="请输入工序项" v-model="procedureAddDialogData.floorType" clearable></el-input></el-col><el-col :span="4" class="label">色彩：</el-col><el-col :span="4" class="label"><el-color-picker v-model="procedureAddDialogData.color" size="small"></el-color-picker></el-col></el-row><el-row class="mt20"><el-col :span="6" class="label">描述：</el-col><el-col :span="18"><el-input type="textarea" :autosize="{ minRows:8, maxRows: 8}" placeholder="请输入描述" resize="none" v-model="procedureAddDialogData.describe"></el-input></el-col></el-row><div class="sub-btn"><ul><li @click="procedureAddDialogSub">确定</li><li class="ml20" @click="procedureAddDialogCancel" class="ml20">取消</li></ul></div></div><div class="procedure-dbl-dialog" v-if="procedureAddDblshow && showName == 'procedure'"><h1>楼层类型</h1><el-row class="mt20" v-for="(item,index) in customTab"><el-col :span="6" class="label">{{item.labal}}：</el-col><el-col :span="18"><el-input size="small" placeholder="请输入工时" v-model="customData[dblClickIndex][ 'propData'+index]" clearable></el-input></el-col></el-row><div class="sub-btn"><ul><li @click="procedureViewShow=true;procedureAddDblshow=false">确定</li><li class="ml20" @click="procedureViewShow=true;procedureAddDblshow=false">取消</li></ul></div></div><!-- 模板 dom --><div class="tem-add-dialog postion-center" v-show="showTemDialog"><el-row class="mt20"><el-col :span="5" class="label">节点名称：</el-col><el-col :span="18"><el-input size="small" placeholder="请输入楼层类型" v-model="procedureTempData.nodeName" clearable></el-input></el-col></el-row><el-row class="mt20"><el-col :span="5" class="label">关联工序：</el-col><el-col :span="18"><el-select v-model="procedureTempData.relationName" placeholder="请选择" size="small"><el-option v-for="item in relationNameOptions" :key="item.guid" :label="item.floorType" :value="item.guid"></el-option></el-select></el-col></el-row><el-row class="mt20"><el-col :span="5" class="label">前置节点：</el-col><el-col :span="18"><el-select v-model="procedureTempData.prepositionNode" placeholder="请选择" size="small"><el-option v-for="item in prepositionNodeOptions" :key="item.guid" :label="item.floorType" :value="item.guid"></el-option></el-select></el-col></el-row><el-row class="mt20"><el-col :span="5" class="label">节点类型：</el-col><el-col :span="18"><el-input size="small" placeholder="请输入楼层类型" v-model="procedureTempData.relationType" clearable></el-input></el-col></el-row><el-row class="mt20"><el-col :span="5" class="label">技术间隔时间：</el-col><el-col :span="18"><el-input size="small" placeholder="请输入楼层类型" v-model="procedureTempData.intervalTime" clearable></el-input></el-col></el-row><div class="sub-btn"><ul><li @click="submitParent">确定</li><li class="ml20" class="ml20" @click="initTemData">取消</li></ul></div></div><div class="tem-center" v-show="!showTemDialog && showName == 'tem'"><h1>标准工序模板</h1><el-table :data="procedureTempTableData" stripe style="overflow-y:auto;max-height:200px"><el-table-column prop="nodeName" label="节点名称" width="100"></el-table-column><el-table-column prop="prepositionNode" label="前置节点" width="100"></el-table-column><el-table-column prop="intervalTime" label="技术间隔时间" width="100"></el-table-column><el-table-column prop="relationName" label="关联工序" width="100"></el-table-column><el-table-column prop="relationType" label="节点类型" width="100"></el-table-column><el-table-column fixed="right" label="操作" width="80"><template slot-scope="scope"><el-button @click.native.prevent="deleteRow(scope.$index, procedureTempTableData)" type="text" size="small">移除</el-button></template></el-table-column></el-table><div class="add-btn mt20" @click="showTemDialog = true">添加</div><div class="sub-btn"><ul><li @click="finalSubmit">确定</li><li class="ml20" class="ml20" @click="initDialogView">取消</li></ul></div></div></div></div><script src="https://unpkg.com/vue/dist/vue.js"></script><script src="https://unpkg.com/element-ui/lib/index.js"></script><script src="https://unpkg.com/axios/dist/axios.min.js"></script><script>var vm = new Vue({
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="X-UA-Compatible" content="ie=edge"><!-- <link rel="stylesheet" href="./reset.css"> --><link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"><title>楼层类型定义（企业级）</title><style>.dialog .conter,.dialog .form-center,.procedure-add-dialog,.procedure-center,.procedure-dbl-dialog,.tem-center{right:0;margin:auto;top:0;left:0;border-radius:10px}.label,.procedure-dbl-dialog h1,.submit-btn,.tem-center h1,h2{text-align:center}.add-btn,.label,.sub-btn,.submit-btn,h2{color:#666}.el-table__fixed-right::before,.el-table__fixed::before{height:0}*{font-size:12px}.dialog{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99;background-color:rgba(0,0,0,.5)}.dialog .conter,.dialog .conter .add-btn,.dialog .form-center,.postion-center,.procedure-add-dialog,.procedure-center,.procedure-dbl-dialog,.sub-btn,.tem-center{position:absolute;bottom:0}.dialog .conter{width:360px;height:250px;background:#fff;padding:20px 20px 50px}.dialog .conter .add-btn{height:50px;width:100%;left:0;line-height:50px;text-align:center;cursor:pointer;z-index:9;background:#fff}.dialog .form-center{width:240px;height:260px;background:#fff;padding:20px 20px 50px}.procedure-center{width:650px;min-height:300px;max-height:70%;background:#fff;padding:20px}.boder-top{border-top:1px solid #ccc}.procedure-add-dialog{width:400px;height:340px;background:#fff;padding:20px 20px 20px 0}.procedure-dbl-dialog{width:300px;height:300px;padding:20px 20px 50px;background:#fff;overflow-y:auto}.submit-btn{width:100%;height:20px;line-height:20px;cursor:pointer}.tem-center{width:600px;height:310px;padding:20px;background:#fff}.tem-center h1{font-size:14px;color:#666}.mt20{margin-top:20px}.add-btn{text-align:right;cursor:pointer}li,ul{list-style:none}.sub-btn ul{display:flex;flex-direction:row;cursor:pointer}.sub-btn{right:20px}.ml20{margin-left:20px}.postion-center{top:0;left:0;right:0;margin:auto}.tem-add-dialog{width:400px;height:300px;padding:20px 20px 50px;background:#fff;border-radius:10px}.label{line-height:32px}.el-select{width:100%}.el-table::before{height:0}.procedure-tab{width:360px;height:250px;background:#fff;padding-bottom:50px}::-webkit-scrollbar{width:4px;height:6px;background-color:#f6f9fc}::-webkit-scrollbar-thumb{border-radius:10px;-webkit-box-shadow:inset 0 0 4px transparent;background-color:#c6c6c6}::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 0 transparent;border-radius:10px;background-color:#f6f9fc}</style></head><body><div id="app"><div class="dialog" v-if="mainDialog"><!-- 楼层定义dom --><div class="conter" v-show="!addDialogShow && showName == ''"><h2>楼层类型定义(企业级)</h2><el-table style="overflow-y:auto" max-height="200" stripe :data="tableData" height="200" @row-dblclick="tableRowDblCkucj" style="width:100%"><el-table-column prop="floorTyoe" label="楼层类型" width="140"></el-table-column><el-table-column prop="describe" label="描述" width="140"></el-table-column><el-table-column fixed="right" label="操作" width="80"><template slot-scope="scope"><el-button @click.native.prevent="deleteRow(scope.$index, tableData)" type="text" size="small">移除</el-button></template></el-table-column></el-table><div class="sub-btn"><ul><li @click="tabAddClick">添加</li><li @click="addLocal" class="ml20">下一步</li></ul></div></div><div class="form-center" v-show="addDialogShow"><el-row><el-col :span="6" class="label">楼层类型：</el-col><el-col :span="18"><el-input size="small" placeholder="请输入楼层类型" v-model="addDialog.floorTyoe" clearable></el-input></el-col></el-row><el-row class="mt20"><el-col :span="6" class="label">描述：</el-col><el-col :span="18"><el-input type="textarea" :autosize="{ minRows:8, maxRows: 8}" placeholder="请输入描述" resize="none" v-model="addDialog.describe"></el-input></el-col></el-row><div class="sub-btn"><ul><li @click="addDialogSub">确定</li><li class="ml20" @click="addDialogCancel">取消</li></ul></div></div><div class="procedure-center" v-show="procedureViewShow && showName == 'procedure'" :style="{'max-height':windowHeight}"><el-row class="mt20"><el-col :span="5" class="label">工序项：</el-col><el-col :span="18"><el-table style="overflow-y:auto" :data="procedureTableData" height="250" style="width:100%" stripe max-hegiht="200" @row-dblclick="procedureDbClick"><el-table-column type="index" :index="indexMethod" label="项目序号" width="100"></el-table-column><el-table-column prop="floorType" label="工序项" width="100"></el-table-column><el-table-column prop="describe" label="描述" width="100"></el-table-column><el-table-column prop="match" label="匹配" width="100"></el-table-column><el-table-column fixed="right" label="操作" width="80"><template slot-scope="scope"><el-button @click.native.prevent="deleteRowUp(scope.$index, procedureTableData,customData)" type="text" size="small">移除</el-button></template></el-table-column></el-table><!-- <div class="add-btn mt20" @click="procedureAddDialog = true; procedureViewShow = false">添加</div> --></el-col></el-row><el-row class="mt20 boder-top"><el-col :span="5" class="label">施工时间：</el-col><el-col :span="18"><el-table style="overflow-y:auto;height:150px" :data="customData" style="width:100%" max-hegiht="200" height="250" @row-dblclick="procedureTableRowDblCkucj" stripe><el-table-column prop="index" label="楼层类型" min-width="100"></el-table-column><el-table-column :prop="item.propData" width="100" v-for="(item,index) in customTab" :label="item.labal"></el-table-column><el-table-column fixed="right" label="操作" min-width="80"><template slot-scope="scope"><el-button @click.native.prevent="deleteRowUp(scope.$index, customData,procedureTableData)" type="text" size="small">移除</el-button></template></el-table-column></el-table></el-col></el-row><div class="sub-btn"><ul><li @click="procedureAddClick">添加</li><li class="ml20" @click="submitLocalPreStep">上一步</li><li @click="submitLocal" class="ml20">下一步</li><!-- <li class="ml20" class="ml20" @click='mainDialog=false'>取消</li> --></ul></div></div><div class="procedure-add-dialog" v-show="procedureAddDialog && showName == 'procedure'"><el-row><el-col :span="6" class="label">工序项：</el-col><el-col :span="10"><el-input size="small" placeholder="请输入工序项" v-model="procedureAddDialogData.floorType" clearable></el-input></el-col><el-col :span="4" class="label">色彩：</el-col><el-col :span="4" class="label"><el-color-picker v-model="procedureAddDialogData.color" size="small"></el-color-picker></el-col></el-row><el-row class="mt20"><el-col :span="6" class="label">附加字段：</el-col><el-col :span="18"><el-input type="text" placeholder="请输入附加字段" resize="none" v-model="procedureAddDialogData.match"></el-input></el-col></el-row><el-row class="mt20"><el-col :span="6" class="label">描述：</el-col><el-col :span="18"><el-input type="textarea" :autosize="{ minRows:8, maxRows: 8}" placeholder="请输入描述" resize="none" v-model="procedureAddDialogData.describe"></el-input></el-col></el-row><div class="sub-btn"><ul><li @click="procedureAddDialogSub" v-if="procedureAddDialogData.judge">确定</li><li @click="procedureAddDialogCancel(1)" class="ml20" v-if="!procedureAddDialogData.judge">确定</li><li class="ml20" @click="procedureAddDialogCancel" class="ml20">取消</li></ul></div></div><div class="procedure-dbl-dialog" v-if="procedureAddDblshow && showName == 'procedure'" style="display:flex"><h1>楼层类型</h1><div style="flex:1;overflow-y:auto"><el-row class="mt20" v-for="(item,index) in customTab"><el-col :span="6" class="label">{{item.labal}}：</el-col><el-col :span="18"><el-input size="small" placeholder="请输入工时" v-model="customData[dblClickIndex][ 'propData'+index]" clearable v-on:focus="inputFocus(customData[dblClickIndex][ 'propData'+index],index)" @blur="inputBlur(customData[dblClickIndex][ 'propData'+index],index)"></el-input></el-col></el-row></div><div class="sub-btn"><ul><li @click="procedureViewShow=true;procedureAddDblshow=false">确定</li><!-- <li class="ml20" @click="procedureViewShow=true;procedureAddDblshow=false">取消</li> --></ul></div></div><!-- 模板 dom --><div class="tem-add-dialog postion-center" v-show="showTemDialog"><el-row class="mt20"><el-col :span="5" class="label">节点名称：</el-col><el-col :span="18"><el-input size="small" placeholder="请输入楼层类型" v-model="procedureTempData.nodeName" clearable></el-input></el-col></el-row><el-row class="mt20"><el-col :span="5" class="label">关联工序：</el-col><el-col :span="18"><el-select v-model="procedureTempData.relationName" placeholder="请选择" size="small"><el-option v-for="item in relationNameOptions" :key="item.guid" :label="item.floorType" :value="item.floorType"></el-option></el-select></el-col></el-row><el-row class="mt20"><el-col :span="5" class="label">前置节点：</el-col><el-col :span="18"><el-select v-model="procedureTempData.prepositionNode" placeholder="请选择" size="small"><el-option v-for="item in procedureTempTableData" :key="item.guid" :label="item.nodeName" :value="item.nodeName"></el-option></el-select></el-col></el-row><el-row class="mt20"><el-col :span="5" class="label">节点类型：</el-col><el-col :span="18"><el-input size="small" placeholder="请输入楼层类型" v-model="procedureTempData.relationType" clearable></el-input></el-col></el-row><el-row class="mt20"><el-col :span="5" class="label">技术间隔时间：</el-col><el-col :span="18"><el-input size="small" placeholder="请输入楼层类型" v-model="procedureTempData.intervalTime" clearable></el-input></el-col></el-row><div class="sub-btn"><ul><li @click="submitParent">确定</li><li class="ml20" class="ml20" @click="initTemData">取消</li></ul></div></div><div class="tem-center" v-show="!showTemDialog && showName == 'tem'"><h1>标准工序模板</h1><el-table :data="procedureTempTableData" stripe style="overflow-y:auto;max-height:200px" height="200" @row-dblclick="lastTabDbClick"><el-table-column prop="nodeName" label="节点名称" width="100"></el-table-column><el-table-column prop="prepositionNode" label="前置节点" width="100"></el-table-column><el-table-column prop="intervalTime" label="技术间隔时间" width="100"></el-table-column><el-table-column prop="relationName" label="关联工序" width="100"></el-table-column><el-table-column prop="relationType" label="节点类型" width="100"></el-table-column><el-table-column fixed="right" label="操作" width="80"><template slot-scope="scope"><el-button @click.native.prevent="deleteRow(scope.$index, procedureTempTableData)" type="text" size="small">移除</el-button></template></el-table-column></el-table><!-- <div class="add-btn mt20" @click="showTemDialog = true">添加</div> --><div class="sub-btn"><ul><li @click="showTemDialog=true;procedureTempData.upDataJudge = false">添加</li><li class="ml20" @click="preStep">上一步</li><li @click="finalSubmit" class="ml20">确定</li><li class="ml20" @click="initDialogView">取消</li></ul></div></div></div></div><script src="https://unpkg.com/vue/dist/vue.js"></script><script src="https://unpkg.com/element-ui/lib/index.js"></script><script src="https://unpkg.com/axios/dist/axios.min.js"></script><script>var vm = new Vue({
             el: '#app',
             data() {
                 return {
@@ -16,7 +16,10 @@
                     procedureAddDialogData: {
                         floorType: '',
                         describe: '',
-                        color: ''
+                        color: '',
+                        match:'',
+                        judge:true,
+                        upDataNumber:null
                     },
                     input: '',
                     color2: '',
@@ -39,14 +42,98 @@
                         prepositionNode: '', //前置节点
                         relationType: '', //节点类型
                         intervalTime: '', //间隔时间
-
+                        upDataJudge:false, //是否是修改
+                        upDataNumber:0
                     },
                     relationNameOptions: [],
                     prepositionNodeOptions: [],
+                    KeyVal:'',
+                    windowHeight:'70%'
 
                 }
             },
             methods: {
+                lastTabDbClick(row){
+                    /*this.procedureTempTableData.push({
+                        nodeName: this.procedureTempData.nodeName,
+                        relationName: this.ProcessIdInit(this.procedureTempData.relationName),
+                        relationId: this.procedureTempData.relationName,
+                        prepositionNode: this.ProcessIdInit1(this.procedureTempData.prepositionNode),
+                        prepositionNodeId: this.procedureTempData.prepositionNode,
+                        relationType: this.procedureTempData.relationType,
+                        intervalTime: this.procedureTempData.intervalTime,
+                        guid:this.GUID()
+                    })
+                    // var a = this.procedureTempData
+                    // a = JSON.stringify(a)
+                    // this.procedureTempTableData.push(JSON.parse(a))
+                    this.initTemData()
+                    */
+                    console.log(row)
+                    this.procedureTempData.upDataNumber = this.procedureTempTableData.indexOf(row)
+                    this.procedureTempData.upDataJudge = true
+                    this.procedureTempData.nodeName = row.nodeName
+                    this.procedureTempData.relationName = row.relationName
+                    this.procedureTempData.intervalTime = row.intervalTime
+                    this.procedureTempData.prepositionNode = row.prepositionNode
+                    this.procedureTempData.relationType = row.relationType
+                    this.showTemDialog = true
+                    
+                },
+                procedureAddClick(){
+                   
+                   /*
+                   procedureAddDialogData: {
+                        floorType: '',
+                        describe: '',
+                        color: '',
+                        match:'',
+                        judge:true,
+                        upDataNumber:null
+                    },*/
+                    this.procedureAddDialogData.floorType = ''
+                    this.procedureAddDialogData.describe = ''
+                    this.procedureAddDialogData.color = ''
+                    this.procedureAddDialogData.match = ''
+                    this.procedureAddDialogData.judge = true
+                    this.procedureAddDialogData.upDataNumber = null
+                    this.procedureAddDialog = true; 
+                   this.procedureViewShow = false
+
+
+                },
+                procedureDbClick(row, event){
+                    console.log(row,event)
+                    this.procedureAddDialog = true
+                    this.procedureViewShow = false
+                    // let a = JSON.stringify(row)
+                    // this.procedureAddDialogData = JSON.parse(a)
+                    this.procedureAddDialogData.color = row.color
+                    this.procedureAddDialogData.describe = row.describe
+                    this.procedureAddDialogData.floorType = row.floorType
+                    this.procedureAddDialogData.match = row.match
+                    this.procedureAddDialogData.upDataNumber = this.procedureTableData.indexOf(row)
+                    this.procedureAddDialogData.judge = false
+                },
+                inputFocus(val,index){
+                    if(val == '双击更改'){
+                        this.customData[this.dblClickIndex][ 'propData'+index] = ''
+                    }
+                },
+                inputBlur(val,index){
+                    if(val == ''){
+                        this.customData[this.dblClickIndex]['propData'+index] = '双击更改'
+                    }
+                },
+                preStep(){
+                    this.procedureViewShow = true
+                    this.showName = 'procedure'
+                    // this.showTemDialog = true
+                },
+                deleteRowUp(index,rows,rows1){
+                    rows.splice(index, 1);
+                    rows1.splice(index, 1);
+                },
                 deleteRow(index, rows) {
                     rows.splice(index, 1);
                 },
@@ -57,13 +144,23 @@
                     this.procedureViewShow = false
                     this.addDialogShow = false
                     this.mainDialog = false
+                    top.dialogClose('SystemManage') 
 
                 },
-                ProcessIdInit(guid) {
+                ProcessIdInit(floorType) {
                     var a = ''
                     this.relationNameOptions.forEach(item => {
-                        if (item.guid == guid) {
-                            a = item.floorType
+                        if (item.floorType == floorType) {
+                            a = item.guid
+                        }
+                    })
+                    return a
+                },
+                ProcessIdInit1(nodeName){
+                    var a = ''
+                    this.procedureTempTableData.forEach(item => {
+                        if (item.nodeName == nodeName) {
+                            a = item.guid
                         }
                     })
                     return a
@@ -104,6 +201,7 @@
                             ProcessName: item.floorType,
                             ProcessDescription: item.describe,
                             ProcessColor: item.color,
+                            ProcessMatch:item.match,
                             ProcessNumber: index,
                             LevelCategory2Cycle: []
                         }
@@ -113,7 +211,7 @@
                                 for (item in items) {
                                     if (item != 'index') {
                                         a.push({
-                                            LevelCycle: items[item],
+                                            LevelCycle: items[item] == '双击更改'?0:items[item],
                                             LevelCategory: item
                                         })
                                     }
@@ -134,24 +232,68 @@
                     })
 
                     //工序模板
+                    window.localStorage.setItem('gxmb', JSON.stringify(this.procedureTempTableData))
                     this.procedureTempTableData.forEach(item => {
+                        console.log(item)
+
                         schedule.ProcessNode.push({
                             ProcessNodeName: item.nodeName,
                             BeforeProcessId: item.prepositionNodeId,
                             ProcessId: item.relationId,
                             ProcessNodeCategory: item.relationType,
-                            Interval: item.intervalTime
+                            Interval: item.intervalTime,
+                            guid:item.guid,
+                            relationName:item.relationName,
+                            prepositionNode:item.prepositionNode
+
                         })
                     })
-                    console.log(schedule)
-                    var formData = new FormData()
-                    formData.append('Schedule', JSON.stringify(schedule))
-                    axios.post(`${this.urlConfig}/api/Sys/AddOrUpdateSchedule`, formData).then(res => {
-                        console.log(res)
-                    })
+                    // formData.append('Schedule', JSON.stringify(schedule))
+                    let CompanyId = null
+                    if (top.CompanyId) {
+                        CompanyId = top.CompanyId
+                    } else {
+                        CompanyId = '997223d1-fe87-48df-9eea-cf01c8a57dbf'
+                    }
+                    
+                    if(this.KeyVal == ''){
+                    	var obj = {
+	                    	CompanyId:CompanyId,
+	                    	JsonData:JSON.stringify(schedule)
+	                    }
+                    	top.$.post(`${this.urlConfig}/CompanyData/Save`, obj, function (res) {
+	                        console.log(res)
+	                        top.dialogClose('SystemManage') 
+	                    }, 'json')
+                    }else{
+                    	var obj ={
+                    		KeyVal:this.KeyVal,
+                    		CompanyId:CompanyId,
+	                    	JsonData:JSON.stringify(schedule)
+                    	}
+                    	top.$.post(`${this.urlConfig}/CompanyData/Update`, obj, function (res) {
+	                        console.log(res)
+	                        top.dialogClose('SystemManage') 
+	                    }, 'json')
+                    }
+                    
+                    //axios.post(`${this.urlConfig}/CompanyData/Save`, obj, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(res => {
+                    //    top.dialogClose('OuterPage_Setting')
+                    //}).catch(res => {
+                    //    console.log(res)
+                    //})
 
                 },
-                procedureAddDialogCancel() {
+                procedureAddDialogCancel(nub) {
+                    
+                    if(nub == 1 && this.procedureAddDialogData.upDataNumber != null){
+                        this.procedureTableData[this.procedureAddDialogData.upDataNumber].floorType = this.procedureAddDialogData.floorType
+                        this.procedureTableData[this.procedureAddDialogData.upDataNumber].color = this.procedureAddDialogData.color
+                        this.procedureTableData[this.procedureAddDialogData.upDataNumber].describe = this.procedureAddDialogData.describe
+                        this.procedureTableData[this.procedureAddDialogData.upDataNumber].match = this.procedureAddDialogData.match
+                        this.customData[this.procedureAddDialogData.upDataNumber].index =  this.procedureAddDialogData.floorType
+                    }
+                    this.procedureAddDialogData.judge = true
                     this.procedureAddDialog = false
                     this.procedureViewShow = true
                 },
@@ -188,14 +330,16 @@
                     var floorDefube = JSON.parse(window.localStorage.getItem('floorDefube'))
                     var _this = this
                     if (floorDefube.length > 0) {
+                        _this.customTab.length = 0
                         floorDefube.forEach(function (item, index) {
-                            var str =
                                 _this.customTab.push({
                                     labal: item.floorTyoe,
                                     propData: 'propData' + index
                                 })
                         })
 
+                    }else{
+                        _this.customTab.length = 0
                     }
                 },
                 procedureAddDialogSub() {
@@ -203,7 +347,8 @@
                         guid: this.GUID(),
                         floorType: this.procedureAddDialogData.floorType,
                         describe: this.procedureAddDialogData.describe,
-                        color: this.procedureAddDialogData.color
+                        color: this.procedureAddDialogData.color,
+                        match:this.procedureAddDialogData.match
                     })
                     this.procedureViewShow = true
                     this.procedureAddDialog = false
@@ -221,11 +366,13 @@
                     return index++
                 },
                 procedureTableRowDblCkucj(row) {
-                    console.log(row)
                     this.dblClickIndex = this.customData.indexOf(row)
-                    console.log(this.dblClickIndex)
                     this.procedureAddDblshow = true
                     this.procedureViewShow = false
+                },
+                submitLocalPreStep(){
+                    this.addDialogShow = false
+                    this.showName = ''
                 },
                 submitLocal() {
                     var obj = {
@@ -260,16 +407,29 @@
                 },
                 //模板
                 submitParent() {
-                    this.procedureTempTableData.push({
-                        nodeName: this.procedureTempData.nodeName,
-                        relationName: this.ProcessIdInit(this.procedureTempData.relationName),
-                        relationId: this.procedureTempData.relationName,
-                        prepositionNode: this.ProcessIdInit(this.procedureTempData.prepositionNode),
-                        prepositionNodeId: this.procedureTempData.prepositionNode,
-                        relationType: this.procedureTempData.relationType,
-                        intervalTime: this.procedureTempData.intervalTime
-                    })
-                    console.log(this.procedureTempTableData)
+                    if(this.procedureTempData.upDataJudge){
+                        let a = this.procedureTempTableData[this.procedureTempData.upDataNumber]
+                        a.nodeName = this.procedureTempData.nodeName
+                        a.relationName = this.procedureTempData.relationName
+                        a.relationId = this.ProcessIdInit(this.procedureTempData.relationName)
+                        a.prepositionNode = this.procedureTempData.prepositionNode
+                        a.prepositionNodeId =this.ProcessIdInit1(this.procedureTempData.prepositionNode)
+                        a.relationType =  this.procedureTempData.relationType
+                        a.intervalTime = this.procedureTempData.intervalTime
+                        console.log(a)
+                    }else{
+                        this.procedureTempTableData.push({
+                            nodeName: this.procedureTempData.nodeName,
+                            relationName: this.procedureTempData.relationName,
+                            relationId: this.ProcessIdInit(this.procedureTempData.relationName),
+                            prepositionNode: this.procedureTempData.prepositionNode,
+                            prepositionNodeId: this.ProcessIdInit1(this.procedureTempData.prepositionNode),
+                            relationType: this.procedureTempData.relationType,
+                            intervalTime: this.procedureTempData.intervalTime,
+                            guid:this.GUID()
+                        })
+                    }
+                    
                     // var a = this.procedureTempData
                     // a = JSON.stringify(a)
                     // this.procedureTempTableData.push(JSON.parse(a))
@@ -286,11 +446,104 @@
                 }
             },
             mounted() {
-                this.urlConfig = "https://bimcomposer.probim.cn"
-                var floorDefube = JSON.parse(window.localStorage.getItem('floorDefube'))
-
-                if (floorDefube.length > 0) {
-                    this.tableData = floorDefube
+                let windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+                if(windowHeight < 700){
+                    this.windowHeight = '100%'
                 }
+                this.urlConfig = "https://api.probim.cn"
+                let CompanyId = null
+                if(top.CompanyId){
+                	CompanyId = top.CompanyId
+                }else{
+                	CompanyId = '997223d1-fe87-48df-9eea-cf01c8a57dbf'
+                }
+                axios.get(`${this.urlConfig}/CompanyData/GetCompanyData?CompanyId=${CompanyId}`).then(res=>{
+                	console.log(res)
+                    if (res.data.Message == null) return false
+                    res.data = JSON.parse(res.data.Message)
+                	if(res.data.CompanydataId){
+                		this.KeyVal = res.data.CompanydataId
+                	}
+                    res.data = JSON.parse(res.data.JsonData)
+                	console.log(res)
+                    if(res.data.LevelCategory.length>0){
+                        res.data.LevelCategory.forEach(item=>{//类型定义
+                            this.tableData.push({
+                                describe:item.LevelDescription,
+                                floorTyoe:item.LevelCategory
+                            })
+                        })
+                    }else{
+                        this.tableData.length = 0
+                    }
+                    if(res.data.Process.length>0){//工序项
+                        res.data.Process.forEach(item=>{
+                            var obj = {}
+                            obj.index = item.ProcessName
+                            this.procedureTableData.push( {
+                                color:item.ProcessColor,
+                                describe:item.ProcessDescription,
+                                guid:item.ProcessId,
+                                floorType:item.ProcessName,
+                                match:item.ProcessMatch
+                            })
+                            item.LevelCategory2Cycle.forEach((level,index)=>{
+                                this.customTab.push({
+                                    labal:level.LevelCategory,
+                                    propData:'propData' + index
+                                })
+                            })
+                            item.LevelCategory2Cycle.forEach((level,index)=>{
+                                this.customTab.forEach(header=>{
+                                    if(level.LevelCategory == header.labal){
+                                        obj[header.propData] = level.LevelCycle
+                                    }
+                                   
+                                })
+                               
+                            })
+                            this.customData.push(obj)
+                        })
+                    }else{
+                        this.customTab = []
+                        this.customData = []
+                        this.procedureTableData = []
+                    }
+
+                    if(res.data.ProcessNode.length > 0){
+                        res.data.ProcessNode.forEach(node=>{
+                            this.procedureTempTableData.push({
+                                guid:node.guid,
+                                intervalTime:node.Interval,
+                                nodeName:node.ProcessNodeName,
+                                relationId:node.ProcessId,
+                                relationName:node.relationName,
+                                prepositionNode:node.prepositionNode,
+                                prepositionNodeId:node.BeforeProcessId,
+                                relationType:node.ProcessNodeCategory
+
+                            })
+                        })
+                        
+                    }
+                    
+                })
+                // var gxmb = JSON.parse(window.localStorage.getItem('gxmb'))
+                // var floorDefube = JSON.parse(window.localStorage.getItem('floorDefube'))
+                //  var customData = JSON.parse(window.localStorage.getItem('customData'))
+                //  console.log(customData)
+                // if(gxmb){
+                //     console.log(gxmb)
+                //     this.procedureTempTableData = gxmb
+                // }
+                // if(customData){
+                //     this.procedureTableData = customData.procedureTerm
+                //     this.customData = customData.customData
+                //     this.customTab = customData.customTabHeader
+                // }
+                
+                // if (floorDefube.length > 0) {
+                //     this.tableData = floorDefube
+                // }
             },
         })</script></body></html>

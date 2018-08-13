@@ -40,29 +40,29 @@ let createPlannedArrowRenderItem = (data, color) => {
           lineWidth: 1,
         })
       },
-      {
-        type: 'circle',
-        z: 10,
-        shape: {
-          cx: 0,
-          cy: 0,
-          r: 10
-        },
-        position: point,
-        style: {
-          fill: '#fff',
-          stroke: color,
-        },
-      },
-      {
-        type: 'text',
-        position: point,
-        style: {
-          text: '101',
-          textAlign: 'center',
-          textVerticalAlign: 'center'
-        }
-      },
+      // {
+      //   type: 'circle',
+      //   z: 10,
+      //   shape: {
+      //     cx: 0,
+      //     cy: 0,
+      //     r: 10
+      //   },
+      //   position: point,
+      //   style: {
+      //     fill: '#fff',
+      //     stroke: color,
+      //   },
+      // },
+      // {
+      //   type: 'text',
+      //   position: point,
+      //   style: {
+      //     text: '101',
+      //     textAlign: 'center',
+      //     textVerticalAlign: 'center'
+      //   }
+      // },
     ]));
     if (params.dataIndexInside === 0) {
       return null;
@@ -281,6 +281,29 @@ class scheduleRenderer {
     }
 
   }
+  axisPointer(time){
+    time?time: time = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) +'-'+ new Date().getDate()
+   return { value: time,
+            snap: true,
+            lineStyle: {
+                color: 'red',
+                opacity: 1,
+                width: 1
+            },
+            label: {
+                show: true,
+                formatter: function (params) {
+                    var date = new Date(params.value)
+                    return `${date.getFullYear()} - ${date.getMonth() +1} - ${date.getDate()}`
+                },
+                backgroundColor: '#004E52'
+            },
+            handle: {
+                show: true,
+                color: 'transparent'
+            }
+        }
+  }
 
   async getPlannedScheduleAsync(ganttData) {
     var a = [];
@@ -419,30 +442,10 @@ class scheduleRenderer {
           interval: () => true,
           show: true
         },
-        // axisPointer: {
-        //     value: '2018-7-8',
-        //     snap: true,
-        //     lineStyle: {
-        //         color: 'red',
-        //         opacity: 1,
-        //         width: 1
-        //     },
-        //     label: {
-        //         show: true,
-        //         formatter: function (params) {
-        //             var date = new Date(params.value)
-        //             return `${date.getFullYear()} - ${date.getMonth() +1} - ${date.getDate()}`
-        //         },
-        //         backgroundColor: '#004E52'
-        //     },
-        //     handle: {
-        //         show: true,
-        //         color: 'transparent'
-        //     }
-        // },
-        // splitLine: {
-        //     show: false
-        // }
+        axisPointer: this.axisPointer(),
+        splitLine: {
+            show: false
+        }
       },
       dataZoom: this.dataZoomSet(),
       yAxis: {
