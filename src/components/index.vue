@@ -12,12 +12,26 @@
         </scheduleList>
         <div class="gantt-nav" style="height:100%;" :class="{'show-3d':show3d}">
             <div class="gantt-head">
-                <div class="gantt-left">任务列表</div>
+                <div class="gantt-left" v-show="showGantt">任务列表</div>
                 <div class="gantt-right">
                     <div class="fl">
                         <ul>
                             <li @click="toggle3D()" :class="{'no-click':selectScheduleID == ''}"> <img src="./model.svg"><span id="show3DText">显示模型</span></li>
                             <li style="margin-left:40px;" :class="{'no-click':!show3d}">附加选中对象</li>
+                            <li style="margin-left:40px;" v-show="!showGantt" class="proportion">
+                                完成比例
+                                <div>
+                                    <el-row style="display:flex;align-items: center;" v-for="a in proportionData" :key="a.name">
+                                        <el-col :span="10" style="color:#999">
+                                            {{a.business}} 0/{{a.diff}}
+                                        </el-col>
+                                        <el-col :span="14">
+                                             <el-progress :text-inside="true" :stroke-width="18" :percentage="50" :color=a.color></el-progress>
+                                        </el-col>
+                                       
+                                    </el-row>
+                                </div>
+                            </li>
                         </ul>
                     </div>
                     <div class="fr">
@@ -49,7 +63,11 @@
                 @operationGanttAddView=operationGanttAddView 
                 @upDatedGanttDateToCharts=upDatedGanttDateToCharts>
             </gantt>
-            <chats v-if="!showGantt" class="chats-wp" ref="chats" :selectScheduleID="selectScheduleID" :ganttData=ganttData></chats>
+            <chats v-if="!showGantt" class="chats-wp" ref="chats" 
+                :selectScheduleID="selectScheduleID"
+                @chartUpDate=chartUpDate 
+                @proportionUpData=proportionUpData
+                :ganttData=ganttData></chats>
             <matchDialog></matchDialog>
             <ganttAdd ref="ganttAdd" 
                 @delGanttTask=delGanttTask 
@@ -73,6 +91,24 @@
     </div>
 </template>
 <style>
+.el-progress-bar__innerText{
+    line-height: 18px
+}
+    .proportion{
+        text-align: left
+    }
+    .proportion>div{
+        padding: 10px;
+        width: 300px;
+        display: none;
+        background: #fff;
+        box-shadow: 0px 18px 49px -30px rgba(88, 90, 89, 0.5);
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+    .proportion:hover div{
+        display: block
+    }
     .match-loading{
         position: fixed;
         top: 0;
@@ -166,6 +202,8 @@
         flex: 1;
         display: flex;
         flex-direction: column;
+        position: relative;
+        z-index: 10;
     }
     .gantt-head {
         height: 30px;
@@ -181,6 +219,8 @@
     }
     .gantt-head .gantt-right {
         flex: 1;
+        position: relative;
+        z-index: 99
     }
     .gantt-wp,
     .chats-wp {
@@ -258,10 +298,46 @@
                     matchSuccess:0,
                     matchFail:0
 
-                }
+                },
+                proportionData:[]
             };
         },
         methods: {
+            proportionUpData(obj){
+                console.log()
+                this.proportionData = []
+                obj.actural.forEach(item=>{
+                    this.proportionData.push({
+                        business:item.business,
+                        color:item.color,
+                        diff:this.$refs.chats.DateDiff(item.schedule[item.schedule.length-1][5],item.schedule[0][0])
+                    })
+                })
+            },
+            chartUpDate(diff){ 
+                let arr = []
+                for(let i = 0 ; i<this.ganttData.length;i++){
+                    if(this.ganttData[i].TaskID == diff.selectTaskData.TaskID){
+                         this.ganttData[i].TaskName = diff.name
+                    }
+                    if(this.ganttData[i].Type == diff.selectTaskData.Type){
+                        if(this.floorNameToNub(diff.selectTaskData.TaskName) < this.floorNameToNub(this.ganttData[i].TaskName)){
+                           console.log(this.ganttData[i].TaskStartTime,this.initDiffDateTime(this.ganttData[i].TaskStartTime,diff.diff))
+                            this.ganttData[i].TaskStartTime = this.initDiffDateTime(this.ganttData[i].TaskStartTime,diff.diff)
+                            this.ganttData[i].TaskEndTime = this.initDiffDateTime(this.ganttData[i].TaskEndTime,diff.diff )
+                            arr.push( this.ganttData[i])
+                        }
+                    }
+                }
+               
+                this.$refs.chats.renderer.render( this.$refs.chats.acturalSchedule,  this.$refs.chats.plannedSchedule,  this.$refs.chats.initGanttDataToCharts(this.ganttData));
+                console.log(arr)
+            },
+            initDiffDateTime(date,diff){//根据插值算出新时间
+                date = new Date(date)
+                date.setDate(date.getDate() + diff);
+                return date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate()
+            },
             cheackedChartsFun(val){
             },
             serverDateInit(time){

@@ -120,34 +120,6 @@ let createArrowRenderItem = (data, color) => {
     let point = api.coord([_data[dataIndex][0], _data[dataIndex][1]]);
     let startDatePoint = api.coord([_data[dataIndex][5], _data[dataIndex][1]]);
     let graphics = [];
-
-    
-    // if (postPoint) {
-    // postPoints && postPoints.forEach((x,index) =>
-    //   graphics.push({
-    //     type: 'line',
-    //     position: point,
-    //     shape: {
-    //        y1: startDatePoint[0] -point[0]
-    //     },
-    //     style: {
-    //       stroke: color,
-    //       lineWidth: 2
-    //     },
-    //   }));
-    //   graphics.push({
-    //     type:'line',
-    //     position:point,
-    //     shape:{
-    //       x1:x[1] - point[1]
-    //     },
-    //     style:{
-    //       stroke:color,
-    //       lineWidth:2
-    //     }
-    //   })
-    
-    // }
    
     graphics.push({
       type: 'circle',
@@ -409,7 +381,7 @@ class scheduleRenderer {
       tooltip: {
         trigger: 'item',
         position: function (pt) {
-          return [pt[0], '10%'];
+          return [pt[0]+30, '10%'];
         },
         axisPointer: {
           type: 'cross',
