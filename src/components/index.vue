@@ -23,10 +23,10 @@
                                 <div>
                                     <el-row style="display:flex;align-items: center;" v-for="a in proportionData" :key="a.name">
                                         <el-col :span="10" style="color:#999">
-                                            {{a.business}} 0/{{a.diff}}
+                                            {{a.business}} {{a.molecule}}/{{a.diff}}
                                         </el-col>
                                         <el-col :span="14">
-                                             <el-progress :text-inside="true" :stroke-width="18" :percentage="50" :color=a.color></el-progress>
+                                             <el-progress :text-inside="true" :stroke-width="18" :percentage="a.proportion" :color=a.color></el-progress>
                                         </el-col>
                                        
                                     </el-row>
@@ -203,7 +203,6 @@
         display: flex;
         flex-direction: column;
         position: relative;
-        z-index: 10;
     }
     .gantt-head {
         height: 30px;
@@ -227,11 +226,10 @@
         height: calc(100% - 30px) !important;
         margin-left: -1px;
         position: relative;
-        z-index: 2;
     }
     .scheduleList-wp {
         position: relative;
-        z-index: 9;
+        z-index: 10;
     }
     .no-click {
         color: #ccc !important;
@@ -304,34 +302,48 @@
         },
         methods: {
             proportionUpData(obj){
-                console.log()
                 this.proportionData = []
+                
                 obj.actural.forEach(item=>{
+                    let number = 0
+                    
+                    item.schedule.forEach(s=>{
+                        if(s[7] == 100){
+                            number += this.$refs.chats.DateDiff(s[5],s[0])
+                        }
+                    })
                     this.proportionData.push({
                         business:item.business,
                         color:item.color,
-                        diff:this.$refs.chats.DateDiff(item.schedule[item.schedule.length-1][5],item.schedule[0][0])
+                        diff:this.$refs.chats.DateDiff(item.schedule[item.schedule.length-1][5],item.schedule[0][0]),
+                        molecule:number,
+                        proportion:number == 0?0:Math.floor((number/this.$refs.chats.DateDiff(item.schedule[item.schedule.length-1][5],item.schedule[0][0]))*100)
+
                     })
+                    console.log(number/this.$refs.chats.DateDiff(item.schedule[item.schedule.length-1][5],item.schedule[0][0])*100)
+
                 })
+                 console.log(this.proportionData)
             },
             chartUpDate(diff){ 
                 let arr = []
                 for(let i = 0 ; i<this.ganttData.length;i++){
                     if(this.ganttData[i].TaskID == diff.selectTaskData.TaskID){
                          this.ganttData[i].TaskName = diff.name
+                         this.ganttData[i].Percentage = 100
                     }
                     if(this.ganttData[i].Type == diff.selectTaskData.Type){
-                        if(this.floorNameToNub(diff.selectTaskData.TaskName) < this.floorNameToNub(this.ganttData[i].TaskName)){
+                        if(this.floorNameToNub(diff.selectTaskData.TaskName) <= this.floorNameToNub(this.ganttData[i].TaskName)){
                            console.log(this.ganttData[i].TaskStartTime,this.initDiffDateTime(this.ganttData[i].TaskStartTime,diff.diff))
                             this.ganttData[i].TaskStartTime = this.initDiffDateTime(this.ganttData[i].TaskStartTime,diff.diff)
                             this.ganttData[i].TaskEndTime = this.initDiffDateTime(this.ganttData[i].TaskEndTime,diff.diff )
                             arr.push( this.ganttData[i])
                         }
                     }
+                    this.$refs.chats.dialogData.show = false
                 }
                
                 this.$refs.chats.renderer.render( this.$refs.chats.acturalSchedule,  this.$refs.chats.plannedSchedule,  this.$refs.chats.initGanttDataToCharts(this.ganttData));
-                console.log(arr)
             },
             initDiffDateTime(date,diff){//根据插值算出新时间
                 date = new Date(date)

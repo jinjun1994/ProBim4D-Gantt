@@ -191,12 +191,12 @@
 									initData.plannedTime = item.TaskPlanStartTime
 								}
 								if ((typeof item.TaskStartTime != 'string') && item.TaskStartTime.constructor != String) {
-									lastData.actural[index].schedule.push([item.TaskStartTime, this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskEndTime, lastData.actural[index].schedule.length * 1 + 1])
+									lastData.actural[index].schedule.push([item.TaskStartTime, this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskEndTime, lastData.actural[index].schedule.length * 1 + 1,item.Percentage])
 									lastData.planned[index].schedule.push([item.TaskPlanStartTime, this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskPlanEndTime, lastData.planned[index].schedule.length * 1 + 1])
 									initData.time = item.TaskStartTime
 									initData.plannedTime = item.TaskPlanStartTime
 								} else {
-									lastData.actural[index].schedule.push([item.TaskStartTime.split('T')[0], this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskEndTime.split('T')[0], lastData.actural[index].schedule.length * 1 + 1])
+									lastData.actural[index].schedule.push([item.TaskStartTime.split('T')[0], this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskEndTime.split('T')[0], lastData.actural[index].schedule.length * 1 + 1,item.Percentage])
 									lastData.planned[index].schedule.push([item.TaskPlanStartTime.split('T')[0], this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskPlanEndTime.split('T')[0], lastData.planned[index].schedule.length * 1 + 1])
 									initData.time = item.TaskStartTime.split('T')[0]
 									initData.plannedTime = item.TaskPlanStartTime.split('T')[0]
@@ -224,12 +224,12 @@
 									initData.plannedTime = item.TaskPlanStartTime
 								}
 								if ((typeof item.TaskStartTime != 'string') && item.TaskStartTime.constructor != String) {
-									lastData.actural[index].schedule.push([item.TaskStartTime, this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskEndTime, lastData.actural[index].schedule.length * 1 + 1])
+									lastData.actural[index].schedule.push([item.TaskStartTime, this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskEndTime, lastData.actural[index].schedule.length * 1 + 1,item.Percentage])
 									lastData.planned[index].schedule.push([item.TaskPlanStartTime, this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskPlanEndTime, lastData.planned[index].schedule.length * 1 + 1])
 									initData.time = item.TaskStartTime
 									initData.plannedTime = item.TaskPlanStartTime
 								} else {
-									lastData.actural[index].schedule.push([item.TaskStartTime.split('T')[0], this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskEndTime.split('T')[0], lastData.actural[index].schedule.length * 1 + 1])
+									lastData.actural[index].schedule.push([item.TaskStartTime.split('T')[0], this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskEndTime.split('T')[0], lastData.actural[index].schedule.length * 1 + 1,item.Percentage])
 									lastData.planned[index].schedule.push([item.TaskPlanStartTime.split('T')[0], this.initFloorNameToNub(item.TaskName), item.TaskID, 0, initData.Guid, item.TaskPlanEndTime.split('T')[0], lastData.planned[index].schedule.length * 1 + 1])
 									initData.time = item.TaskStartTime.split('T')[0]
 									initData.plannedTime = item.TaskPlanStartTime.split('T')[0]

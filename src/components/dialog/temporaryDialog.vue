@@ -252,7 +252,7 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 9;
+        z-index: 10;
     }
     .temporary-center {
         width: 550px;
@@ -302,7 +302,12 @@
                 addMultipleBuild: false,
                 batchInputVal:'',
                 floorConfig:'',
-                setDateNub:0
+                setDateNub:0,
+                dirtyCheck:{
+                    name:false,
+                    startTime:false,
+                    floorTableData:false
+                }
             };
         },
         methods: {
@@ -800,6 +805,13 @@
             // }
         },
         watch: {
+            // "temData.name":function(val,oldval){
+            //     if(oldval == ''){
+            //         return false
+            //     }
+            //     console.log(val,oldval)
+                
+            // },
             temporaryDialog: function(val, oldval) {
                 if (!val) {
                     this.floorTableData.length = 0
