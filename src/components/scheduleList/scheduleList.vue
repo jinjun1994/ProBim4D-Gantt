@@ -15,6 +15,7 @@
           <div class="sj1"></div>
         </div>
         <ul>
+          <li @click="copyDialogData.show = true" v-show="JSON.stringify(selectSchedule) != '{}'"><img src='./doc_btn_copy_normal.svg'>复制</li>
           <li @click="showDialog(3,2)"><img src="./edit.svg">编辑进度</li>
           <li @click="showDialog(2,2)"><img src="./deleteblack.svg">删除进度</li>
           <li @click="showDialog(1,1)" v-show="showAddOrDel"><img src="./addblack.svg">新增匹配规则</li>
@@ -32,6 +33,25 @@
     <dialogView ref="dialogView" @addItem="addItem" :ruleForm=dialogAddJd></dialogView>
     <matchDialog ref="matchDialog" :schedule-id="thisScheduleID" @requestItems=requestItems :ruleForm=dialogAddPpgz></matchDialog>
     <delDialogMatch ref="delDialogMatch" :schedule-id="thisScheduleID" @requestItems=requestItems :configText=dialogDelConfig></delDialogMatch>
+    <div class="copy-dialog" v-if="copyDialogData.show">
+		<div class="center">
+			<h1>复制进度方案</h1>
+			<el-row class="mt20">
+				<el-col :span="5" class="label">
+					名称：
+				</el-col>
+				<el-col :span="18">
+					<el-input v-model="copyDialogData.name" placeholder="请输入内容"></el-input>
+				</el-col>
+			</el-row>
+			<div class="sub-btn">
+				<ul>
+					<li class="ml20" @click="copyClick">确定</li>
+					<li class="ml20" @click="copyDialogData.show = false">取消</li>
+				</ul>
+			</div>
+		</div>
+    </div>
   </div>
 </template>
 <script>
@@ -44,7 +64,16 @@
       dialogView,
       matchDialog,
       delDialogMatch
-    },
+	},
+	props:{
+		selectSchedule: {
+			type:Object,
+			default(){
+				return {}
+			}
+		},
+		ganttOrChartsData: Array
+	},
     data() {
       return {
         fullscreenLoading:false,
@@ -82,9 +111,63 @@
         thisItem: "",
         clickItem: null,
         showAddOrDel: true, //是否显示列表新建删除
+        copyDialogData:{
+		  show:false,
+		  name:'',
+		  ganttOrChartsData:[]
+        }
       };
     },
     methods: {
+      copyClick(){
+		if(this.copyDialogData.name == ''){
+			 this.$message.error('请输入名称');
+			 return false
+		}
+		let _this = this
+		let formData = new FormData()
+		let obj = {
+			ModelID:window.ModelID,
+			ScheduleName:this.copyDialogData.name,
+			ScheduleStartTime:this.$props.selectSchedule.ScheduleStartTime,
+			ExternalField:this.$props.selectSchedule.ExternalField
+		}
+		if(this.$props.ganttOrChartsData.length > 0){
+			this.copyDialogData.ganttOrChartsData = JSON.stringify(this.$props.ganttOrChartsData)
+			this.copyDialogData.ganttOrChartsData = JSON.parse(this.copyDialogData.ganttOrChartsData)
+		}
+		formData.append('ProjectID',window.ProjectID)
+		formData.append('Schedule', JSON.stringify(obj))
+		this.$axios.post(`${window.urlConfig}/api/Prj/AddSchedule`, formData).then(res => {
+			console.log(res)
+			this.$emit('listAddItem')
+			 var formData1 = new FormData()
+			formData1.append('ProjectID', window.ProjectID)
+			this.copyDialogData.ganttOrChartsData.forEach(item => {
+				item.ScheduleID = res.data
+				item.Color = item.color
+				item.TaskID =this.GUID()
+				delete item.color
+			})
+			formData1.append('ScheduleTasks', JSON.stringify(this.copyDialogData.ganttOrChartsData))
+			this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`, formData1).then(res => {
+				this.copyDialogData.show=false
+			}).catch(res => {
+				console.log('批量添加数据错误，原因' + res)
+			})
+			
+		})
+	  },
+	  GUID(){
+                let guid = '';
+                for (let i = 1; i <= 32; i++) {
+                let n = Math.floor(Math.random() * 16.0).toString(16);
+                guid += n;
+                if ((i === 8) || (i === 12) || (i === 16) || (i === 20))
+                    guid += '-';
+                }
+                return guid;
+            },
       judgeClickClass(item) {
         if (this.clickItem) {
           if (item.ScheduleID == this.clickItem.ScheduleID) {
@@ -259,6 +342,28 @@
   };
 </script>
 <style lang="css" scoped>
+	.copy-dialog{
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, .5);
+		z-index: 10;
+	}
+	.copy-dialog .center{
+		width: 300px;
+		height: 200px;
+		background: #fff;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		margin: auto;
+		border-radius: 10px;
+		padding: 20px;
+	}
   .ppgz-dialog {
     width: 200px;
     min-height: 72px;

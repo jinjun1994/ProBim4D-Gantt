@@ -2,7 +2,8 @@
     <div class="gantt-add-dialog" @click="showDialog = false" v-if="showDialog">
         <div class="add-center" @click.stop :class="{'height300':ruleForm.judgeAdd =='xiugai'}">
             <div class="dialog-header">
-                <h2 class="fl">新增任务</h2>
+                <h2 class="fl" v-if="ruleForm.judgeAdd != 'xiugai'">新增任务</h2>
+                <h2 class="fl" v-else>修改任务</h2>
                 <img src="./addblack.svg" alt="" class="fr" @click="showDialog = false">
             </div>
             <div class="dialog-center">

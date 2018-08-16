@@ -2,12 +2,15 @@
     <div class="index-wp">
         <!-- <scheduleList class="scheduleList-wp" @requestData=requestData v-show="!show3d">
             </scheduleList> -->
-        <scheduleList class="scheduleList-wp" 
+        <scheduleList class="scheduleList-wp"
+        :selectSchedule=selectItem 
+        :ganttOrChartsData = ganttData
         @requestData=requestData 
         v-show="!show3d" 
         @temporaryDialogShow=temporaryDialogShow 
         @clearGanttDataView=clearGanttDataView 
         @temporaryDialogUpdataShow=temporaryDialogUpdataShow
+        @listAddItem=listAddItem 
         ref="scheduleList">
         </scheduleList>
         <div class="gantt-nav" style="height:100%;" :class="{'show-3d':show3d}">
@@ -217,9 +220,9 @@
         width: 359px;
     }
     .gantt-head .gantt-right {
-        flex: 1;
-        position: relative;
-        z-index: 99
+       flex: 1;
+         /* position: relative;
+        z-index: 99 */
     }
     .gantt-wp,
     .chats-wp {
@@ -262,7 +265,7 @@
         data() {
             return {
                 checkedCharts:[],
-                ganttData:'',
+                ganttData:[],
                 showGantt: true,
                 tasks: {
                     data: [],
@@ -342,8 +345,16 @@
                     }
                     this.$refs.chats.dialogData.show = false
                 }
+                let formData = new FormData()
+                formData.append('ProjectID',window.ProjectID)
+                formData.append('ScheduleTasks',JSON.stringify(arr))
+               console.log(arr)
+               this.$axios.post(`${window.urlConfig}/api/Prj/BatchUpdateScheduleTask`,formData).then(res=>{
+                    this.$refs.chats.renderer.render( this.$refs.chats.acturalSchedule,  this.$refs.chats.plannedSchedule,  this.$refs.chats.initGanttDataToCharts(this.ganttData));
+               }).catch(res=>{
+                   cosnole.log('/api/Prj/BatchUpdateScheduleTask 报错' + res)
+               })
                
-                this.$refs.chats.renderer.render( this.$refs.chats.acturalSchedule,  this.$refs.chats.plannedSchedule,  this.$refs.chats.initGanttDataToCharts(this.ganttData));
             },
             initDiffDateTime(date,diff){//根据插值算出新时间
                 date = new Date(date)
@@ -399,7 +410,7 @@
             listAddItem(item) {
                  this.$message({
                     showClose: true,
-                    message: '新建进度方案成功',
+                    message: '操作进度方案成功',
                     type: 'success'
                 });
                 this.$refs.scheduleList.requestItems()
@@ -446,7 +457,7 @@
                     this.initCnDate(task.start_date),
                     this.initCnDate(task.end_date)
                 ];
-                this.ruleForm.additionaltext = task.FilterValue ? task.FilterValue : "";
+                this.ruleForm.additionaltext = task.ExternalProperty
                 this.ruleForm.judgeAdd = "xiugai";
                 this.ruleForm.parent = task.parent;
                 this.$refs.ganttAdd.showDialog = true;
@@ -570,9 +581,9 @@
                 this.$axios.get(`${window.urlConfig}/api/Prj/GetScheduleTasks?ProjectID=${window.ProjectID}&ScheduleID=${item.ScheduleID}`).then(res=>{
                     console.log(res)
                     this.ganttData = res.data
-                    this.ganttData = this.ganttData.sort((a,b)=>{
-                        return a.TaskName.split('_')[1].split('F')[0]*1 - b.TaskName.split('_')[1].split('F')[0]*1
-                    })
+                    // this.ganttData = this.ganttData.sort((a,b)=>{
+                    //     return a.TaskName.split('_')[1].split('F')[0]*1 - b.TaskName.split('_')[1].split('F')[0]*1
+                    // })
                     this.ganttData.forEach(item=>{
                         item.Type = item.Category
                         item.color = item.Color
@@ -747,12 +758,12 @@
                     window.showOrHideComposer(val);
                 }
             },
-            // showGantt:function(val,oldval){
-            //     if(val){
-            //         this.requestData(this.selectItem)
-            //     }
+            showGantt:function(val,oldval){
+                if(val){
+                    this.requestData(this.selectItem)
+                }
                 
-            // }
+            }
         }
     };
 </script>

@@ -53,13 +53,13 @@
                         </el-table-column>
                         <el-table-column fixed="right" label="操作" width="100">
                             <template slot-scope="scope">
-                                    <el-button
-                                    @click.native.prevent="deleteRow(scope.$index)"
-                                    type="text"
-                                    size="small">
-                                    移除
-                                    </el-button>
-                            </template>
+                                        <el-button
+                                        @click.native.prevent="deleteRow(scope.$index)"
+                                        type="text"
+                                        size="small">
+                                        移除
+                                        </el-button>
+</template>
                             </el-table-column>
                     </el-table>
                 </el-col>
@@ -160,8 +160,8 @@
         </div>
     </div>
 </template>
-<style >
-    .el-input-number--small{
+<style>
+    .el-input-number--small {
         width: 95%;
     }
     .el-table__fixed-right::before,
@@ -267,8 +267,8 @@
 </style>
 <script>
     export default {
-        props:{
-            selectItem:{
+        props: {
+            selectItem: {
                 type: Object
             }
         },
@@ -281,7 +281,7 @@
                     startTime: "",
                     useClimbing: '',
                     basics: '',
-                    ScheduleID:''
+                    ScheduleID: ''
                 },
                 navOptions: [],
                 nub: -2,
@@ -300,19 +300,19 @@
                 },
                 temporaryDialog: false,
                 addMultipleBuild: false,
-                batchInputVal:'',
-                floorConfig:'',
-                setDateNub:0,
-                dirtyCheck:{
-                    name:false,
-                    startTime:false,
-                    floorTableData:false
+                batchInputVal: '',
+                floorConfig: '',
+                setDateNub: 0,
+                dirtyCheck: {
+                    name: true,
+                    startTime: true,
+                    floorTableData: true
                 }
             };
         },
         methods: {
             addMultipSubmit() {
-                if(this.batchInputVal == ''){
+                if (this.batchInputVal == '') {
                     this.$message({
                         message: '请选择添加类型',
                         type: 'warning'
@@ -331,7 +331,7 @@
                     this.floorTableData.push({
                         floorID: this.nub.toString(),
                         floorName: this.addFloorTableData.floorID + 'F',
-                        floorType:  this.batchInputVal,
+                        floorType: this.batchInputVal,
                         describe: '双击修改描述'
                     })
                 }
@@ -344,34 +344,30 @@
             deleteRow(index) {
                 this.floorTableData.splice(index, 1)
                 this.nub -= 1
-                this.nub == 0?this.nub = -1: this.nub = this.nub
+                this.nub == 0 ? this.nub = -1 : this.nub = this.nub
             },
-            recursionReturnNub(item){
-                this.setDateNub += item.Interval*1
-                
-                if(item.BeforeProcessId != ''){
-                    this.floorConfig.ProcessNode.forEach(process=>{
-                        if(item.BeforeProcessId == process.guid){
-                            if(process.BeforeProcessId == ""){
-                                
-                            }else{
+            recursionReturnNub(item) {
+                this.setDateNub += item.Interval * 1
+                if (item.BeforeProcessId != '') {
+                    this.floorConfig.ProcessNode.forEach(process => {
+                        if (item.BeforeProcessId == process.guid) {
+                            if (process.BeforeProcessId == "") {
+                            } else {
                                 this.recursionReturnNub(process)
                             }
-                            
                         }
                     })
                 }
-
             },
-            floorNameToNubmer(str){
+            floorNameToNubmer(str) {
                 var nub = str.split('F')[0] * 1
-                if(nub == -1){
+                if (nub == -1) {
                     return 1
-                }else{
-                    return nub +=1
+                } else {
+                    return nub += 1
                 }
             },
-            initFloorNameToNubSort(str){
+            initFloorNameToNubSort(str) {
                 return str.split('F')[0]
             },
             submitClick() {
@@ -379,50 +375,47 @@
                 let _this = this
                 let data = []
                 // var date = null
-                 let rootProcess = null
+                let rootProcess = null
                 let userInpitTime = new Date(this.temData.startTime)
-                let absoluteStartData = [],absoluteEndData=[]
+                let absoluteStartData = [],
+                    absoluteEndData = []
                 var judge = false
-                
                 this.floorConfig.ProcessNode.forEach(process => {
-                    this.floorTableData = this.floorTableData.sort(function(a,b){
-                        if(_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName)>0){
+                    this.floorTableData = this.floorTableData.sort(function(a, b) {
+                        if (_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) > 0) {
                             return 1
-                        }else if(_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) <0){
+                        } else if (_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) < 0) {
                             return -1
-                        }else{
+                        } else {
                             return 0
                         }
                     })
-
-                    if(process.BeforeProcessId == ''){//判断是无前置工序
-                        this.floorConfig.Process.forEach(processConfig=>{
-                            if(process.ProcessId == processConfig.ProcessId){
-                                 this.floorTableData.forEach((floorTableItem,index) =>{
-                                     for(let i =0;i<processConfig.LevelCategory2Cycle.length;i++){
-                                         if(processConfig.LevelCategory2Cycle[i].LevelCycle == 0){
-                                             continue
-                                         }
-                                         if(processConfig.LevelCategory2Cycle[i].LevelCategory == floorTableItem.floorType){
-                                                let formatDateStrat = _this.formatDate(userInpitTime)
-                                                let formatDateEnd= _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + processConfig.LevelCategory2Cycle[i].LevelCycle*1))))
-                                                absoluteStartData.push(formatDateStrat)
-                                                absoluteEndData.push(formatDateEnd)
-                                                data.push({
-                                                    color:processConfig.ProcessColor,
-                                                    TaskStartTime:formatDateStrat,
-                                                    TaskID:_this.GUID(),
-                                                    TaskEndTime:formatDateEnd,
-                                                    TaskName:process.relationName + '_' + floorTableItem.floorName,
-                                                    TaskPlanStartTime:formatDateStrat,
-                                                    TaskPlanEndTime:formatDateEnd,
-                                                    Category:process.relationName,
-                                                    ExternalProperty:processConfig.ProcessMatch
-
-                                                })
-                                                
-                                          }
-                                     }
+                    if (process.BeforeProcessId == '') { //判断是无前置工序
+                        this.floorConfig.Process.forEach(processConfig => {
+                            if (process.ProcessId == processConfig.ProcessId) {
+                                this.floorTableData.forEach((floorTableItem, index) => {
+                                    for (let i = 0; i < processConfig.LevelCategory2Cycle.length; i++) {
+                                        if (processConfig.LevelCategory2Cycle[i].LevelCycle == 0) {
+                                            continue
+                                        }
+                                        if (processConfig.LevelCategory2Cycle[i].LevelCategory == floorTableItem.floorType) {
+                                            let formatDateStrat = _this.formatDate(userInpitTime)
+                                            let formatDateEnd = _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + processConfig.LevelCategory2Cycle[i].LevelCycle * 1))))
+                                            absoluteStartData.push(formatDateStrat)
+                                            absoluteEndData.push(formatDateEnd)
+                                            data.push({
+                                                color: processConfig.ProcessColor,
+                                                TaskStartTime: formatDateStrat,
+                                                TaskID: _this.GUID(),
+                                                TaskEndTime: formatDateEnd,
+                                                TaskName: process.relationName + '_' + floorTableItem.floorName,
+                                                TaskPlanStartTime: formatDateStrat,
+                                                TaskPlanEndTime: formatDateEnd,
+                                                Category: process.relationName,
+                                                ExternalProperty: processConfig.ProcessMatch
+                                            })
+                                        }
+                                    }
                                     //  processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
                                     //       if(LevelCategory.LevelCategory == floorTableItem.floorType){
                                     //             let formatDateStrat = _this.formatDate(userInpitTime)
@@ -439,70 +432,62 @@
                                     //                 TaskPlanEndTime:formatDateEnd,
                                     //                 Category:process.relationName,
                                     //                 ExternalProperty:processConfig.ProcessMatch
-
                                     //             })
-                                                
                                     //       }
                                     //  })
                                 })
                             }
                         })
-                       
-
-                    
-                    }else{
+                    } else {
                         // if(!judge){
                         //     this.floorTableData.reverse()
                         //     judge = true
                         // }
-                        this.floorTableData = this.floorTableData.sort(function(b,a){
-                            if(_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) > 0){
+                        this.floorTableData = this.floorTableData.sort(function(b, a) {
+                            if (_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) > 0) {
                                 return 1
-                            }else if(_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) < 0){
+                            } else if (_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) < 0) {
                                 return -1
-                            }else{
+                            } else {
                                 return 0
                             }
                         })
                         console.log(this.floorTableData)
                         this.setDateNub = 0
                         this.recursionReturnNub(process)
-                        let absoluteDate = new Date(absoluteEndData[absoluteEndData.length-1])
+                        let absoluteDate = new Date(absoluteEndData[absoluteEndData.length - 1])
                         absoluteDate.setDate(absoluteDate.getDate() + this.setDateNub)
-                        this.floorConfig.Process.forEach(processConfig=>{
-                            if(process.ProcessId == processConfig.ProcessId){
-                                 this.floorTableData.forEach((floorTableItem,index) =>{
-                                     for(let i = 0;i<processConfig.LevelCategory2Cycle.length;i++){
-                                         if(processConfig.LevelCategory2Cycle[i].LevelCycle == 0){
-                                             continue
-                                         }
-                                         if(processConfig.LevelCategory2Cycle[i].LevelCategory == floorTableItem.floorType){
-                                                let formatDateStrat
-                                                if(index == 0){
-                                                    formatDateStrat = _this.formatDate(absoluteDate)
-                                                }else{
-                                                    absoluteDate.setDate(absoluteDate.getDate() - (processConfig.LevelCategory2Cycle[i].LevelCycle*1))
-                                                    formatDateStrat = _this.formatDate(absoluteDate)
-                                                }
-                                                 
-                                                 let formatDateStratStr = new Date(formatDateStrat)
-                                                 formatDateStratStr.setDate(formatDateStratStr.getDate() + processConfig.LevelCategory2Cycle[i].LevelCycle*1 ) 
-                                                 let formatDateEnd= _this.formatDate(formatDateStratStr)
-
-                                                data.push({
-                                                    color:processConfig.ProcessColor,
-                                                    TaskStartTime:formatDateStrat,
-                                                    TaskID:_this.GUID(),
-                                                    TaskEndTime:formatDateEnd,
-                                                    TaskName:process.relationName + '_' + floorTableItem.floorName,
-                                                    TaskPlanStartTime:formatDateStrat,
-                                                    TaskPlanEndTime:formatDateEnd,
-                                                    Category:process.relationName,
-                                                    ExternalProperty:processConfig.ProcessMatch
-
-                                                })
-                                          }
-                                     }
+                        this.floorConfig.Process.forEach(processConfig => {
+                            if (process.ProcessId == processConfig.ProcessId) {
+                                this.floorTableData.forEach((floorTableItem, index) => {
+                                    for (let i = 0; i < processConfig.LevelCategory2Cycle.length; i++) {
+                                        if (processConfig.LevelCategory2Cycle[i].LevelCycle == 0) {
+                                            continue
+                                        }
+                                        if (processConfig.LevelCategory2Cycle[i].LevelCategory == floorTableItem.floorType) {
+                                            let formatDateStrat
+                                            if (index == 0) {
+                                                formatDateStrat = _this.formatDate(absoluteDate)
+                                            } else {
+                                                absoluteDate.setDate(absoluteDate.getDate() - (processConfig.LevelCategory2Cycle[i].LevelCycle * 1))
+                                                formatDateStrat = _this.formatDate(absoluteDate)
+                                            }
+                                            let formatDateStratStr = new Date(formatDateStrat)
+                                            formatDateStratStr.setDate(formatDateStratStr.getDate() + processConfig.LevelCategory2Cycle[i].LevelCycle * 1)
+                                            let formatDateEnd = _this.formatDate(formatDateStratStr)
+                                            data.push({
+                                                color: processConfig.ProcessColor,
+                                                TaskStartTime: formatDateStrat,
+                                                TaskID: _this.GUID(),
+                                                TaskEndTime: formatDateEnd,
+                                                TaskName: process.relationName + '_' + floorTableItem.floorName,
+                                                TaskPlanStartTime: formatDateStrat,
+                                                TaskPlanEndTime: formatDateEnd,
+                                                Category: process.relationName,
+                                                ExternalProperty: processConfig.ProcessMatch
+                                            })
+                                        }
+                                    }
                                     //  processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
                                     //       if(LevelCategory.LevelCategory == floorTableItem.floorType){
                                     //             let formatDateStrat
@@ -512,7 +497,6 @@
                                     //                 absoluteDate.setDate(absoluteDate.getDate() - (LevelCategory.LevelCycle*1))
                                     //                 formatDateStrat = _this.formatDate(absoluteDate)
                                     //             }
-                                                 
                                     //              let formatDateStratStr = new Date(formatDateStrat)
                                     //              formatDateStratStr.setDate(formatDateStratStr.getDate() + LevelCategory.LevelCycle*1 ) 
                                     //              let formatDateEnd= _this.formatDate(formatDateStratStr)
@@ -525,32 +509,26 @@
                                     //                 TaskPlanStartTime:formatDateStrat,
                                     //                 TaskPlanEndTime:formatDateEnd,
                                     //                 Type:process.ProcessNodeName
-
                                     //             })
                                     //       }
                                     //  })
                                 })
                             }
                         })
-                        
                     }
                 });
-
                 // this.floorTableData.forEach((floorTableitem,index)=>{//遍历选择项
                 //     this.floorConfig.ProcessNode.forEach((process,processIndex)=>{
                 //         this.floorConfig.Process.forEach((processConfig)=>{
                 //             if(process.ProcessId == processConfig.ProcessId){
                 //                 processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
                 //                     if(LevelCategory.LevelCategory == floorTableitem.floorType){
-
                 //                             if(process.Interval*1 != 0){//技术间隔时间
                 //                                 let date = new Date(userInpitTime)
                 //                                 _this.recursionReturnNub(process,floorTableitem.floorType)
-                                                
                 //                                new Date(date.setDate((date.getDate() + _this.setDateNub)))
                 //                                 let datestr = _this.formatDate(new Date(date))
                 //                                _this.setDateNub = 0
-                                               
                 //                                 let formatDateStr = _this.formatDate(new Date(date.setDate((date.getDate() + LevelCategory.LevelCycle*1))))
                 //                                 data.push({
                 //                                     color:processConfig.ProcessColor,
@@ -561,13 +539,10 @@
                 //                                     TaskPlanStartTime:datestr,
                 //                                     TaskPlanEndTime:formatDateStr,
                 //                                     Type:process.ProcessNodeName
-
                 //                                 })
                 //                             }else{
-                                                
                 //                                 let formatDateStrat = _this.formatDate(userInpitTime)
                 //                                 let formatDateStr = _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
-                                                
                 //                                 data.push({
                 //                                     color:processConfig.ProcessColor,
                 //                                     TaskStartTime:formatDateStrat,
@@ -577,20 +552,14 @@
                 //                                     TaskPlanStartTime:formatDateStrat,
                 //                                     TaskPlanEndTime:formatDateStr,
                 //                                     Type:process.ProcessNodeName
-
                 //                                 })
                 //                             }
                 //                     }
-                                    
-                                   
                 //                 })
                 //             }
                 //         })
                 //     })
-                    
-                       
                 // })
-                
                 // data = data.sort((a,b)=>{
                 //     if(_this.initFloorNameToNubSort(a.TaskName.split('_')[1]) - _this.initFloorNameToNubSort(b.TaskName.split('_')[1]) >0){
                 //                 return 1
@@ -601,27 +570,27 @@
                 //     }
                 // })
                 console.log(data)
-                if(data.length > 0){
-                let str = data[0].color,arr1=[],arr2=[];
-                data.forEach(item => {
-                    if(str == item.color){
-                        arr1.push(item)
-                    }else{
-                        arr2.push(item)
-                    }
-                });
-                data = arr1.concat(arr2.reverse())
+                if (data.length > 0) {
+                    let str = data[0].color,
+                        arr1 = [],
+                        arr2 = [];
+                    data.forEach(item => {
+                        if (str == item.color) {
+                            arr1.push(item)
+                        } else {
+                            arr2.push(item)
+                        }
+                    });
+                    data = arr1.concat(arr2.reverse())
                 }
                 var formData = new FormData()
-                formData.append('ProjectID',window.ProjectID)
+                formData.append('ProjectID', window.ProjectID)
                 var obj = {
-                    ModelID:window.ModelID,
-                    ScheduleName:this.temData.name,
-                    ScheduleStartTime:this.temData.startTime,
-                    ExternalField:JSON.stringify(this.floorTableData)
+                    ModelID: window.ModelID,
+                    ScheduleName: this.temData.name,
+                    ScheduleStartTime: this.temData.startTime,
+                    ExternalField: JSON.stringify(this.floorTableData)
                 }
-                
-               
                 // var obj = {
                 //     ProjectID:window.ProjectID,
                 //     Schedule:{
@@ -629,81 +598,133 @@
                 //         ScheduleName:this.temData.name,
                 //         DateTime:this.temData.startTime,
                 //         ExternalField:data
-
-
                 //     }
                 // }
-                if(this.temData.ScheduleID != ''){
-                    obj.ScheduleID = this.temData.ScheduleID
-                    formData.append('Schedule',JSON.stringify(obj))
-                    this.$axios.post(`${window.urlConfig}/api/Prj/UpdateSchedule`,formData).then(res=>{
-                        _this.$emit('listAddItem')
-                       var formData1 = new FormData()
-                        formData1.append('ProjectID',window.ProjectID)
-                        data.forEach(item=>{
-                            item.ScheduleID = res.data
-                            item.Color = item.color
-                        })
-                        formData1.append('ScheduleTasks',JSON.stringify(data))
+                if (this.temData.ScheduleID != '') {
+                    //判断更改内容
+                    if (JSON.stringify(this.$props.selectItem) != "{}") {
+                        let selectItem = this.$props.selectItem
+                        if (selectItem.ExternalField != '') {
+                            this.dirtyCheck.floorTableData = this.floorTableData.equals(JSON.parse(selectItem.ExternalField))
+                        }
 
-                        this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`,formData1).then(res=>{
-                            console.log(res)
-                        }).catch(res=>{
-                            console.log('批量添加数据错误，原因' + res)
+                        this.dirtyCheck.name = this.temData.name == selectItem.ScheduleName
+                        this.dirtyCheck.startTime = new Date(this.temData.startTime).getTime() == new Date(selectItem.ScheduleStartTime).getTime()
+                    }
+
+                    obj.ScheduleID = this.temData.ScheduleID
+                    formData.append('Schedule', JSON.stringify(obj))
+                    if(!this.dirtyCheck.name && this.dirtyCheck.startTime && this.dirtyCheck.floorTableData){
+                        this.$axios.post(`${window.urlConfig}/api/Prj/UpdateSchedule`, formData).then(res => {//只修改名称
+                            _this.$emit('listAddItem')
+                            var formData1 = new FormData()
+                            formData1.append('ProjectID', window.ProjectID)
+                            data.forEach(item => {
+                                item.ScheduleID = res.data
+                                item.Color = item.color
+                            })
+                            formData1.append('ScheduleTasks', JSON.stringify(data))
+                            this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`, formData1).then(res => {
+                                console.log(res)
+                            }).catch(res => {
+                                console.log('批量添加数据错误，原因' + res)
+                            })
+                        }).catch(res => {
+                            console.log('修改数据错误，原因：' + res)
                         })
-                    }).catch(res=>{
-                    
-                        console.log('创建数据错误，原因：'+ res)
-                    })
-                }else{
-                     formData.append('Schedule',JSON.stringify(obj))
-                     this.$axios.post(`${window.urlConfig}/api/Prj/AddSchedule`,formData).then(res=>{
+                    }else if(this.dirtyCheck.name && this.dirtyCheck.startTime && this.dirtyCheck.floorTableData){//无修改
+                        _this.temporaryDialog = false
+                        return false
+                    }else{
+                        this.$axios.get(`${window.urlConfig}/api/Prj/DeleteSchedule?ProjectID=${window.ProjectID}&ScheduleID=${this.temData.ScheduleID}`).then(res=>{
+                            this.$axios.post(`${window.urlConfig}/api/Prj/AddSchedule`, formData).then(res => {
+                                _this.$emit('listAddItem')
+                                var formData1 = new FormData()
+                                formData1.append('ProjectID', window.ProjectID)
+                                data.forEach(item => {
+                                    item.ScheduleID = res.data
+                                    item.Color = item.color
+                                })
+                                formData1.append('ScheduleTasks', JSON.stringify(data))
+                                this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`, formData1).then(res => {
+                                    console.log(res)
+                                }).catch(res => {
+                                    console.log('批量添加数据错误，原因' + res)
+                                })
+                            }).catch(res => {
+                                console.log('创建数据错误，原因：' + res)
+                            })
+
+                        }).catch(res=>{
+                            console.log('DeleteSchedule出错' + res)
+                        })
+                        // this.$axios.post(`${window.urlConfig}/api/Prj/UpdateSchedule`, formData).then(res => {//只修改名称
+                        //     _this.$emit('listAddItem')
+                        //     var formData1 = new FormData()
+                        //     formData1.append('ProjectID', window.ProjectID)
+                        //     data.forEach(item => {
+                        //         item.ScheduleID = res.data
+                        //         item.Color = item.color
+                        //     })
+                        //     formData1.append('ScheduleTasks', JSON.stringify(data))
+                        //     this.$axios.get(`${window.urlConfig}/api/Prj/DeleteSchedule?ProjectID=${window.ProjectID}&ScheduleID=${this.temData.ScheduleID}`).then(res=>{
+                        //         this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`, formData1).then(res => {
+                        //             console.log(res)
+                        //         }).catch(res => {
+                        //             console.log('批量添加数据错误，原因' + res)
+                        //         })
+                        //     }).catch(res=>{
+                        //         console.log('DeleteSchedule出错' + res)
+                        //     })
+                            
+                        // }).catch(res => {
+                        //     console.log('修改数据错误，原因：' + res)
+                        // })
+                    }
+                   
+                } else {
+                    formData.append('Schedule', JSON.stringify(obj))
+                    this.$axios.post(`${window.urlConfig}/api/Prj/AddSchedule`, formData).then(res => {
                         _this.$emit('listAddItem')
                         var formData1 = new FormData()
-                        formData1.append('ProjectID',window.ProjectID)
-                        data.forEach(item=>{
+                        formData1.append('ProjectID', window.ProjectID)
+                        data.forEach(item => {
                             item.ScheduleID = res.data
                             item.Color = item.color
                         })
-                        formData1.append('ScheduleTasks',JSON.stringify(data))
-
-                        this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`,formData1).then(res=>{
+                        formData1.append('ScheduleTasks', JSON.stringify(data))
+                        this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`, formData1).then(res => {
                             console.log(res)
-                        }).catch(res=>{
+                        }).catch(res => {
                             console.log('批量添加数据错误，原因' + res)
-                        })  
-                    }).catch(res=>{
-                    
-                        console.log('创建数据错误，原因：'+ res)
+                        })
+                    }).catch(res => {
+                        console.log('创建数据错误，原因：' + res)
                     })
                 }
-                
                 //  _this.$emit('saveGanttData',data)
-                
                 _this.temporaryDialog = false
-                
-                
             },
-            formatDate(date){
-                var y = date.getFullYear();  
-                var m = date.getMonth() + 1;  
-                m = m < 10 ? ('0' + m) : m;  
-                var d = date.getDate();  
-                d = d < 10 ? ('0' + d) : d;  
-                var h = date.getHours();  
-                var minute = date.getMinutes();  
-                minute = minute < 10 ? ('0' + minute) : minute; 
-                var second= date.getSeconds();  
-                second = minute < 10 ? ('0' + second) : second;  
-                return y + '-' + m + '-' + d+' '+h+':'+minute+':'+ second;  
+            formatDate(date) {
+                var y = date.getFullYear();
+                var m = date.getMonth() + 1;
+                m = m < 10 ? ('0' + m) : m;
+                var d = date.getDate();
+                d = d < 10 ? ('0' + d) : d;
+                var h = date.getHours();
+                var minute = date.getMinutes();
+                minute = minute < 10 ? ('0' + minute) : minute;
+                var second = date.getSeconds();
+                second = minute < 10 ? ('0' + second) : second;
+                return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
             },
-            GUID(){
+            GUID() {
                 let guid = '';
                 for (let i = 1; i <= 32; i++) {
-                let n = Math.floor(Math.random() * 16.0).toString(16);
-                guid += n;
-                if ((i === 8) || (i === 12) || (i === 16) || (i === 20))
-                    guid += '-';
+                    let n = Math.floor(Math.random() * 16.0).toString(16);
+                    guid += n;
+                    if ((i === 8) || (i === 12) || (i === 16) || (i === 20))
+                        guid += '-';
                 }
                 return guid;
             },
@@ -747,26 +768,26 @@
                 a.describe = a.describe == '双击修改描述' ? '' : a.describe
                 this.reviseDialogData = a
             },
-            getQueryString(name){
+            getQueryString(name) {
                 var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
                 var r = window.location.search.substr(1).match(reg);
-                if (r != null) return unescape(r[2]); return null;
+                if (r != null) return unescape(r[2]);
+                return null;
             }
         },
         mounted() {
             var _this = this
             let ComPanyId;
-            if(top.ComPanyId){
+            if (top.ComPanyId) {
                 ComPanyId = top.ComPanyId
-            }else{
-                ComPanyId =  '997223d1-fe87-48df-9eea-cf01c8a57dbf'
+            } else {
+                ComPanyId = '997223d1-fe87-48df-9eea-cf01c8a57dbf'
             }
             this.$axios.get(`https://api.probim.cn/CompanyData/GetCompanyData?CompanyId=${ComPanyId}`).then(res => {
-                if(!res.data.Message){
+                if (!res.data.Message) {
                     return false
                 }
-                res.data = JSON.parse(res.data.Message) 
-                
+                res.data = JSON.parse(res.data.Message)
                 res.data = JSON.parse(res.data.JsonData)
                 this.floorConfig = res.data
                 res.data.LevelCategory.forEach(item => {
@@ -777,32 +798,34 @@
                 })
                 console.log(this.floorConfig)
             })
-            
-            // var data = {
-            //     ComPanyId:this.getQueryString('ComPanyId'),
-            //     JsonData:this.getQueryString('JsonData')
-            // }
-            // this.$axios.post(`${window.urlConfig}/CompanyData/Save`,data).then(res=>{
-                
-            // })
-            // var a = JSON.parse(window.localStorage.getItem('floorDefube'))
-            // if (a) {
-            //     this.navOptions = a
-            // } else {
-            //     this.navOptions = [{
-            //         "floorType": "地下室",
-            //         "describe": ""
-            //     }, {
-            //         "floorType": "首层",
-            //         "describe": ""
-            //     }, {
-            //         "floorType": "二层",
-            //         "describe": ""
-            //     }, {
-            //         "floorType": "标准层",
-            //         "describe": ""
-            //     }]
-            // }
+            // Warn if overriding existing method
+            if (Array.prototype.equals)
+                console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
+            // attach the .equals method to Array's prototype to call it on any array
+            Array.prototype.equals = function(array) {
+                // if the other array is a falsy value, return
+                if (!array)
+                    return false;
+                // compare lengths - can save a lot of time 
+                if (this.length != array.length)
+                    return false;
+                for (var i = 0, l = this.length; i < l; i++) {
+                    // Check if we have nested arrays
+                    if (this[i] instanceof Array && array[i] instanceof Array) {
+                        // recurse into the nested arrays
+                        if (!this[i].equals(array[i]))
+                            return false;
+                    } else if (this[i] != array[i]) {
+                        // Warning - two different object instances will never be equal: {x:20} != {x:20}
+                        return false;
+                    }
+                }
+                return true;
+            }
+            // Hide method from for-in loops
+            Object.defineProperty(Array.prototype, "equals", {
+                enumerable: false
+            });
         },
         watch: {
             // "temData.name":function(val,oldval){
@@ -810,7 +833,6 @@
             //         return false
             //     }
             //     console.log(val,oldval)
-                
             // },
             temporaryDialog: function(val, oldval) {
                 if (!val) {
@@ -822,19 +844,25 @@
                     this.temData.ScheduleID = ''
                     this.num6 = 0
                     this.nub = -2
-                }else{
+                } else {
                     /**temData: {
-                    name: '',
-                    startTime: "",
-                    useClimbing: '',
-                    basics: ''
-                }, */
-                    if(JSON.stringify(this.$props.selectItem) != "{}"){
+                        name: '',
+                        startTime: "",
+                        useClimbing: '',
+                        basics: ''
+                    }, */
+                    if (JSON.stringify(this.$props.selectItem) != "{}") {
                         let selectItem = this.$props.selectItem
-                        if(selectItem.ExternalField != ''){
-                        this.floorTableData = JSON.parse(selectItem.ExternalField)
-
+                        if (selectItem.ExternalField != '') {
+                            this.floorTableData = JSON.parse(selectItem.ExternalField)
                         }
+                        // this.nub += this.floorTableData.length
+                        this.floorTableData.forEach(item=>{
+                            this.nub += 1
+                            if(this.nub == 0){
+                                this.nub = 1
+                            }
+                        })
                         this.temData.name = selectItem.ScheduleName
                         this.temData.startTime = selectItem.ScheduleStartTime
                         this.temData.ScheduleID = selectItem.ScheduleID

@@ -259,7 +259,7 @@
                 newTask.end_date = task.end_date
                 newTask.plan_end_date = task.plandate[1]
                 newTask.plan_start_date = task.plandate[0]
-                newTask.additionaltext = task.additionaltext
+                newTask.ExternalProperty = task.additionaltext
                 newTask.parent = task.parent
                 gantt.updateTask(task.id, newTask)
             },

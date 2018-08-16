@@ -1,6 +1,6 @@
 <template>
 	<div class="chart-wp">
-		<div ref="echartDiv" style="height:800px; width:100%"></div>
+		<div ref="echartDiv" style="height:100%; width:100%"></div>
 		<div class="marker" v-if="dialogData.show">
 			<div class="center">
 				<el-row class="mt20">
