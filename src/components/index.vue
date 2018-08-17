@@ -19,8 +19,8 @@
                 <div class="gantt-right">
                     <div class="fl">
                         <ul>
-                            <li @click="toggle3D()" :class="{'no-click':selectScheduleID == ''}"> <img src="./model.svg"><span id="show3DText">显示模型</span></li>
-                            <li style="margin-left:40px;" :class="{'no-click':!show3d}">附加选中对象</li>
+                            <li @click="toggle3D()" :class="{'no-click':selectScheduleID == ''}" class="sign"> <img src="./model.svg"><span id="show3DText">显示模型</span></li>
+                            <li style="margin-left:40px;" :class="{'no-click':!show3d}" v-show="!show3d">附加选中对象</li>
                             <li style="margin-left:40px;" v-show="!showGantt" class="proportion">
                                 完成比例
                                 <div>
@@ -39,17 +39,18 @@
                     </div>
                     <div class="fr">
                         <ul>
-                            <!-- <li>
-                                <el-checkbox-group v-model="checkedCharts" @change="cheackedChartsFun">
-                                    <el-checkbox :label="'plan'">计划</el-checkbox>
-                                    <el-checkbox :label="'actual'">实际</el-checkbox>
-                                </el-checkbox-group>
-                            </li> -->
-                            <li @click="MatchElementTask" v-show="selectScheduleID != ''">构件匹配</li>
-                            <li :class="{'no-click':!show3d}"><img src="./mock.svg">模拟</li>
-                            <li class="no-click"><img src="./import.svg">导入</li>
-                            <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}"><img src="./table.svg">网络图/甘特图</li>
-                            <li class="no-click"><img src="./export.svg">导出</li>
+                            
+                            <li @click="MatchElementTask" v-show="selectScheduleID != '' && !show3d">构件匹配</li>
+                            <li v-if="mockDialogData.showVedioBtn" :class="{mr10:mockDialogData.showVedioBtn}" class="mock-vedio">
+                                <img src="./reset.svg" alt=""><!--重置-->
+                                <img src="./start.svg" alt="" v-if="mockDialogData.startShow" @click.stop="mockStart"><!--开始-->
+                                <img src="./stop.svg" v-if="!mockDialogData.startShow"><!--暂停-->
+                            </li>
+                            <li :class="{'no-click':!show3d}" v-if="!mockDialogData.showVedioBtn" @click="mockDialogData.show=true;mockDialogData.number=10" class="sign"><img src="./mock.svg">模拟</li>
+                             <li v-if="mockDialogData.showVedioBtn" @click="closeMock" class="sign"><img src="./mock.svg">关闭模拟</li>
+                            <li class="no-click sign" v-show="!show3d"><img src="./import.svg">导入</li>
+                            <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}" class="sign"><img src="./table.svg"><span id="toggleGanttText">网络图</span></li>
+                            <li class="no-click sign" v-show="!show3d"><img src="./export.svg">导出</li>
 
                         </ul>
                     </div>
@@ -85,6 +86,27 @@
         <div class="match-loading" v-show="matchLoadingConfig.show">
             <el-progress type="circle" :percentage="matchLoadingConfig.number" class="loading" :width=300 :color="matchLoadingConfig.color"></el-progress>
         </div>
+        <div class="select-time" v-if="mockDialogData.show">
+            <div class="center">
+                <h1>选择动画持续时间</h1>
+                <el-row class="mt20">
+                    <el-col :span="5" class="label">
+                        时间：
+                    </el-col>
+                    <el-col :span="18">
+                        <el-input placeholder="请输入时间" v-model="mockDialogData.number">
+							<template slot="append">秒</template>
+						</el-input>
+                    </el-col>
+                </el-row>
+                <div class="sub-btn">
+                    <ul>
+                        <li class="ml20" @click="mocksubmit">确定</li>
+                        <li class="ml20" @click="mockDialogData.show=false">取消</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
         <temporaryDialog ref="temporaryDialog"
             :selectItem=temporarySelectItem 
             @listAddItem=listAddItem 
@@ -94,6 +116,38 @@
     </div>
 </template>
 <style>
+.mr10{margin-right: 10px !important;}
+.mock-vedio img:hover{
+    opacity: .5;
+}
+.gantt-head .gantt-right div:nth-child(2) li.sign:hover,.gantt-head .gantt-right div:nth-child(1) li.sign:hover{
+    opacity: .5;
+}
+.select-time{
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, .5);
+    z-index: 10;
+}
+.select-time .center .el-input__inner{
+	border: 1px solid #dcdfe6 !important;
+}
+.select-time .center{
+    width: 300px;
+    height: 150px;
+    background: #fff;
+    border-radius: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    padding: 20px;
+}
 .el-progress-bar__innerText{
     line-height: 18px
 }
@@ -221,8 +275,8 @@
     }
     .gantt-head .gantt-right {
        flex: 1;
-         /* position: relative;
-        z-index: 99 */
+         position: relative;
+        z-index: 9
     }
     .gantt-wp,
     .chats-wp {
@@ -300,10 +354,43 @@
                     matchFail:0
 
                 },
-                proportionData:[]
+                proportionData:[],
+                mockDialogData:{
+                    show:false,
+                    number:10,
+                    showVedioBtn:false,
+                    startShow:true
+                }
             };
         },
         methods: {
+            mockStart(){
+                
+            },
+            closeMock(){
+                this.mockDialogData.showVedioBtn = false
+                this.mockDialogData.number = 10
+                if(this.showGantt){
+                    if(this.$refs.ganttView.timer){
+                        clearInterval(this.$refs.ganttView.timer)
+                    }
+                }else{
+                    if(this.$refs.charts.timer){
+                        clearInterval(this.$refs.charts.timer)
+                    }
+                }
+            },
+            mocksubmit(){
+                if(isNaN(this.mockDialogData.number*1) || this.mockDialogData.number == null || this.mockDialogData.number == ' '){
+                    this.$message.error('请输入数字');
+                }
+                if(this.mockDialogData.number < 10){
+                    this.$message.error('持续时间不能小于10秒');
+                }
+                this.mockDialogData.showVedioBtn = true
+                this.mockDialogData.show = false
+                
+            },
             proportionUpData(obj){
                 this.proportionData = []
                 
@@ -629,6 +716,12 @@
                 if(this.selectScheduleID != ''){
                     this.showGantt = !this.showGantt;
                 }   
+                var btn = document.getElementById('toggleGanttText')
+                if(this.showGantt){
+                    btn.innerHTML = '网络图'
+                }else{
+                    btn.innerHTML = '甘特图'
+                }
             },
             toggle3D() {
                 if(this.selectScheduleID == ''){
