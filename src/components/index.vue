@@ -42,11 +42,11 @@
                             
                             <li @click="MatchElementTask" v-show="selectScheduleID != '' && !show3d">构件匹配</li>
                             <li v-if="mockDialogData.showVedioBtn" :class="{mr10:mockDialogData.showVedioBtn}" class="mock-vedio">
-                                <img src="./reset.svg" alt=""><!--重置-->
+                                <img src="./reset.svg" alt="" @click.stop="mockReset"><!--重置-->
                                 <img src="./start.svg" alt="" v-if="mockDialogData.startShow" @click.stop="mockStart"><!--开始-->
-                                <img src="./stop.svg" v-if="!mockDialogData.startShow"><!--暂停-->
+                                <img src="./stop.svg" v-if="!mockDialogData.startShow" @click.stop="mockStop"><!--暂停-->
                             </li>
-                            <li :class="{'no-click':!show3d}" v-if="!mockDialogData.showVedioBtn" @click="mockDialogData.show=true;mockDialogData.number=10" class="sign"><img src="./mock.svg">模拟</li>
+                            <li :class="{'no-click':!show3d}" v-if="!mockDialogData.showVedioBtn" @click="mockShowDialog" class="sign"><img src="./mock.svg">模拟</li>
                              <li v-if="mockDialogData.showVedioBtn" @click="closeMock" class="sign"><img src="./mock.svg">关闭模拟</li>
                             <li class="no-click sign" v-show="!show3d"><img src="./import.svg">导入</li>
                             <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}" class="sign"><img src="./table.svg"><span id="toggleGanttText">网络图</span></li>
@@ -61,10 +61,12 @@
                 :tasks="tasks" 
                 :selectScheduleID="selectScheduleID" 
                 :show3d=show3d
+                :timerNumber = mockDialogData.number
                 ref="ganttView" 
                 @ganttAddShow=ganttAddShow 
                 @reviseTaskDialog=reviseTaskDialog 
-                @operationGanttAddView=operationGanttAddView 
+                @operationGanttAddView=operationGanttAddView
+                @hiddenStopBtn=hiddenStopBtn 
                 @upDatedGanttDateToCharts=upDatedGanttDateToCharts>
             </gantt>
             <chats v-if="!showGantt" class="chats-wp" ref="chats" 
@@ -359,20 +361,99 @@
                     show:false,
                     number:10,
                     showVedioBtn:false,
-                    startShow:true
+                    startShow:true,
+                    mockStartOrEndDate:[0,0]
                 }
             };
         },
         methods: {
+            mockShowDialog(){
+                if(!this.show3d) {return false};
+                this.mockDialogData.show=true;
+                this.mockDialogData.number=10
+            },
+            dataRemoveLast(date){
+                if(date.length != 19) return false
+                if(date.indexOf('T') != -1){
+                    return date.split('T')[0]
+                }
+                if(data.indexOf(' ') !=-1){
+                    return date.split(' ')[0]
+                }
+            },
+            dateArrToAll(arr){
+                let date1 = new Date(arr[0])
+                let date2 = new Date(arr[1])
+                let diff  = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24)
+                let returnArr = []
+                for(let i = 0;i<diff;i++){
+                    date1.setDate(date1.getDate()+1)
+                    let m , d;
+                    (date1.getMonth() +1) >=10? m = (date1.getMonth() +1): m ='0'+ (date1.getMonth() +1)
+                    date1.getDate()>=10?d = date1.getDate():d ='0'+date1.getDate()
+                    returnArr.push(`${date1.getFullYear()}-${m}-${d} 00:00:00`)
+                }
+                return returnArr
+
+            },
+            hiddenStopBtn(judge){
+                if(judge){
+                    this.mockDialogData.startShow = true
+                }else{
+                    this.mockDialogData.startShow = false
+                }
+            },
             mockStart(){
+                this.mockDialogData.startShow = false
+                if(this.showGantt){
+                    let judge;//0开始 //继续
+                    this.mockDialogData.mockStartOrEndDate[0] == 0 ?judge = true : judge = false
+                    this.ganttData.forEach((data,index)=>{
+                        if(index ==  0){
+                            this.mockDialogData.mockStartOrEndDate[0] = data.TaskStartTime
+                             this.mockDialogData.mockStartOrEndDate[1] = data.TaskEndTime
+                        }else{
+                            
+                            if(new Date( this.mockDialogData.mockStartOrEndDate[0]).getTime() > new Date(data.TaskStartTime).getTime()){
+                                 this.mockDialogData.mockStartOrEndDate[0] = data.TaskStartTime
+                            }
+                            if(new Date( this.mockDialogData.mockStartOrEndDate[1]).getTime() < new Date(data.TaskEndTime).getTime()){
+                                 this.mockDialogData.mockStartOrEndDate[1] = data.TaskEndTime
+                            }
+                            
+                            console.log(this.mockDialogData.mockStartOrEndDate[0])
+                        }
+                    })
+                    if(judge){
+                        this.$refs.ganttView.addMarker( this.mockDialogData.mockStartOrEndDate[0])
+                        this.$refs.ganttView.runMarker(this.dateArrToAll(this.mockDialogData.mockStartOrEndDate))
+
+                    }else{
+                        this.$refs.ganttView.runMarker(this.dateArrToAll(this.mockDialogData.mockStartOrEndDate))
+                    }
+                    
+                }else{
+
+                }
                 
+            },
+            mockReset(){
+                 this.mockDialogData.startShow = true
+                 this.$refs.ganttView.delMaker()
+                  this.mockDialogData.mockStartOrEndDate = [0,0]
+            },
+            mockStop(){
+                 this.mockDialogData.startShow = true
+                 this.$refs.ganttView.stopMarker()
             },
             closeMock(){
                 this.mockDialogData.showVedioBtn = false
                 this.mockDialogData.number = 10
+                this.mockDialogData.startShow = true
                 if(this.showGantt){
                     if(this.$refs.ganttView.timer){
-                        clearInterval(this.$refs.ganttView.timer)
+                        this.$refs.ganttView.delMaker()
+                        this.mockDialogData.mockStartOrEndDate = [0,0]
                     }
                 }else{
                     if(this.$refs.charts.timer){

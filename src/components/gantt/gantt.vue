@@ -22,7 +22,8 @@
                 }
             },
             selectScheduleID: String,
-            show3d:Boolean
+            show3d:Boolean,
+            timerNumber:Number
         },
         data() {
             return {
@@ -288,23 +289,65 @@
                 })
                 gantt.render();
             },
+            delMaker(){
+                gantt.deleteMarker(this.markerDate)
+                gantt.render()
+                this.i = 0
+                if(this.timer){
+                    clearTimeout(this.timer)
+                }
+            },
             runMarker(timeDateArr) { //接受date数组
                 var _this = this
+                let number = this.$props.timerNumber*1000
                 this.timer = setTimeout(() => {
-                    console.log(_this.markerDate)
                     var dayDate = gantt.getMarker(_this.markerDate)
-                    console.log(dayDate)
                     dayDate.start_date = new Date(timeDateArr[_this.i])
                     dayDate.title = _this.date_to_str(dayDate.start_date)
                     gantt.updateMarker(_this.markerDate)
+                    this.tasks.data.forEach(t=>{
+                        if(new Date(t.start_date).getTime() == new Date(timeDateArr[_this.i]).getTime()){
+                            gantt.showTask(t.id)
+                        }
+                    })
                     _this.i += 1
                     if (_this.i != timeDateArr.length) {
                         _this.runMarker(timeDateArr)
                     } else {
                         _this.i = 0
+                        gantt.deleteMarker(_this.markerDate)
+                        _this.$emit('hiddenStopBtn',true)
                     }
-                }, 1000);
+                }, number/timeDateArr.length);
             },
+            /** 
+             * 判断日期是否在区间内，在区间内返回true，否返回false 
+             * @param dateString 日期字符串 
+             * @param startDateString 区间开始日期字符串 
+             * @param endDateString 区间结束日期字符串 
+             * @returns {Number} 
+             */ 
+            isDateBetween(dateString, startDateString, endDateString){  
+                if(isEmpty(dateString)){  
+                    alert("dateString不能为空");  
+                    return;  
+                }  
+                if(isEmpty(startDateString)){  
+                    alert("startDateString不能为空");  
+                    return;  
+                }  
+                if(isEmpty(endDateString)){  
+                    alert("endDateString不能为空");  
+                    return;  
+                }  
+                var flag = false;  
+                var startFlag = (dateCompare(dateString, startDateString) < 1);  
+                var endFlag = (dateCompare(dateString, endDateString) > -1);  
+                if(startFlag && endFlag){  
+                    flag = true;  
+                }  
+                return flag;  
+            },  
             stopMarker() {
                 clearTimeout(this.timer)
             },
