@@ -31,7 +31,10 @@
                 timer: '',
                 i: 0,
                 date_to_str: '',
-                loading: ''
+                loading: '',
+                modelData:{
+                    ElementIds:''
+                }
             }
         },
         methods: {
@@ -288,6 +291,10 @@
                     title: _this.date_to_str(new Date(date))
                 })
                 gantt.render();
+                //对接模型api
+                 window.parent.BIMe.control.BIMeHide.hideElementByElementId(window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()) //隐藏所有构件
+                console.log(window.parent.BIMe)
+
             },
             delMaker(){
                 gantt.deleteMarker(this.markerDate)

@@ -61,7 +61,7 @@
                 :tasks="tasks" 
                 :selectScheduleID="selectScheduleID" 
                 :show3d=show3d
-                :timerNumber = mockDialogData.number
+                :timerNumber = mockDialogData.number*1
                 ref="ganttView" 
                 @ganttAddShow=ganttAddShow 
                 @reviseTaskDialog=reviseTaskDialog 
@@ -73,6 +73,8 @@
                 :selectScheduleID="selectScheduleID"
                 @chartUpDate=chartUpDate 
                 @proportionUpData=proportionUpData
+                @hiddenStopBtn=hiddenStopBtn
+                :timerNumber = mockDialogData.number*1
                 :ganttData=ganttData></chats>
             <matchDialog></matchDialog>
             <ganttAdd ref="ganttAdd" 
@@ -433,18 +435,29 @@
                     }
                     
                 }else{
-
+                    this.$refs.chats.chartAxPointerStart()
                 }
                 
             },
             mockReset(){
+                if(this.showGantt){
+                    this.$refs.ganttView.delMaker()
+                    this.mockDialogData.mockStartOrEndDate = [0,0]
+                }else{
+                    this.$refs.chats.chartAxPointerReset()
+                }
                  this.mockDialogData.startShow = true
-                 this.$refs.ganttView.delMaker()
-                  this.mockDialogData.mockStartOrEndDate = [0,0]
+                 
             },
             mockStop(){
+                if(this.showGantt){
+                    this.$refs.ganttView.stopMarker()
+                }else{
+                    this.$refs.chats. chartAxPointerStop()
+                   
+                }
                  this.mockDialogData.startShow = true
-                 this.$refs.ganttView.stopMarker()
+                 
             },
             closeMock(){
                 this.mockDialogData.showVedioBtn = false
@@ -749,9 +762,30 @@
                 this.$axios.get(`${window.urlConfig}/api/Prj/GetScheduleTasks?ProjectID=${window.ProjectID}&ScheduleID=${item.ScheduleID}`).then(res=>{
                     console.log(res)
                     this.ganttData = res.data
-                    // this.ganttData = this.ganttData.sort((a,b)=>{
-                    //     return a.TaskName.split('_')[1].split('F')[0]*1 - b.TaskName.split('_')[1].split('F')[0]*1
-                    // })
+                    let type = [],
+                    obj={};
+                    this.ganttData.forEach(item=>{
+                        type.push(item.Category)
+                    })
+                    type = [...new Set(type)]
+                    type.forEach((t,index)=>{
+                        this.ganttData.forEach((d,index1)=>{
+                            if(d.Category == t){
+                                    if(!obj[index]){
+                                        obj[index] = [d]
+                                    }else{
+                                        obj[index].push(d)
+                                    }
+                            }
+                        })
+                    })
+                    let newArr = []
+                    for (let x in obj){
+                        newArr = newArr.concat(obj[x].sort((a,b)=>{
+                         return a.TaskName.split('_')[1].split('F')[0]*1 - b.TaskName.split('_')[1].split('F')[0]*1
+                     }))
+                    }
+                    this.ganttData = newArr
                     this.ganttData.forEach(item=>{
                         item.Type = item.Category
                         item.color = item.Color

@@ -81,7 +81,8 @@
 	const renderer = require("./schedule_renderer2");
 	export default {
 		props: {
-			ganttData: Array
+			ganttData: Array,
+			timerNumber:Number
 		},
 		data() {
 			return {
@@ -356,6 +357,7 @@
 				} else {
 					date = new Date(this.timeStamp.start)
 				}
+				let arr = this.dateArrToAll([this.timeStamp.start,this.timeStamp.end])
 				this.timer = setInterval(() => {
 					if (date.getTime() < this.timeStamp.EndStamp) {
 						date.setDate(date.getDate() + 1)
@@ -367,14 +369,38 @@
 						});
 					} else {
 						clearInterval(this.timer)
+						this.$emit('hiddenStopBtn',true)
 						this.timeStamp.judge = false
 					}
-				}, 1000)
+				},Math.floor(this.$props.timerNumber*1000/arr.length))
 			},
+			dateArrToAll(arr){
+                let date1 = new Date(arr[0])
+                let date2 = new Date(arr[1])
+                let diff  = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24)
+                let returnArr = []
+                for(let i = 0;i<diff;i++){
+                    date1.setDate(date1.getDate()+1)
+                    let m , d;
+                    (date1.getMonth() +1) >=10? m = (date1.getMonth() +1): m ='0'+ (date1.getMonth() +1)
+                    date1.getDate()>=10?d = date1.getDate():d ='0'+date1.getDate()
+                    returnArr.push(`${date1.getFullYear()}-${m}-${d} 00:00:00`)
+                }
+                return returnArr
+
+            },
 			chartAxPointerStop() {
 				if (this.timer != null) {
 					clearInterval(this.timer)
-					this.timeStamp.judge = true
+					
+				}
+				this.timeStamp.judge = true
+					this.$emit('hiddenStopBtn',true)
+			},
+			chartAxPointerReset(){
+				if(this.timer){
+					clearInterval(this.timer)
+					this.timeStamp.judge = false
 				}
 			}
 		},
