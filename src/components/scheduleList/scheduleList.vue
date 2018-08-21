@@ -85,8 +85,8 @@
           ScheduleID: null
         },
         dialogAddPpgz: {
-          selectn2: "",
-          selectn1: "",
+          selectn2: [],
+          selectn1: [],
           inputVal: "",
           judge: null
         },
@@ -226,32 +226,44 @@
         if (nub == 1) {
           if (judgeConter == 1) {
             //新建
-            this.dialogAddPpgz.selectval = "";
-            this.dialogAddPpgz.selectn1 = "";
+            this.dialogAddPpgz.selectn1 = [];
+            this.dialogAddPpgz.selectn1 = [];
             this.dialogAddPpgz.inputVal = "";
             this.dialogAddPpgz.judge = 1;
           } else if (judgeConter == 2) {
             //修改
             this.dialogAddPpgz.judge = 2;
-            if (this.thisItem.MatchType == 0) {
-              this.dialogAddPpgz.selectn2 = "任务名称";
-            } else if (this.thisItem.MatchType == 1) {
-              this.dialogAddPpgz.selectn2 = "任务附加字段";
-            }
-            if (this.thisItem.MatchValueField == 1) {
-              this.dialogAddPpgz.selectn1 = "构件类别";
-            } else if (this.thisItem.MatchValueField == 2) {
-              this.dialogAddPpgz.selectn1 = "构件类型";
-            } else if (this.thisItem.MatchValueField == 3) {
-              this.dialogAddPpgz.selectn1 = "族名称";
-            }else if(this.thisItem.MatchValueField == 0) {
-               this.dialogAddPpgz.selectn1 = "构件名称";
-            }else if(this.thisItem.MatchValueField == ''){
+            let matchTypeArr = this.thisItem.MatchType.split('|')
+            let newArr = []
+            matchTypeArr.forEach(m => {
+                if (m == 0) {
+                  newArr.push("任务名称")
+                } else if (m == 1) {
+                  newArr.push("任务附加字段")
+                }
+               
+            })
+             this.dialogAddPpgz.selectn2 = newArr
+            let MatchValueFieldArr = this.thisItem.MatchValueField.split('|')
+            let arr = []
+            MatchValueFieldArr.forEach(n=>{
+              if (n == 1) {
+                arr.push("构件类别")
+              } else if (n == 2) {
+                arr.push("构件类型")
+              } else if (n == 3) {
+                arr.push("族名称")
+              }else if(n == 0) {
+                arr.push("构件名称")
+              }else if(this.thisItem.MatchValueField == ''){
 
-            }else{
-              this.dialogAddPpgz.selectn1 = "构件属性";
-              this.dialogAddPpgz.inputVal = this.thisItem.MatchValueField
-            }
+              }else{
+                arr.push("构件属性")
+                this.dialogAddPpgz.inputVal = this.thisItem.MatchValueField
+              }
+            })
+            this.dialogAddPpgz.selectn1 = arr   
+           
           }
           this.$refs.matchDialog.showDialog = true;
         } else if (nub == 2) {

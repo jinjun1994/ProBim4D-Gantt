@@ -354,13 +354,50 @@
 				let date = null
 				if (this.timeStamp.judge) {
 					date = new Date(this.timeStamp.nowTime)
-				} else {
+				} else {	
 					date = new Date(this.timeStamp.start)
 				}
 				let arr = this.dateArrToAll([this.timeStamp.start,this.timeStamp.end])
+				//对接模型api
+                if(window.parent.BIMe){
+                    window.parent.BIMe.control.BIMeHide.hideElementByElementId(window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()) //隐藏所有构件
+                    
+                }
 				this.timer = setInterval(() => {
 					if (date.getTime() < this.timeStamp.EndStamp) {
 						date.setDate(date.getDate() + 1)
+						this.$props.ganttData.forEach(g=>{
+							if(new Date(this.dateInit(g.TaskStartTime)).getTime() == new Date(this.dateInit(date)).getTime()){
+								if(window.parent.BIMe){
+									let a = g.ElementIDS.split(',')
+									let b = []
+									a.forEach(element => {
+										b.push(
+											window.ModelID + '^' + element
+										)
+										
+									});
+									window.parent.BIMe.control.BIMeUtility.setElementColor(b,0,255,0,1)
+
+								}
+							}
+							if(window.parent.BIMe){
+								if(new Date(this.dateInit(g.TaskEndTime)).getTime() == new Date(this.dateInit(date)).getTime()){
+									let a = g.ElementIDS.split(',')
+									let b = []
+									a.forEach(element => {
+										b.push(
+											window.ModelID + '^' + element
+										)
+										
+									});
+									window.parent.BIMe.control.BIMeUtility.resetElementColor(b)
+									window.parent.BIMe.control.BIMeHide.removeHideElementByElementId(b);
+								
+								}
+							}
+							
+						})
 						this.timeStamp.nowTime = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
 						this.chart.setOption({
 							xAxis: {
@@ -373,6 +410,21 @@
 						this.timeStamp.judge = false
 					}
 				},Math.floor(this.$props.timerNumber*1000/arr.length))
+			},
+			dateInit(date){
+				if( (typeof date=='string')&&date.constructor==String){
+					if(date.indexOf('T') != -1){
+						 return date.split('T')[0]
+					}else{
+						return date.split(' ')[0]
+					}
+				}else{
+					let a = new Date(date)
+					var m,d;
+					a.getMonth() + 1 >=  10?m=a.getMonth() + 1:m = '0'+(a.getMonth() + 1)
+					a.getDate() >= 10? d = a.getDate(): d = '0' + a.getDate()
+					return a.getFullYear() + '-'+ m + '-' + d
+				}
 			},
 			dateArrToAll(arr){
                 let date1 = new Date(arr[0])

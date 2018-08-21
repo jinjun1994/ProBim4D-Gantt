@@ -426,13 +426,8 @@
                             console.log(this.mockDialogData.mockStartOrEndDate[0])
                         }
                     })
-                    if(judge){
                         this.$refs.ganttView.addMarker( this.mockDialogData.mockStartOrEndDate[0])
                         this.$refs.ganttView.runMarker(this.dateArrToAll(this.mockDialogData.mockStartOrEndDate))
-
-                    }else{
-                        this.$refs.ganttView.runMarker(this.dateArrToAll(this.mockDialogData.mockStartOrEndDate))
-                    }
                     
                 }else{
                     this.$refs.chats.chartAxPointerStart()
@@ -447,10 +442,16 @@
                     this.$refs.chats.chartAxPointerReset()
                 }
                  this.mockDialogData.startShow = true
+                 if(window.parent.BIMe){
+                     let elementID = window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()
+                    window.parent.BIMe.control.BIMeUtility.resetElementColor(elementID)
+                    window.parent.BIMe.control.BIMeHide.removeHideElementByElementId(elementID)
+                 }
+                 
                  
             },
             mockStop(){
-                if(this.showGantt){
+                if(this.showGantt){ 
                     this.$refs.ganttView.stopMarker()
                 }else{
                     this.$refs.chats. chartAxPointerStop()
@@ -469,10 +470,14 @@
                         this.mockDialogData.mockStartOrEndDate = [0,0]
                     }
                 }else{
-                    if(this.$refs.charts.timer){
-                        clearInterval(this.$refs.charts.timer)
-                    }
+                    this.$refs.chats.chartAxPointerReset()
                 }
+                 if(window.parent.BIMe){
+                     let elementID = window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()
+                    window.parent.BIMe.control.BIMeUtility.resetElementColor(elementID)
+                    window.parent.BIMe.control.BIMeHide.removeHideElementByElementId(elementID)
+                 }
+                
             },
             mocksubmit(){
                 if(isNaN(this.mockDialogData.number*1) || this.mockDialogData.number == null || this.mockDialogData.number == ' '){
@@ -504,10 +509,8 @@
                         proportion:number == 0?0:Math.floor((number/this.$refs.chats.DateDiff(item.schedule[item.schedule.length-1][5],item.schedule[0][0]))*100)
 
                     })
-                    console.log(number/this.$refs.chats.DateDiff(item.schedule[item.schedule.length-1][5],item.schedule[0][0])*100)
 
                 })
-                 console.log(this.proportionData)
             },
             chartUpDate(diff){ 
                 let arr = []

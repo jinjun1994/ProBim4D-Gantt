@@ -292,7 +292,10 @@
                 })
                 gantt.render();
                 //对接模型api
-                 window.parent.BIMe.control.BIMeHide.hideElementByElementId(window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()) //隐藏所有构件
+                if(window.parent.BIMe){
+                    window.parent.BIMe.control.BIMeHide.hideElementByElementId(window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()) //隐藏所有构件
+                    
+                }
                 console.log(window.parent.BIMe)
 
             },
@@ -314,8 +317,36 @@
                     gantt.updateMarker(_this.markerDate)
                     this.tasks.data.forEach(t=>{
                         if(new Date(t.start_date).getTime() == new Date(timeDateArr[_this.i]).getTime()){
+                            if(window.parent.BIMe){
+                                let a = t.ElementIDS.split(',')
+                                let b = []
+                                a.forEach(element => {
+                                    b.push(
+                                        window.ModelID + '^' + element
+                                    )
+                                    
+                                });
+                                window.parent.BIMe.control.BIMeUtility.setElementColor(b,0,255,0,1)
+
+                            }
+                            
                             gantt.showTask(t.id)
                         }
+                        if(window.parent.BIMe){
+                            if(new Date(t.end_date).getTime() == new Date(timeDateArr[_this.i]).getTime()){
+                                let a = t.ElementIDS.split(',')
+                                let b = []
+                                a.forEach(element => {
+                                    b.push(
+                                        window.ModelID + '^' + element
+                                    )
+                                    
+                                });
+                                window.parent.BIMe.control.BIMeUtility.resetElementColor(b)
+                                window.parent.BIMe.control.BIMeHide.removeHideElementByElementId(b);
+                            }
+                        }
+                        
                     })
                     _this.i += 1
                     if (_this.i != timeDateArr.length) {
@@ -368,6 +399,7 @@
             }
         },
         mounted() {
+            
             window.stopMarker = this.stopMarker
             window.addMarker = this.addMarker
             window.runMarker = this.runMarker
