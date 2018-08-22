@@ -1,5 +1,5 @@
 <template>
-  <div class="dialog-wp match" v-if="showDialog" @click="showDialog=false">
+  <div class="dialog-wp" v-if="showDialog" @click="showDialog=false">
     <div class="makser" @click.stop>
       <div class="dialog-header">
         <h2 class="fl">新增匹配规则</h2>
@@ -9,22 +9,19 @@
         <el-row>
             <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="匹配字段" name="first">
-                    <el-checkbox-group v-model="ruleForm.selectn1" @change='wzw'>
-                        <el-checkbox label="构件名称"></el-checkbox>
-                        <el-checkbox label="构件类别" class="mt20"></el-checkbox>
-                        <el-checkbox label="构件类型" class="mt20"></el-checkbox>
-                        <el-checkbox label="族名称" class="mt20"></el-checkbox>
-                        <el-checkbox label="构件属性" class="mt20"></el-checkbox>
+                    <el-radio-group v-model="ruleForm.selectn1">
+                        <el-radio label="构件名称或构件类型或族名称" class="mt20"></el-radio>
+                        <el-radio label="构件属性" class="mt20"></el-radio>
                          
-                    </el-checkbox-group>
+                    </el-radio-group>
                     <input type="text" placeholder="请输入属性值" class="zdy"  v-model="ruleForm.inputVal" :disabled="inputDisabled" :class="{'none-cursor':inputDisabled}">
                 </el-tab-pane>
                 <el-tab-pane label="目标字段" name="second">
-                    <el-checkbox-group v-model="ruleForm.selectn2">
-                        <el-checkbox label="任务名称"></el-checkbox>
-                        <el-checkbox label="任务附加字段" class="mt20"></el-checkbox>
+                    <el-radio-group v-model="ruleForm.selectn2">
+                        <el-radio label="任务名称" class="mt20"></el-radio>
+                        <el-radio label="任务附加字段" class="mt20"></el-radio>
                          
-                    </el-checkbox-group>
+                    </el-radio-group>
                 </el-tab-pane>
             </el-tabs>
 
@@ -38,17 +35,6 @@
   </div>
 </template>
 <style>
-.match .el-checkbox{
-  color: #606266
-}
-.match .el-checkbox-group {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-.match .el-checkbox+.el-checkbox{
-  margin-left: 0;
-}
 .none-cursor{
     cursor: no-drop;
 }
@@ -92,7 +78,7 @@ input:focus{
   }
   .dialog-wp .makser {
     width: 400px;
-    height: 340px;
+    height: 250px;
     background-color: #ffffff;
     box-shadow: 0px 18px 49px -30px rgba(87, 89, 89, 0.5);
     border-radius: 2px;
@@ -138,8 +124,8 @@ input:focus{
         type: Object,
         default () {
           return {
-            selectn2: ['构件名称'],
-            selectn1: [],
+            selectn2: "",
+            selectn1: "",
             inputVal: "",
             judge: null
           };
@@ -154,10 +140,6 @@ input:focus{
       };
     },
     methods: {
-      wzw(e){
-        console.log(e)
-        console.log(this.$props.ruleForm.selectn2)
-      },
         submitBtnJudge(){
             if(this.$props.ruleForm.selectn1 == '构件属性'){
                 if(this.$props.ruleForm.inputVal != '' && this.$props.ruleForm.selectn2 != ''){
@@ -190,26 +172,17 @@ input:focus{
         var formData = new FormData();
         formData.append("ProjectID", window.ProjectID);
         formData.append("ScheduleID", this.$props.scheduleId);
-        formData.append('MatchType',this.$props.ruleForm.selectn2.join('|'))
-        formData.append('MatchValueField',this.$props.ruleForm.selectn1.join('|'))
-        // if(this.$props.ruleForm.selectn2 == '任务名称'){//第二页
-        //     formData.append('MatchType',0)
-        // }else if(this.$props.ruleForm.selectn2 == '任务附加字段'){
-        //     formData.append('MatchType',1)
-        // }
+        if(this.$props.ruleForm.selectn2 == '任务名称'){//第二页
+            formData.append('MatchType',0)
+        }else if(this.$props.ruleForm.selectn2 == '任务附加字段'){
+            formData.append('MatchType',1)
+        }
 
-        // if(this.$props.ruleForm.selectn1 == '构件名称'){
-        //     formData.append('MatchValueField',0)
-        // }else if(this.$props.ruleForm.selectn1 == '构件类别'){
-        //     formData.append('MatchValueField',1)
-        // }else if(this.$props.ruleForm.selectn1 == '构件类型'){
-        //     formData.append('MatchValueField',2)
-        // }else if(this. $props.ruleForm.selectn1 == '族名称'){
-        //     formData.append('MatchValueField',3)
-        // }else if(this.$props.ruleForm.selectn1 == '构件属性'){
-        //     formData.append('MatchValueField',this.$props.ruleForm.inputVal)
-        // }
-        
+        if(this.$props.ruleForm.selectn1 == '构件名称或构件类型或族名称'){
+            formData.append('MatchValueField',0)
+        }else if(this.$props.ruleForm.selectn1 == '构件属性'){
+            formData.append('MatchValueField',this.$props.ruleForm.inputVal)
+        }
         formData.append('MatchExpression',1)
         this.$axios.post(`${window.urlConfig}/api/Prj/UpdateMatchingRules`,formData).then(res=>{
             console.log(res)

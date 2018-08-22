@@ -3,7 +3,7 @@
     <header>进度方案列表</header>
     <main v-on:mouseout="mouseLeaveFun">
       <ul class="list-wp">
-        <li v-for="item in items" :key="item.id" @mouseenter='hoverDialog($event,item)' @mouseleave="hoverDialogLeave" @click="itemClick(item)" :class="{select:judgeClickClass(item)}" >
+        <li v-for="item in items" :key="item.id" @mouseenter='hoverDialog($event,item)' @mouseleave="hoverDialogLeave" @click="itemClick(item)" :class="{select:judgeClickClass(item)}">
           <div class="text">{{item.ScheduleName}}</div><img src="./more.svg" alt="" @click.stop="showNavClick($event)">
         </li>
       </ul>
@@ -34,23 +34,23 @@
     <matchDialog ref="matchDialog" :schedule-id="thisScheduleID" @requestItems=requestItems :ruleForm=dialogAddPpgz></matchDialog>
     <delDialogMatch ref="delDialogMatch" :schedule-id="thisScheduleID" @requestItems=requestItems :configText=dialogDelConfig></delDialogMatch>
     <div class="copy-dialog" v-if="copyDialogData.show">
-		<div class="center">
-			<h1>复制进度方案</h1>
-			<el-row class="mt20">
-				<el-col :span="5" class="label">
-					名称：
-				</el-col>
-				<el-col :span="18">
-					<el-input v-model="copyDialogData.name" placeholder="请输入内容"></el-input>
-				</el-col>
-			</el-row>
-			<div class="sub-btn">
-				<ul>
-					<li class="ml20" @click="copyClick">确定</li>
-					<li class="ml20" @click="copyDialogData.show = false">取消</li>
-				</ul>
-			</div>
-		</div>
+      <div class="center">
+        <h1>复制进度方案</h1>
+        <el-row class="mt20">
+          <el-col :span="5" class="label">
+            名称：
+          </el-col>
+          <el-col :span="18">
+            <el-input v-model="copyDialogData.name" placeholder="请输入内容"></el-input>
+          </el-col>
+        </el-row>
+        <div class="sub-btn">
+          <ul>
+            <li class="ml20" @click="copyClick">确定</li>
+            <li class="ml20" @click="copyDialogData.show = false">取消</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -64,19 +64,19 @@
       dialogView,
       matchDialog,
       delDialogMatch
-	},
-	props:{
-		selectSchedule: {
-			type:Object,
-			default(){
-				return {}
-			}
-		},
-		ganttOrChartsData: Array
-	},
+    },
+    props: {
+      selectSchedule: {
+        type: Object,
+        default () {
+          return {}
+        }
+      },
+      ganttOrChartsData: Array
+    },
     data() {
       return {
-        fullscreenLoading:false,
+        fullscreenLoading: false,
         dialogAddJd: {
           name: "",
           date1: "",
@@ -85,8 +85,8 @@
           ScheduleID: null
         },
         dialogAddPpgz: {
-          selectn2: [],
-          selectn1: [],
+          selectn2: '',
+          selectn1: '',
           inputVal: "",
           judge: null
         },
@@ -111,63 +111,62 @@
         thisItem: "",
         clickItem: null,
         showAddOrDel: true, //是否显示列表新建删除
-        copyDialogData:{
-		  show:false,
-		  name:'',
-		  ganttOrChartsData:[]
+        copyDialogData: {
+          show: false,
+          name: '',
+          ganttOrChartsData: []
         }
       };
     },
     methods: {
-      copyClick(){
-		if(this.copyDialogData.name == ''){
-			 this.$message.error('请输入名称');
-			 return false
-		}
-		let _this = this
-		let formData = new FormData()
-		let obj = {
-			ModelID:window.ModelID,
-			ScheduleName:this.copyDialogData.name,
-			ScheduleStartTime:this.$props.selectSchedule.ScheduleStartTime,
-			ExternalField:this.$props.selectSchedule.ExternalField
-		}
-		if(this.$props.ganttOrChartsData.length > 0){
-			this.copyDialogData.ganttOrChartsData = JSON.stringify(this.$props.ganttOrChartsData)
-			this.copyDialogData.ganttOrChartsData = JSON.parse(this.copyDialogData.ganttOrChartsData)
-		}
-		formData.append('ProjectID',window.ProjectID)
-		formData.append('Schedule', JSON.stringify(obj))
-		this.$axios.post(`${window.urlConfig}/api/Prj/AddSchedule`, formData).then(res => {
-			console.log(res)
-			this.$emit('listAddItem')
-			 var formData1 = new FormData()
-			formData1.append('ProjectID', window.ProjectID)
-			this.copyDialogData.ganttOrChartsData.forEach(item => {
-				item.ScheduleID = res.data
-				item.Color = item.color
-				item.TaskID =this.GUID()
-				delete item.color
-			})
-			formData1.append('ScheduleTasks', JSON.stringify(this.copyDialogData.ganttOrChartsData))
-			this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`, formData1).then(res => {
-				this.copyDialogData.show=false
-			}).catch(res => {
-				console.log('批量添加数据错误，原因' + res)
-			})
-			
-		})
-	  },
-	  GUID(){
-                let guid = '';
-                for (let i = 1; i <= 32; i++) {
-                let n = Math.floor(Math.random() * 16.0).toString(16);
-                guid += n;
-                if ((i === 8) || (i === 12) || (i === 16) || (i === 20))
-                    guid += '-';
-                }
-                return guid;
-            },
+      copyClick() {
+        if (this.copyDialogData.name == '') {
+          this.$message.error('请输入名称');
+          return false
+        }
+        let _this = this
+        let formData = new FormData()
+        let obj = {
+          ModelID: window.ModelID,
+          ScheduleName: this.copyDialogData.name,
+          ScheduleStartTime: this.$props.selectSchedule.ScheduleStartTime,
+          ExternalField: this.$props.selectSchedule.ExternalField
+        }
+        if (this.$props.ganttOrChartsData.length > 0) {
+          this.copyDialogData.ganttOrChartsData = JSON.stringify(this.$props.ganttOrChartsData)
+          this.copyDialogData.ganttOrChartsData = JSON.parse(this.copyDialogData.ganttOrChartsData)
+        }
+        formData.append('ProjectID', window.ProjectID)
+        formData.append('Schedule', JSON.stringify(obj))
+        this.$axios.post(`${window.urlConfig}/api/Prj/AddSchedule`, formData).then(res => {
+          console.log(res)
+          this.$emit('listAddItem')
+          var formData1 = new FormData()
+          formData1.append('ProjectID', window.ProjectID)
+          this.copyDialogData.ganttOrChartsData.forEach(item => {
+            item.ScheduleID = res.data
+            item.Color = item.color
+            item.TaskID = this.GUID()
+            delete item.color
+          })
+          formData1.append('ScheduleTasks', JSON.stringify(this.copyDialogData.ganttOrChartsData))
+          this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`, formData1).then(res => {
+            this.copyDialogData.show = false
+          }).catch(res => {
+            console.log('批量添加数据错误，原因' + res)
+          })
+        })
+      },
+      GUID() {
+        let guid = '';
+        for (let i = 1; i <= 32; i++) {
+          let n = Math.floor(Math.random() * 16.0).toString(16);
+          guid += n;
+          if ((i === 8) || (i === 12) || (i === 16) || (i === 20))
+            guid += '-';
+        }
+        return guid;
+      },
       judgeClickClass(item) {
         if (this.clickItem) {
           if (item.ScheduleID == this.clickItem.ScheduleID) {
@@ -195,20 +194,13 @@
           this.showAddOrDel = true
           return false;
         } else if (item.MatchValueField == 0) {
-          this.ppgzHover.textLeft = "构件名称";
+          this.ppgzHover.textLeft = "构件名称或构件类型或族名称";
         } else if(item.MatchValueField == 1){
-          this.ppgzHover.textLeft = '构件类别'
-        }else if(item.MatchValueField == 2){
-          this.ppgzHover.textLeft = '构件类型'
-        }else if(item.MatchValueField == 3){
-          this.ppgzHover.textLeft = '族名称'
-        }else {
           this.ppgzHover.textLeft = '构件属性'
         }
-
-        if(item.MatchType == 0){
+        if (item.MatchType == 0) {
           this.ppgzHover.textRight = '任务名称'
-        }else{
+        } else {
           this.ppgzHover.textRight = '任务附加字段'
         }
         this.ppgzDialog = true;
@@ -226,44 +218,25 @@
         if (nub == 1) {
           if (judgeConter == 1) {
             //新建
-            this.dialogAddPpgz.selectn1 = [];
-            this.dialogAddPpgz.selectn1 = [];
+            this.dialogAddPpgz.selectn2 = '';
+            this.dialogAddPpgz.selectn1 = '';
             this.dialogAddPpgz.inputVal = "";
             this.dialogAddPpgz.judge = 1;
           } else if (judgeConter == 2) {
             //修改
             this.dialogAddPpgz.judge = 2;
-            let matchTypeArr = this.thisItem.MatchType.split('|')
-            let newArr = []
-            matchTypeArr.forEach(m => {
-                if (m == 0) {
-                  newArr.push("任务名称")
-                } else if (m == 1) {
-                  newArr.push("任务附加字段")
-                }
-               
-            })
-             this.dialogAddPpgz.selectn2 = newArr
-            let MatchValueFieldArr = this.thisItem.MatchValueField.split('|')
-            let arr = []
-            MatchValueFieldArr.forEach(n=>{
-              if (n == 1) {
-                arr.push("构件类别")
-              } else if (n == 2) {
-                arr.push("构件类型")
-              } else if (n == 3) {
-                arr.push("族名称")
-              }else if(n == 0) {
-                arr.push("构件名称")
-              }else if(this.thisItem.MatchValueField == ''){
-
-              }else{
-                arr.push("构件属性")
-                this.dialogAddPpgz.inputVal = this.thisItem.MatchValueField
-              }
-            })
-            this.dialogAddPpgz.selectn1 = arr   
-           
+             if (this.thisItem.MatchType == 0) {
+              this.dialogAddPpgz.selectn2 = "任务名称";
+            } else if (this.thisItem.MatchType == 1) {
+              this.dialogAddPpgz.selectn2 = "任务附加字段";
+            }
+            if (this.thisItem.MatchValueField == 0) {
+              this.dialogAddPpgz.selectn1 = "构件名称或构件类型或族名称";
+            }else if(this.thisItem.MatchValueField == 1){
+              this.dialogAddPpgz.selectn1 = "构件属性";
+              this.dialogAddPpgz.inputVal = this.thisItem.MatchValueField
+            }
+          
           }
           this.$refs.matchDialog.showDialog = true;
         } else if (nub == 2) {
@@ -284,7 +257,7 @@
             this.dialogAddJd.region = "";
             this.dialogAddJd.judge = 1;
           } else {
-            this.$emit('temporaryDialogUpdataShow',this.thisItem)
+            this.$emit('temporaryDialogUpdataShow', this.thisItem)
             return false
             // console.log(this.thisItem);
             // if (this.thisItem) {
@@ -328,18 +301,17 @@
       },
       requestItems() {
         this.$axios(`${window.urlConfig}/api/Prj/GetScheduleByModel?ProjectID=${ window.ProjectID}&ModelID=${window.ModelID}`).then(res => {
-         console.log(res)
-         if (res.data.length > 0) {
+          console.log(res)
+          if (res.data.length > 0) {
             this.items = res.data;
-          }else{
+          } else {
             this.items = []
           }
-          if(this.clickItem){
-            if(this.thisScheduleID == this.clickItem.ScheduleID){//判断是否删除的是已展示页面
+          if (this.clickItem) {
+            if (this.thisScheduleID == this.clickItem.ScheduleID) { //判断是否删除的是已展示页面
               this.$emit('clearGanttDataView')
             }
           }
-          
         });
       }
     },
@@ -354,28 +326,28 @@
   };
 </script>
 <style lang="css" scoped>
-	.copy-dialog{
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: rgba(0, 0, 0, .5);
-		z-index: 10;
-	}
-	.copy-dialog .center{
-		width: 300px;
-		height: 200px;
-		background: #fff;
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		margin: auto;
-		border-radius: 10px;
-		padding: 20px;
-	}
+  .copy-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .5);
+    z-index: 10;
+  }
+  .copy-dialog .center {
+    width: 300px;
+    height: 200px;
+    background: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    border-radius: 10px;
+    padding: 20px;
+  }
   .ppgz-dialog {
     width: 200px;
     min-height: 72px;

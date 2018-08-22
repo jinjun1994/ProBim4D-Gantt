@@ -42,9 +42,11 @@
                             
                             <li @click="MatchElementTask" v-show="selectScheduleID != '' && !show3d">构件匹配</li>
                             <li v-if="mockDialogData.showVedioBtn" :class="{mr10:mockDialogData.showVedioBtn}" class="mock-vedio">
+                                <div style="color:#fff;display:inline-block;margin-right:20px" v-if="!mockDialogData.startShow" @click="mockDetailDataClick">{{mockDetailData.btnText}}</div>
                                 <img src="./reset.svg" alt="" @click.stop="mockReset"><!--重置-->
                                 <img src="./start.svg" alt="" v-if="mockDialogData.startShow" @click.stop="mockStart"><!--开始-->
                                 <img src="./stop.svg" v-if="!mockDialogData.startShow" @click.stop="mockStop"><!--暂停-->
+                                
                             </li>
                             <li :class="{'no-click':!show3d}" v-if="!mockDialogData.showVedioBtn" @click="mockShowDialog" class="sign"><img src="./mock.svg">模拟</li>
                              <li v-if="mockDialogData.showVedioBtn" @click="closeMock" class="sign"><img src="./mock.svg">关闭模拟</li>
@@ -56,13 +58,34 @@
                     </div>
                 </div>
             </div>
+            <div class="mock-details" v-show='mockDetailData.show'>
+                <h1>模拟详情</h1>
+                <el-row class="mt20">
+                    <el-col :span="8" class="title">模拟日期：</el-col>
+                    <el-col :span="16">{{mockDetailData.date}}</el-col>
+                </el-row>
+                <div v-if="mockDetailData.taskName.length > 0">
+                     <el-row class="mt20"  v-for="(a,index) in mockDetailData.taskName" :key="a">
+                        <el-col :span="8" class="title" v-if="index == 0">进行任务名称：</el-col>
+                        <el-col :span="8" class="title" v-else></el-col>
+                        <el-col :span="16">{{a}}</el-col>
+                    </el-row>
+                </div>
+                
+                <el-row class="mt20" v-else-if="mockDetailData.taskName.length == 0">
+                    <el-col :span="8" class="title">进行任务名称：</el-col>
+                    <el-col :span="16">无</el-col>
+                </el-row>
+
+            </div>
             <gantt class="gantt-wp" 
                 v-show="showGantt" 
                 :tasks="tasks" 
                 :selectScheduleID="selectScheduleID" 
                 :show3d=show3d
                 :timerNumber = mockDialogData.number*1
-                ref="ganttView" 
+                ref="ganttView"
+                @upDataMockDetail=upDataMockDetail 
                 @ganttAddShow=ganttAddShow 
                 @reviseTaskDialog=reviseTaskDialog 
                 @operationGanttAddView=operationGanttAddView
@@ -120,6 +143,24 @@
     </div>
 </template>
 <style>
+.mock-details{
+    position: fixed;
+    top: 30px;
+    right: 700px;
+    width:400px;
+    height: 200px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background: #fff;
+    z-index: 99;
+    padding: 20px;
+    overflow-y: auto
+}
+.mock-details .title{
+    text-align: right;
+    height: 20px;
+    line-height: 20px;
+}
 .mr10{margin-right: 10px !important;}
 .mock-vedio img:hover{
     opacity: .5;
@@ -365,10 +406,29 @@
                     showVedioBtn:false,
                     startShow:true,
                     mockStartOrEndDate:[0,0]
+                },
+                mockDetailData:{
+                    date:'',
+                    taskName:[],
+                    show:false,
+                    btnText:'详情'
                 }
             };
         },
         methods: {
+            mockDetailDataClick(){
+                this.mockDetailData.show = !this.mockDetailData.show
+                if(this.mockDetailData.show){
+                    this.mockDetailData.btnText = '关闭详情'
+                }else{
+                     this.mockDetailData.btnText = '详情'
+                }
+            },
+            upDataMockDetail(obj){
+                this.mockDetailData.date = obj.date.split(' ')[0]
+                this.mockDetailData.taskName = obj.taskName
+
+            },
             mockShowDialog(){
                 if(!this.show3d) {return false};
                 this.mockDialogData.show=true;
@@ -874,6 +934,8 @@
                         callback: action => {
                             this.matchLoadingConfig.success = 0
                             this.matchLoadingConfig.fail = 0
+                            this.matchLoadingConfig.matchSuccess = 0
+                            this.matchLoadingConfig.matchFail = 0
                             this.requestData(this.selectItem)
                         }
                     });
@@ -949,7 +1011,6 @@
             }
         },
         created() {
-            
             window.urlConfig = "https://bimcomposer.probim.cn";
             if (this.getQueryString('ProjectID') == null) {
                 window.ProjectID = "18a9e792-6b0d-2bc6-2595-2de55708e58e";

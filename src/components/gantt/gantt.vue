@@ -315,6 +315,7 @@
                     dayDate.start_date = new Date(timeDateArr[_this.i])
                     dayDate.title = _this.date_to_str(dayDate.start_date)
                     gantt.updateMarker(_this.markerDate)
+                    let arr = []
                     this.tasks.data.forEach(t=>{
                         if(new Date(t.start_date).getTime() == new Date(timeDateArr[_this.i]).getTime()){
                             if(window.parent.BIMe){
@@ -346,8 +347,13 @@
                                 window.parent.BIMe.control.BIMeHide.removeHideElementByElementId(b);
                             }
                         }
+                        //判断maker是否在区间
+                        if(this.isDateBetween(timeDateArr[this.i],t.start_date,t.end_date)){
+                            arr.push(t.text)
+                        }
                         
                     })
+                    _this.$emit('upDataMockDetail',{date:timeDateArr[this.i],taskName:arr})
                     _this.i += 1
                     if (_this.i != timeDateArr.length) {
                         _this.runMarker(timeDateArr)
@@ -365,22 +371,36 @@
              * @param endDateString 区间结束日期字符串 
              * @returns {Number} 
              */ 
+             compareDate(startDate, endDate) {
+                 let endTimes,startTimes;
+                if((typeof startDate=='string')&&startDate.constructor==String){
+                    if(startDate.length >=8 && startDate.length <= 10){
+                        startTimes = new Date(startDate).getTime()
+                    }else{
+                        startTimes = new Date(startDate.split(' ')[0]).getTime()
+                    }
+                }else{
+                    startTimes = new Date(startDate).getTime()
+                }
+                if((typeof endDate=='string')&&endDate.constructor==String){
+                    if(endDate.length >=8 && endDate.length <= 10){
+                        endTimes = new Date(endDate).getTime()
+                    }else{
+                        endTimes = new Date(endDate.split(' ')[0]).getTime()
+                    }
+                }else{
+                    endTimes = new Date(endDate).getTime()
+                }
+                if (endTimes<startTimes) {
+                    return -1;
+                }
+                return 1;
+            },
             isDateBetween(dateString, startDateString, endDateString){  
-                if(isEmpty(dateString)){  
-                    alert("dateString不能为空");  
-                    return;  
-                }  
-                if(isEmpty(startDateString)){  
-                    alert("startDateString不能为空");  
-                    return;  
-                }  
-                if(isEmpty(endDateString)){  
-                    alert("endDateString不能为空");  
-                    return;  
-                }  
+
                 var flag = false;  
-                var startFlag = (dateCompare(dateString, startDateString) < 1);  
-                var endFlag = (dateCompare(dateString, endDateString) > -1);  
+                var startFlag = (this.compareDate(dateString, startDateString) < 1);  
+                var endFlag = (this.compareDate(dateString, endDateString) > -1);  
                 if(startFlag && endFlag){  
                     flag = true;  
                 }  
