@@ -362,9 +362,11 @@
                 if(window.parent.BIMe){
                     window.parent.BIMe.control.BIMeHide.hideElementByElementId(window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()) //隐藏所有构件
                     
-                }
+				}
+				
 				this.timer = setInterval(() => {
 					if (date.getTime() < this.timeStamp.EndStamp) {
+						let newArr = []
 						date.setDate(date.getDate() + 1)
 						this.$props.ganttData.forEach(g=>{
 							if(new Date(this.dateInit(g.TaskStartTime)).getTime() == new Date(this.dateInit(date)).getTime()){
@@ -396,8 +398,13 @@
 								
 								}
 							}
+							if(this.isDateBetween(new Date(this.dateInit(date)),g.TaskStartTime,g.TaskEndTime)){
+								newArr.push(g.TaskName)
+							}
 							
 						})
+						this.$emit('upDataMockDetail',{date:date,taskName:newArr})
+						console.log(newArr)
 						this.timeStamp.nowTime = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
 						this.chart.setOption({
 							xAxis: {
@@ -411,6 +418,47 @@
 					}
 				},Math.floor(this.$props.timerNumber*1000/arr.length))
 			},
+			/** 
+             * 判断日期是否在区间内，在区间内返回true，否返回false 
+             * @param dateString 日期字符串 
+             * @param startDateString 区间开始日期字符串 
+             * @param endDateString 区间结束日期字符串 
+             * @returns {Number} 
+             */ 
+             compareDate(startDate, endDate) {
+                 let endTimes,startTimes;
+                if((typeof startDate=='string')&&startDate.constructor==String){
+                    if(startDate.length >=8 && startDate.length <= 10){
+                        startTimes = new Date(startDate).getTime()
+                    }else{
+                        startTimes = new Date(startDate.split(' ')[0]).getTime()
+                    }
+                }else{
+                    startTimes = new Date(startDate).getTime()
+                }
+                if((typeof endDate=='string')&&endDate.constructor==String){
+                    if(endDate.length >=8 && endDate.length <= 10){
+                        endTimes = new Date(endDate).getTime()
+                    }else{
+                        endTimes = new Date(endDate.split(' ')[0]).getTime()
+                    }
+                }else{
+                    endTimes = new Date(endDate).getTime()
+                }
+                if (endTimes<startTimes) {
+                    return -1;
+                }
+                return 1;
+            },
+            isDateBetween(dateString, startDateString, endDateString){  
+                var flag = false;  
+                var startFlag = (this.compareDate(dateString, startDateString) < 1);  
+                var endFlag = (this.compareDate(dateString, endDateString) > -1);  
+                if(startFlag && endFlag){  
+                    flag = true;  
+                }  
+                return flag;  
+            },  
 			dateInit(date){
 				if( (typeof date=='string')&&date.constructor==String){
 					if(date.indexOf('T') != -1){

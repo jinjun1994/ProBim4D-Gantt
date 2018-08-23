@@ -361,6 +361,7 @@
                         _this.i = 0
                         gantt.deleteMarker(_this.markerDate)
                         _this.$emit('hiddenStopBtn',true)
+                        _this.$emit('resetMockDataArr')
                     }
                 }, number/timeDateArr.length);
             },

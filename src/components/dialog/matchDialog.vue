@@ -10,7 +10,7 @@
             <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="匹配字段" name="first">
                     <el-radio-group v-model="ruleForm.selectn1">
-                        <el-radio label="构件名称或构件类型或族名称" class="mt20"></el-radio>
+                        <el-radio label="构件名称、类别及族名称" class="mt20"></el-radio>
                         <el-radio label="构件属性" class="mt20"></el-radio>
                          
                     </el-radio-group>

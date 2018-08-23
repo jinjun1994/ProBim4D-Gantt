@@ -88,12 +88,14 @@
                 @upDataMockDetail=upDataMockDetail 
                 @ganttAddShow=ganttAddShow 
                 @reviseTaskDialog=reviseTaskDialog 
+                @resetMockDataArr=resetMockDataArr
                 @operationGanttAddView=operationGanttAddView
                 @hiddenStopBtn=hiddenStopBtn 
                 @upDatedGanttDateToCharts=upDatedGanttDateToCharts>
             </gantt>
             <chats v-if="!showGantt" class="chats-wp" ref="chats" 
                 :selectScheduleID="selectScheduleID"
+                @upDataMockDetail=upDataMockDetail
                 @chartUpDate=chartUpDate 
                 @proportionUpData=proportionUpData
                 @hiddenStopBtn=hiddenStopBtn
@@ -425,7 +427,12 @@
                 }
             },
             upDataMockDetail(obj){
-                this.mockDetailData.date = obj.date.split(' ')[0]
+                if(this.showGantt){
+                    this.mockDetailData.date = obj.date.split(' ')[0]
+                }else{
+                    this.mockDetailData.date = this.serverDateInit(obj.date).split('T')[0]
+                }
+                
                 this.mockDetailData.taskName = obj.taskName
 
             },
@@ -465,6 +472,9 @@
                     this.mockDialogData.startShow = false
                 }
             },
+            resetMockDataArr(){
+                mockStartOrEndDate[0] = 0
+            },
             mockStart(){
                 this.mockDialogData.startShow = false
                 if(this.showGantt){
@@ -486,8 +496,13 @@
                             console.log(this.mockDialogData.mockStartOrEndDate[0])
                         }
                     })
-                        this.$refs.ganttView.addMarker( this.mockDialogData.mockStartOrEndDate[0])
+                    if(judge){
+                         this.$refs.ganttView.addMarker( this.mockDialogData.mockStartOrEndDate[0])
                         this.$refs.ganttView.runMarker(this.dateArrToAll(this.mockDialogData.mockStartOrEndDate))
+                    }else{
+                        this.$refs.ganttView.runMarker(this.dateArrToAll(this.mockDialogData.mockStartOrEndDate))
+                    }
+                       
                     
                 }else{
                     this.$refs.chats.chartAxPointerStart()
@@ -532,7 +547,7 @@
                 }else{
                     this.$refs.chats.chartAxPointerReset()
                 }
-                 if(window.parent.BIMe){
+                 if(window.parent.BIMe && this.show3d){
                      let elementID = window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()
                     window.parent.BIMe.control.BIMeUtility.resetElementColor(elementID)
                     window.parent.BIMe.control.BIMeHide.removeHideElementByElementId(elementID)
@@ -891,6 +906,18 @@
                  this.$refs.ganttView.Repaint();
             },
             toggleGantt() {
+                if(window.parent.BIMe && this.show3d){
+                    let elementID = window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()
+                    window.parent.BIMe.control.BIMeUtility.resetElementColor(elementID)
+                    window.parent.BIMe.control.BIMeHide.removeAllHideElement();
+                }
+                if(this.showGantt){
+                    this.$refs.ganttView.delMaker()
+
+                }else{
+                    this.$refs.chats.chartAxPointerReset()
+                }
+                this.hiddenStopBtn(true)
                 if(this.selectScheduleID != ''){
                     this.showGantt = !this.showGantt;
                 }   
@@ -900,6 +927,9 @@
                 }else{
                     btn.innerHTML = '甘特图'
                 }
+                
+                 
+
             },
             toggle3D() {
                 if(this.selectScheduleID == ''){
@@ -911,6 +941,18 @@
                     show3DBtn.innerText = "隐藏模型";
                 } else {
                     show3DBtn.innerText = "显示模型";
+                    this.mockDetailData.show = false
+                }
+                this.mockDialogData.showVedioBtn = false
+                this.mockDialogData.number = 10
+                this.mockDialogData.startShow = true
+                if(this.showGantt){
+                    if(this.$refs.ganttView.timer){
+                        this.$refs.ganttView.delMaker()
+                        this.mockDialogData.mockStartOrEndDate = [0,0]
+                    }
+                }else{
+                    this.$refs.chats.chartAxPointerReset()
                 }
                 if (this.$refs.chats) {
                     this.$nextTick(function() {
@@ -952,7 +994,7 @@
                 formData.append('Section',data.TaskName.split('_')[1])
                 formData.append('MatchValueField',this.selectItem.MatchValueField)
                 if(this.selectItem.MatchType == 0){
-                    formData.append('MatchValue',(data.TaskName.split('_')[0]))
+                    formData.append('MatchValue',data.TaskName)
                 }else if(this.selectItem.MatchType == 1){
                     formData.append('MatchValue',data.ExternalProperty)
                 }
