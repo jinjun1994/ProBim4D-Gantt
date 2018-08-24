@@ -253,8 +253,13 @@ class scheduleRenderer {
     }
 
   }
-  axisPointer(time){
+  axisPointer(time,hideMaker){
     time?time: time = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) +'-'+ new Date().getDate()
+    if(hideMaker){
+      return {lineStyle:{
+        opacity:0
+      }}
+    }
    return { value: time,
             snap: true,
             lineStyle: {
@@ -414,7 +419,7 @@ class scheduleRenderer {
           interval: () => true,
           show: true
         },
-        axisPointer: this.axisPointer(),
+        axisPointer: this.axisPointer(null,true),
         splitLine: {
             show: false
         }

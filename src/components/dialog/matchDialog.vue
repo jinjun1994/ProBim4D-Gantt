@@ -178,7 +178,7 @@ input:focus{
             formData.append('MatchType',1)
         }
 
-        if(this.$props.ruleForm.selectn1 == '构件名称或构件类型或族名称'){
+        if(this.$props.ruleForm.selectn1 == ' 构件名称、类别及族名称'){
             formData.append('MatchValueField',0)
         }else if(this.$props.ruleForm.selectn1 == '构件属性'){
             formData.append('MatchValueField',this.$props.ruleForm.inputVal)

@@ -100,6 +100,7 @@
                 @proportionUpData=proportionUpData
                 @hiddenStopBtn=hiddenStopBtn
                 :timerNumber = mockDialogData.number*1
+                :show3d = show3d
                 :ganttData=ganttData></chats>
             <matchDialog></matchDialog>
             <ganttAdd ref="ganttAdd" 
@@ -910,7 +911,9 @@
                     let elementID = window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()
                     window.parent.BIMe.control.BIMeUtility.resetElementColor(elementID)
                     window.parent.BIMe.control.BIMeHide.removeAllHideElement();
-                }
+                    window.parent.BIMe.control.BIMeSelector.removeAllSelectorElements();
+   }
+                
                 if(this.showGantt){
                     this.$refs.ganttView.delMaker()
 

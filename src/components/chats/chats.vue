@@ -82,7 +82,8 @@
 	export default {
 		props: {
 			ganttData: Array,
-			timerNumber:Number
+			timerNumber:Number,
+			show3d:Boolean
 		},
 		data() {
 			return {
@@ -107,7 +108,11 @@
 					show: false,
 					selectTaskData:''
 				},
-				ganttOrChartsData: ''
+				ganttOrChartsData: '',
+				dataZoomDate:{
+					startTime:'',
+					endTime:""
+				}
 			};
 		},
 		methods: {
@@ -404,13 +409,30 @@
 							
 						})
 						this.$emit('upDataMockDetail',{date:date,taskName:newArr})
-						console.log(newArr)
 						this.timeStamp.nowTime = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
-						this.chart.setOption({
-							xAxis: {
-								axisPointer: this.renderer.axisPointer(this.timeStamp.nowTime)
+						if(this.dataZoomDate.startTime != '' && this.dataZoomDate.endTime != ''){
+							if(this.isDateBetween(new Date(this.dateInit(date)),this.dataZoomDate.startTime,this.dataZoomDate.endTime)){
+								this.chart.setOption({
+									xAxis: {
+										axisPointer: this.renderer.axisPointer(this.timeStamp.nowTime)
+									}
+								});
+							}else{
+								this.chart.setOption({
+									xAxis: {
+										axisPointer: this.renderer.axisPointer(this.timeStamp.nowTime,true)
+									}
+								});
 							}
-						});
+						}else{
+							this.chart.setOption({
+								xAxis: {
+									axisPointer: this.renderer.axisPointer(this.timeStamp.nowTime)
+								}
+							});
+						}
+						
+						
 					} else {
 						clearInterval(this.timer)
 						this.$emit('hiddenStopBtn',true)
@@ -521,6 +543,30 @@
 			loading.close()
 			//节点点击事件
 			this.chart.on('click', function(params) {
+				for(let i = 0; i<_this.$props.ganttData.length;i++){
+					if(params.data[2] == _this.$props.ganttData[i].TaskID){
+						if(_this.$props.show3d){
+							if(window.parent.BIMe) {
+								if (_this.$props.ganttData[i].ElementIDS == '') {
+									_this.$message('无关联的构件');
+								} else {
+									var a = _this.$props.ganttData[i].ElementIDS.split(',')
+									var b = []
+									a.forEach(element => {
+										b.push(
+											window.ModelID + '^' + element
+										)
+										
+									});
+									window.parent.BIMe.control.BIMeSelector.selectorElementByElementId(b)
+								}
+							}
+							
+						}
+					}
+				}
+			});
+			this.chart.on('dblclick',function(params){
 				console.log(params)
 				var judgeArr = params.seriesId.split('')
 				if (judgeArr[judgeArr.length -1] == 2) { //防止点击计划节点
@@ -538,46 +584,15 @@
 					}
 				}
 				_this.dialogData.index = params.data[6]
+			})
+
+			this.chart.on('dataZoom',function(params) {
+				// 这里获取的是x轴0-100的截取值，并不是我们想要的数据
+				var batch = params.batch[0];
+				var opt =_this.chart.getOption()
+				_this.dataZoomDate.startTime = opt.xAxis[0].rangeStart;
+				_this.dataZoomDate.endTime = opt.xAxis[0].rangeEnd;
 			});
-			// var a=0,b=100;
-			// this.chart.setOption({
-			//   xAxis: {
-			//     axisPointer: {
-			//         value: '2018-7-7',
-			//         snap: true,
-			//         lineStyle: {
-			//             color: 'red',
-			//             opacity: 1,
-			//             width: 3
-			//         },
-			//         label: {
-			//             show: true,
-			//             formatter: function (params) {
-			//                 return echarts.format.formatTime('yyyy-MM-dd', params.value);
-			//             },
-			//             backgroundColor: '#004E52'
-			//         },                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-			//         handle: {
-			//             show: true,
-			//             color: 'transparent'
-			//         }
-			//     }
-			// }
-			// })
-			//   this.chartAxPointerStart()
-			//   var a = 0
-			//   var date = new Date()
-			//   var timer = setInterval(()=>{
-			//     date.setDate(date.getDate() + 1)
-			//     let newDate =  date.getFullYear() + '-' + (date.getMonth() + 1) +'-'+ date.getDate()
-			//     if(a < 10){
-			//       a += 1
-			//        this.chart.setOption({xAxis:{axisPointer:_this.renderer.axisPointer(newDate)}});
-			//        console.log(newDate)
-			//     }else{
-			//       clearInterval(timer)
-			//     }
-			//   },1000)
 		}
 	};
 </script>
