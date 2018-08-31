@@ -606,7 +606,8 @@
                     addDialogShow: false,
                     addDialog: {
                         floorTyoe: '',
-                        describe: ''
+                        describe: '',
+                        addJudge:true
                     },
                     //工序定义
                     procedureTabData: [],
@@ -895,14 +896,25 @@
                     this.procedureViewShow = true
                 },
                 tabAddClick() {
+                    this.addDialog.addJudge = true
                     this.addDialogShow = true
                 },
                 addDialogSub() {
                     if (this.addDialog.floorTyoe != '') {
-                        this.tableData.push({
-                            floorTyoe: this.addDialog.floorTyoe,
-                            describe: this.addDialog.describe
-                        })
+                        if(this.addDialog.addJudge){
+                            this.tableData.push({
+                                floorTyoe: this.addDialog.floorTyoe,
+                                describe: this.addDialog.describe
+                            })
+                        }else{
+                            this.tableData.forEach(a=>{
+                                if(a.floorTyoe == this.addDialog.floorTyoe){
+                                    a.floorTyoe = this.addDialog.floorTyoe
+                                    a.describe = this.addDialog.describe
+                                }
+                            })
+                        }
+                        
                         this.addDialogShow = false
                         this.addDialog.floorTyoe = ''
                         this.addDialog.describe = ''
@@ -916,6 +928,7 @@
                 tableRowDblCkucj(row, event) {
                     this.addDialog.floorTyoe = row.floorTyoe
                     this.addDialog.describe = row.describe
+                    this.addDialog.addJudge = false
                     this.addDialogShow = true
                 },
                 addLocal() {
