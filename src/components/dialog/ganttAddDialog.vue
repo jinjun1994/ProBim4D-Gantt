@@ -179,14 +179,13 @@
         },
         methods: {
             selectChange(){
-                console.log(this.$props.ruleForm.floor)
                 this.floorProcedure.length = 0
                 this.floorConfig.ProcessNode.forEach(process=>{
                     this.floorConfig.Process.forEach(processConfig=>{
                         if(process.ProcessId == processConfig.ProcessId){
                             console.log( this.$props.ruleForm.floor)
                             processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
-                                if(LevelCategory.LevelCategory == this.$props.ruleForm.floor && LevelCategory.LevelCycle*1 == 0){
+                                if(LevelCategory.LevelCategory == this.$props.ruleForm.floor.split('_')[0] && LevelCategory.LevelCycle*1 == 0){
                                     this.floorProcedure.push({
                                         name:process.ProcessNodeName,
                                         id:process.guid
@@ -227,7 +226,7 @@
                         })
                         let floornumber = ''
                         this.floorSelect.forEach(floor=>{
-                            if(this.$props.ruleForm.floor ==  floor.type){
+                            if(this.$props.ruleForm.floor.split('_')[0] ==  floor.type){
                                 floornumber = floor.id
                             }
                         })
@@ -318,12 +317,13 @@
                 }else{
                     let w = JSON.parse(this.$props.selectSchedule.ExternalField)
                     console.log(w)
-                    w.forEach(element => {
+                    w.forEach((element,index) => {
                         this.floorSelect.push({
                             id:element.floorID,
-                            type:element.floorType    
+                            type:element.floorType + '_' + index   
                         })
                     });
+                    console.log(this.floorSelect)
                 }
             }
         }

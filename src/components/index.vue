@@ -44,15 +44,15 @@
                             <li v-if="mockDialogData.showVedioBtn" :class="{mr10:mockDialogData.showVedioBtn}" class="mock-vedio">
                                 <div style="color:#fff;display:inline-block;margin-right:20px" v-if="!mockDialogData.startShow" @click="mockDetailDataClick">{{mockDetailData.btnText}}</div>
                                 <img src="./reset.svg" alt="" @click.stop="mockReset"><!--重置-->
-                                <img src="./start.svg" alt="" v-if="mockDialogData.startShow" @click.stop="mockStart"><!--开始-->
+                                <img src="./start.svg" alt="" v-if="mockDialogData.startShow" @click.stop="mockStart" style="transform: rotate(180deg)"><!--开始-->
                                 <img src="./stop.svg" v-if="!mockDialogData.startShow" @click.stop="mockStop"><!--暂停-->
                                 
                             </li>
                             <li :class="{'no-click':!show3d}" v-if="!mockDialogData.showVedioBtn" @click="mockShowDialog" class="sign"><img src="./mock.svg">模拟</li>
                              <li v-if="mockDialogData.showVedioBtn" @click="closeMock" class="sign"><img src="./mock.svg">关闭模拟</li>
-                            <li class="no-click sign" v-show="!show3d"><img src="./import.svg">导入</li>
-                            <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}" class="sign"><img src="./table.svg"><span id="toggleGanttText">网络图</span></li>
-                            <li class="no-click sign" v-show="!show3d"><img src="./export.svg">导出</li>
+                            <!-- <li class="no-click sign" v-show="!show3d"><img src="./import.svg">导入</li> -->
+                            <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}" class="sign"><img src="./table.svg"><span id="toggleGanttText"></span></li>
+                            <!-- <li class="no-click sign" v-show="!show3d"><img src="./export.svg">导出</li> -->
 
                         </ul>
                     </div>
@@ -924,12 +924,12 @@
                 if(this.selectScheduleID != ''){
                     this.showGantt = !this.showGantt;
                 }   
-                var btn = document.getElementById('toggleGanttText')
-                if(this.showGantt){
-                    btn.innerHTML = '网络图'
-                }else{
-                    btn.innerHTML = '甘特图'
-                }
+                // var btn = document.getElementById('toggleGanttText')
+                // if(this.showGantt){
+                //     btn.innerHTML = '网络图'
+                // }else{
+                //     btn.innerHTML = '甘特图'
+                // }
                 
                  
 
@@ -1065,6 +1065,11 @@
                 window.ModelID = this.getQueryString('ModelID')
             }
         },
+        computed:{
+            watchMock(){
+                return this.mockDialogData.show
+            }
+        },
         watch: {
             show3d: function(val, oldval) {
                 this.$nextTick(function() {
@@ -1080,6 +1085,13 @@
                     this.requestData(this.selectItem)
                 }
                 
+            },
+            watchMock(val,oldval){
+                if(val){
+                    window.parent.document.getElementsByTagName('iframe')[0].style.zIndex = 0
+                }else{
+                    window.parent.document.getElementsByTagName('iframe')[0].style.zIndex = 999
+                }
             }
         }
     };

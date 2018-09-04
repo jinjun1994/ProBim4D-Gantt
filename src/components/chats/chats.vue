@@ -375,6 +375,7 @@
 						date.setDate(date.getDate() + 1)
 						this.$props.ganttData.forEach(g=>{
 							if(new Date(this.dateInit(g.TaskStartTime)).getTime() == new Date(this.dateInit(date)).getTime()){
+								console.log(g)
 								if(window.parent.BIMe){
 									let a = g.ElementIDS.split(',')
 									let b = []
@@ -384,7 +385,9 @@
 										)
 										
 									});
-									window.parent.BIMe.control.BIMeUtility.setElementColor(b,0,255,0,1)
+									let color = this.colorRbg(g.Color)
+									color = color.split('RGB')[1].split('(')[1].split(')')[0].split(',')
+									window.parent.BIMe.control.BIMeUtility.setElementColor(b,color[0],color[1],color[2],1)
 
 								}
 							}
@@ -480,7 +483,28 @@
                     flag = true;  
                 }  
                 return flag;  
-            },  
+			},  
+			colorRbg(a){
+				var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+				var sColor = a.toLowerCase();
+				if(sColor && reg.test(sColor)){
+					if(sColor.length === 4){
+						var sColorNew = "#";
+						for(var i=1; i<4; i+=1){
+							sColorNew += sColor.slice(i,i+1).concat(sColor.slice(i,i+1));	
+						}
+						sColor = sColorNew;
+					}
+					//处理六位的颜色值
+					var sColorChange = [];
+					for(var i=1; i<7; i+=2){
+						sColorChange.push(parseInt("0x"+sColor.slice(i,i+2)));	
+					}
+					return "RGB(" + sColorChange.join(",") + ")";
+				}else{
+					return sColor;	
+				}
+			},
 			dateInit(date){
 				if( (typeof date=='string')&&date.constructor==String){
 					if(date.indexOf('T') != -1){
@@ -558,7 +582,10 @@
 										)
 										
 									});
-									window.parent.BIMe.control.BIMeSelector.selectorElementByElementId(b)
+									// let color = this.colorRbg(_this.$props.ganttData[i].Color)
+									// color = color.split('RGB')[1].split('(')[1].split(')')[0].split(',')
+									// window.parent.BIMe.control.BIMeUtility.setElementColor(b,color[0],color[1],color[2],1)
+									 window.parent.BIMe.control.BIMeSelector.selectorElementByElementId(b)
 								}
 							}
 							

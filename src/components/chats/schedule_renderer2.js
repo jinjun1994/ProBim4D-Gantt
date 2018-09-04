@@ -265,7 +265,7 @@ class scheduleRenderer {
             lineStyle: {
                 color: 'red',
                 opacity: 1,
-                width: 1
+                width: 2
             },
             label: {
                 show: true,
@@ -419,7 +419,7 @@ class scheduleRenderer {
           interval: () => true,
           show: true
         },
-        axisPointer: this.axisPointer(null,true),
+        axisPointer: this.axisPointer(null,false),
         splitLine: {
             show: false
         }
@@ -430,6 +430,17 @@ class scheduleRenderer {
         boundaryGap: [0, '100%'],
         max: 33,
         min: -3,
+        axisLabel:{
+          formatter: function (value) {
+            if(value<= 0){
+              return value
+            }else{
+              return value + 'F'
+            }
+
+          }
+              
+        },
         scale: true,
         interval: 1,
         splitLine: {
