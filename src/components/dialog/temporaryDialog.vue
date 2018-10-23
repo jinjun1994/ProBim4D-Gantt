@@ -77,7 +77,6 @@
                 </el-col>
             </el-row>
             <div class="sub-btn">
-                
                 <ul>
                     <li @click="buildSelectNub">批量添加</li>
                     <li @click="submitClick" class="ml20">确定</li>
@@ -270,7 +269,8 @@
         props: {
             selectItem: {
                 type: Object
-            }
+            },
+            scheduleMenuItems:Array
         },
         data() {
             return {
@@ -372,6 +372,22 @@
             },
             submitClick() {
                 //前端算gantt数据
+                let renameJudge = false
+                this.$props.scheduleMenuItems.forEach(item=>{
+                    if(item.ScheduleName == this.temData.name){
+                        if(this.temData.ScheduleID == ''){ 
+                            renameJudge = true
+                        }else{
+                            if(this.temData.ScheduleID != item.ScheduleID){
+                                renameJudge = true
+                            }
+                        }
+                    }
+                })
+                if(renameJudge){
+                    this.$message.error('进度名称重复');
+                    return false
+                }
                 let _this = this
                 let data = []
                 // var date = null
@@ -381,14 +397,9 @@
                     absoluteEndData = []
                 var judge = false
                 this.floorConfig.ProcessNode.forEach(process => {
+                    
                     this.floorTableData = this.floorTableData.sort(function(a, b) {
-                        if (_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) > 0) {
-                            return 1
-                        } else if (_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) < 0) {
-                            return -1
-                        } else {
-                            return 0
-                        }
+                        return a.floorID - b.floorID
                     })
                     if (process.BeforeProcessId == '') { //判断是无前置工序
                         this.floorConfig.Process.forEach(processConfig => {
@@ -412,45 +423,17 @@
                                                 TaskPlanStartTime: formatDateStrat,
                                                 TaskPlanEndTime: formatDateEnd,
                                                 Category: process.relationName,
-                                                ExternalProperty: processConfig.ProcessMatch
+                                                ExternalProperty: processConfig.ProcessMatch,
+                                                TaskOrder:floorTableItem.floorID
                                             })
                                         }
                                     }
-                                    //  processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
-                                    //       if(LevelCategory.LevelCategory == floorTableItem.floorType){
-                                    //             let formatDateStrat = _this.formatDate(userInpitTime)
-                                    //             let formatDateEnd= _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
-                                    //             absoluteStartData.push(formatDateStrat)
-                                    //             absoluteEndData.push(formatDateEnd)
-                                    //             data.push({
-                                    //                 color:processConfig.ProcessColor,
-                                    //                 TaskStartTime:formatDateStrat,
-                                    //                 TaskID:_this.GUID(),
-                                    //                 TaskEndTime:formatDateEnd,
-                                    //                 TaskName:process.relationName + '_' + floorTableItem.floorName,
-                                    //                 TaskPlanStartTime:formatDateStrat,
-                                    //                 TaskPlanEndTime:formatDateEnd,
-                                    //                 Category:process.relationName,
-                                    //                 ExternalProperty:processConfig.ProcessMatch
-                                    //             })
-                                    //       }
-                                    //  })
                                 })
                             }
                         })
                     } else {
-                        // if(!judge){
-                        //     this.floorTableData.reverse()
-                        //     judge = true
-                        // }
                         this.floorTableData = this.floorTableData.sort(function(b, a) {
-                            if (_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) > 0) {
-                                return 1
-                            } else if (_this.initFloorNameToNubSort(a.floorName) - _this.initFloorNameToNubSort(b.floorName) < 0) {
-                                return -1
-                            } else {
-                                return 0
-                            }
+                            return a.floorID -b.floorID
                         })
                         console.log(this.floorTableData)
                         this.setDateNub = 0
@@ -484,97 +467,28 @@
                                                 TaskPlanStartTime: formatDateStrat,
                                                 TaskPlanEndTime: formatDateEnd,
                                                 Category: process.relationName,
-                                                ExternalProperty: processConfig.ProcessMatch
+                                                ExternalProperty: processConfig.ProcessMatch,
+                                                TaskOrder:floorTableItem.floorID
                                             })
                                         }
                                     }
-                                    //  processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
-                                    //       if(LevelCategory.LevelCategory == floorTableItem.floorType){
-                                    //             let formatDateStrat
-                                    //             if(index == 0){
-                                    //                 formatDateStrat = _this.formatDate(absoluteDate)
-                                    //             }else{
-                                    //                 absoluteDate.setDate(absoluteDate.getDate() - (LevelCategory.LevelCycle*1))
-                                    //                 formatDateStrat = _this.formatDate(absoluteDate)
-                                    //             }
-                                    //              let formatDateStratStr = new Date(formatDateStrat)
-                                    //              formatDateStratStr.setDate(formatDateStratStr.getDate() + LevelCategory.LevelCycle*1 ) 
-                                    //              let formatDateEnd= _this.formatDate(formatDateStratStr)
-                                    //             data.push({
-                                    //                 color:processConfig.ProcessColor,
-                                    //                 TaskStartTime:formatDateStrat,
-                                    //                 TaskID:_this.GUID(),
-                                    //                 TaskEndTime:formatDateEnd,
-                                    //                 TaskName:process.relationName + '_' + floorTableItem.floorName,
-                                    //                 TaskPlanStartTime:formatDateStrat,
-                                    //                 TaskPlanEndTime:formatDateEnd,
-                                    //                 Type:process.ProcessNodeName
-                                    //             })
-                                    //       }
-                                    //  })
+                                    
                                 })
                             }
                         })
                     }
                 });
-                // this.floorTableData.forEach((floorTableitem,index)=>{//遍历选择项
-                //     this.floorConfig.ProcessNode.forEach((process,processIndex)=>{
-                //         this.floorConfig.Process.forEach((processConfig)=>{
-                //             if(process.ProcessId == processConfig.ProcessId){
-                //                 processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
-                //                     if(LevelCategory.LevelCategory == floorTableitem.floorType){
-                //                             if(process.Interval*1 != 0){//技术间隔时间
-                //                                 let date = new Date(userInpitTime)
-                //                                 _this.recursionReturnNub(process,floorTableitem.floorType)
-                //                                new Date(date.setDate((date.getDate() + _this.setDateNub)))
-                //                                 let datestr = _this.formatDate(new Date(date))
-                //                                _this.setDateNub = 0
-                //                                 let formatDateStr = _this.formatDate(new Date(date.setDate((date.getDate() + LevelCategory.LevelCycle*1))))
-                //                                 data.push({
-                //                                     color:processConfig.ProcessColor,
-                //                                     TaskStartTime:datestr,
-                //                                     TaskID:_this.GUID(),
-                //                                     TaskEndTime:formatDateStr,
-                //                                     TaskName:process.relationName + '_' + floorTableitem.floorName,
-                //                                     TaskPlanStartTime:datestr,
-                //                                     TaskPlanEndTime:formatDateStr,
-                //                                     Type:process.ProcessNodeName
-                //                                 })
-                //                             }else{
-                //                                 let formatDateStrat = _this.formatDate(userInpitTime)
-                //                                 let formatDateStr = _this.formatDate(new Date(userInpitTime.setDate((userInpitTime.getDate() + LevelCategory.LevelCycle*1))))
-                //                                 data.push({
-                //                                     color:processConfig.ProcessColor,
-                //                                     TaskStartTime:formatDateStrat,
-                //                                     TaskID:_this.GUID(),
-                //                                     TaskEndTime:formatDateStr,
-                //                                     TaskName:process.relationName + '_' + floorTableitem.floorName,
-                //                                     TaskPlanStartTime:formatDateStrat,
-                //                                     TaskPlanEndTime:formatDateStr,
-                //                                     Type:process.ProcessNodeName
-                //                                 })
-                //                             }
-                //                     }
-                //                 })
-                //             }
-                //         })
-                //     })
-                // })
-                // data = data.sort((a,b)=>{
-                //     if(_this.initFloorNameToNubSort(a.TaskName.split('_')[1]) - _this.initFloorNameToNubSort(b.TaskName.split('_')[1]) >0){
-                //                 return 1
-                //     }else if(_this.initFloorNameToNubSort(a.TaskName.split('_')[1]) - _this.initFloorNameToNubSort(b.TaskName.split('_')[1])<0){
-                //         return -1
-                //     }else{
-                //         return 0
-                //     }
-                // })
+                
                 console.log(data)
+                
+                
                 if (data.length > 0) {
+                    
                     let str = data[0].color,
                         arr1 = [],
                         arr2 = [];
                     data.forEach(item => {
+                        
                         if (str == item.color) {
                             arr1.push(item)
                         } else {
@@ -583,6 +497,8 @@
                     });
                     data = arr1.concat(arr2.reverse())
                 }
+               
+                console.log(data)
                 var formData = new FormData()
                 formData.append('ProjectID', window.ProjectID)
                 var obj = {
@@ -591,15 +507,6 @@
                     ScheduleStartTime: this.temData.startTime,
                     ExternalField: JSON.stringify(this.floorTableData)
                 }
-                // var obj = {
-                //     ProjectID:window.ProjectID,
-                //     Schedule:{
-                //         ModelID:window.ModelID,
-                //         ScheduleName:this.temData.name,
-                //         DateTime:this.temData.startTime,
-                //         ExternalField:data
-                //     }
-                // }
                 if (this.temData.ScheduleID != '') {
                     //判断更改内容
                     if (JSON.stringify(this.$props.selectItem) != "{}") {
@@ -658,28 +565,6 @@
                         }).catch(res=>{
                             console.log('DeleteSchedule出错' + res)
                         })
-                        // this.$axios.post(`${window.urlConfig}/api/Prj/UpdateSchedule`, formData).then(res => {//只修改名称
-                        //     _this.$emit('listAddItem')
-                        //     var formData1 = new FormData()
-                        //     formData1.append('ProjectID', window.ProjectID)
-                        //     data.forEach(item => {
-                        //         item.ScheduleID = res.data
-                        //         item.Color = item.color
-                        //     })
-                        //     formData1.append('ScheduleTasks', JSON.stringify(data))
-                        //     this.$axios.get(`${window.urlConfig}/api/Prj/DeleteSchedule?ProjectID=${window.ProjectID}&ScheduleID=${this.temData.ScheduleID}`).then(res=>{
-                        //         this.$axios.post(`${window.urlConfig}/api/Prj/BatchAddScheduleTask`, formData1).then(res => {
-                        //             console.log(res)
-                        //         }).catch(res => {
-                        //             console.log('批量添加数据错误，原因' + res)
-                        //         })
-                        //     }).catch(res=>{
-                        //         console.log('DeleteSchedule出错' + res)
-                        //     })
-                            
-                        // }).catch(res => {
-                        //     console.log('修改数据错误，原因：' + res)
-                        // })
                     }
                    
                 } else {
@@ -745,14 +630,27 @@
                 })
             },
             reviserSubmit() {
-                if (this.reviseDialogData.describe == '') {
-                    this.reviseDialogData.describe = '双击修改描述'
-                }
+                let judge = false
+                this.floorTableData.forEach(item=>{
+                    if(this.reviseDialogData.floorName == item.floorName && this.reviseDialogData.floorID != item.floorID){
+                       console.log(this.reviseDialogData.floorID,item.floorID)
+                       judge = true
+                    }
+                })
                 this.floorTableData.forEach((item, index) => {
+                   
                     if (item.floorID == this.reviseDialogData.floorID) {
                         this.floorTableData[index] = this.reviseDialogData
                     }
+                    
                 })
+                if(judge){
+                    this.$message.error('楼层名称重复');
+                    return false
+                }
+                if (this.reviseDialogData.describe == '') {
+                    this.reviseDialogData.describe = '双击修改描述'
+                }
                 this.reviseDialogShow = false
             },
             initreviseData() {
@@ -778,19 +676,19 @@
         mounted() {
             var _this = this
             let ComPanyId;
-            if (top.ComPanyId) {
-                ComPanyId = top.ComPanyId
+            if (top.CompanyId) {
+                ComPanyId = top.CompanyId
             } else {
                 ComPanyId = '997223d1-fe87-48df-9eea-cf01c8a57dbf'
             }
-            this.$axios.get(`https://api.probim.cn/CompanyData/GetCompanyData?CompanyId=${ComPanyId}`).then(res => {
-                if (!res.data.Message) {
+            this.$axios.get(`${window.apiUrlConfig}/CompanyData/GetCompanyData?CompanyId=${ComPanyId}`).then(res => {
+                if (res.data.Message == 'null') {
                     return false
                 }
                 res.data = JSON.parse(res.data.Message)
                 res.data = JSON.parse(res.data.JsonData)
                 this.floorConfig = res.data
-                res.data.LevelCategory.forEach(item => {
+                res.data.LevelCategory.forEach(item => {    
                     _this.navOptions.push({
                         floorType: item.LevelCategory,
                         describe: item.LevelDescription
@@ -852,6 +750,7 @@
                         basics: ''
                     }, */
                     if (JSON.stringify(this.$props.selectItem) != "{}") {
+                        console.log(this.$props.selectItem)
                         let selectItem = this.$props.selectItem
                         if (selectItem.ExternalField != '') {
                             this.floorTableData = JSON.parse(selectItem.ExternalField)
@@ -866,6 +765,7 @@
                         this.temData.name = selectItem.ScheduleName
                         this.temData.startTime = selectItem.ScheduleStartTime
                         this.temData.ScheduleID = selectItem.ScheduleID
+                        console.log(this.temData)
                     }
                 }
             }

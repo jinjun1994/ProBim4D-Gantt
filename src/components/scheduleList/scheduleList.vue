@@ -231,7 +231,7 @@
               this.dialogAddPpgz.selectn2 = "任务附加字段";
             }
             if (this.thisItem.MatchValueField == 0) {
-              this.dialogAddPpgz.selectn1 = " 构件名称、类别及族名称";
+              this.dialogAddPpgz.selectn1 = "构件名称、类别及族名称";
             }else if(this.thisItem.MatchValueField == 1){
               this.dialogAddPpgz.selectn1 = "构件属性";
               this.dialogAddPpgz.inputVal = this.thisItem.MatchValueField
@@ -304,6 +304,7 @@
           console.log(res)
           if (res.data.length > 0) {
             this.items = res.data;
+            this.$emit('getSheduleAllData',res.data)
           } else {
             this.items = []
           }

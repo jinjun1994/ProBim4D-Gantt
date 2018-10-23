@@ -179,14 +179,13 @@
         },
         methods: {
             selectChange(){
-                console.log(this.$props.ruleForm.floor)
                 this.floorProcedure.length = 0
                 this.floorConfig.ProcessNode.forEach(process=>{
                     this.floorConfig.Process.forEach(processConfig=>{
                         if(process.ProcessId == processConfig.ProcessId){
                             console.log( this.$props.ruleForm.floor)
                             processConfig.LevelCategory2Cycle.forEach(LevelCategory=>{
-                                if(LevelCategory.LevelCategory == this.$props.ruleForm.floor && LevelCategory.LevelCycle*1 == 0){
+                                if(LevelCategory.LevelCategory == this.$props.ruleForm.floor.split('_')[0] && LevelCategory.LevelCycle*1 == 0){
                                     this.floorProcedure.push({
                                         name:process.ProcessNodeName,
                                         id:process.guid
@@ -196,7 +195,6 @@
                         }
                     })
                 })
-                console.log(this.$props.ruleForm.type)
                 // this.$props.ruleForm.floor
             },
             delTask() {
@@ -210,6 +208,7 @@
                 })
             },
             submitForm() {
+                console.log(this.$props)
                 var _this = this
                 let color = ''
                 let type = ''
@@ -226,6 +225,7 @@
                             }
                         })
                         let floornumber = ''
+                        console.log(this.floorSelect)
                         this.floorSelect.forEach(floor=>{
                             if(this.$props.ruleForm.floor ==  floor.type){
                                 floornumber = floor.id
@@ -242,6 +242,7 @@
                                 plan_end_date: this.$props.ruleForm.plandate[1],
                                 color:color,
                                 type:type,
+                                TaskOrder:floornumber,
                                 floorNumber:floornumber,
                                 allFloorNumber:this.floorSelect.length*1 + 1
                             }
@@ -256,6 +257,7 @@
                                 color:color,
                                 type:type,
                                 floorNumber:floornumber,
+                                TaskOrder:floornumber,
                                 allFloorNumber:this.floorSelect.length*1 + 1
                             }
                         }
@@ -269,13 +271,13 @@
         mounted() {
             var _this = this
             let ComPanyId;
-            if(top.ComPanyId){
-                ComPanyId = top.ComPanyId
+            if(top.CompanyId){
+                ComPanyId = top.CompanyId
             }else{
                 ComPanyId =  '997223d1-fe87-48df-9eea-cf01c8a57dbf'
             }
-            this.$axios.get(`https://api.probim.cn/CompanyData/GetCompanyData?CompanyId=${ComPanyId}`).then(res => {
-                if(!res.data.Message){
+            this.$axios.get(`${window.apiUrlConfig}/CompanyData/GetCompanyData?CompanyId=${ComPanyId}`).then(res => {
+                if(res.data.Message == 'null'){
                     return false
                 }
                 res.data = JSON.parse(res.data.Message) 
@@ -318,12 +320,13 @@
                 }else{
                     let w = JSON.parse(this.$props.selectSchedule.ExternalField)
                     console.log(w)
-                    w.forEach(element => {
+                    w.forEach((element,index) => {
                         this.floorSelect.push({
                             id:element.floorID,
-                            type:element.floorType    
+                            type:element.floorType + '_' + index   
                         })
                     });
+                    console.log(this.floorSelect)
                 }
             }
         }

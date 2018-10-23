@@ -1,7 +1,6 @@
 <template>
     <div class="index-wp">
-        <!-- <scheduleList class="scheduleList-wp" @requestData=requestData v-show="!show3d">
-            </scheduleList> -->
+        
         <scheduleList class="scheduleList-wp"
         :selectSchedule=selectItem 
         :ganttOrChartsData = ganttData
@@ -10,24 +9,26 @@
         @temporaryDialogShow=temporaryDialogShow 
         @clearGanttDataView=clearGanttDataView 
         @temporaryDialogUpdataShow=temporaryDialogUpdataShow
+        @getSheduleAllData=getSheduleAllData
         @listAddItem=listAddItem 
         ref="scheduleList">
         </scheduleList>
         <div class="gantt-nav" style="height:100%;" :class="{'show-3d':show3d}">
             <div class="gantt-head">
-                <div class="gantt-left" v-show="showGantt">任务列表</div>
+                <div class="gantt-left" v-show="showGantt" :style="{'width':ganttHeaderWidth}">任务列表</div>
                 <div class="gantt-right">
                     <div class="fl">
+                        
                         <ul>
                             <li @click="toggle3D()" :class="{'no-click':selectScheduleID == ''}" class="sign"> <img src="./model.svg"><span id="show3DText">显示模型</span></li>
-                            <li style="margin-left:40px;" :class="{'no-click':!show3d}" v-show="!show3d">附加选中对象</li>
-                            <li style="margin-left:40px;" v-show="!showGantt" class="proportion">
+                            <li style="margin-left:40px;" :class="{'no-click':!show3d}" v-show="show3d && showGantt" @click="linkElementsTaskClick" >附加选中对象</li>
+                            <li v-show="!showGantt" class="proportion">
                                 完成比例
                                 <div>
                                     <el-row style="display:flex;align-items: center;" v-for="a in proportionData" :key="a.name">
                                         <el-col :span="10" style="color:#999">
                                             {{a.business}} {{a.molecule}}/{{a.diff}}
-                                        </el-col>
+                                        </el-col>   
                                         <el-col :span="14">
                                              <el-progress :text-inside="true" :stroke-width="18" :percentage="a.proportion" :color=a.color></el-progress>
                                         </el-col>
@@ -35,30 +36,69 @@
                                     </el-row>
                                 </div>
                             </li>
+                            <li> <div style="color:#fff;display:inline-block;margin-right:20px" v-if="!mockDialogData.startShow" @click="mockDetailDataClick">{{mockDetailData.btnText}}</div></li>
+                             <li style="position: relative;">
+                                 <el-date-picker
+                                    @blur=hiddenInputBlur
+                                    align='right'
+                                    ref="hiddenDateInput"
+                                    style="position: absolute;z-index:-1;opacity: 0;"
+                                    v-model="hiddenInputDate"
+                                    type="daterange"
+                                    start-placeholder="开始日期"
+                                    end-placeholder="结束日期">
+                                </el-date-picker>
+                                <el-date-picker
+                                    @blur=radioHiddenInputBlur
+                                    ref="radioHiddenDateInput"
+                                    v-model="radioHiddenInputDate"
+                                    align="right"
+                                    type="date"
+                                    placeholder="选择日期"
+                                    style="position: absolute;z-index:-1;opacity: 0;"
+                                    :picker-options="pickerOptions1">
+                                </el-date-picker>
+                                <el-dropdown @command="reportForm">
+                                    <span class="el-dropdown-link">
+                                        报表<i class="el-icon-arrow-down el-icon--right"></i>
+                                    </span>
+                                    <el-dropdown-menu slot="dropdown" >
+                                        <el-dropdown-item command='day' v-if="!showGantt">日报表</el-dropdown-item>
+                                        <el-dropdown-item command='actual' :disabled="selectScheduleID == ''">实际执行报表</el-dropdown-item>
+                                        <el-dropdown-item command='plan' :disabled="selectScheduleID == ''">计划执行报表</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+                            </li>
                         </ul>
                     </div>
                     <div class="fr">
+                        
                         <ul>
-                            
+                           
+                            <li v-show="showGantt">
+                                 <el-radio v-model="ganttRadio" label="1">年</el-radio>
+                                  <el-radio v-model="ganttRadio" label="2">月</el-radio>
+                                   <el-radio v-model="ganttRadio" label="3">日</el-radio>
+                            </li>
                             <li @click="MatchElementTask" v-show="selectScheduleID != '' && !show3d">构件匹配</li>
                             <li v-if="mockDialogData.showVedioBtn" :class="{mr10:mockDialogData.showVedioBtn}" class="mock-vedio">
-                                <div style="color:#fff;display:inline-block;margin-right:20px" v-if="!mockDialogData.startShow" @click="mockDetailDataClick">{{mockDetailData.btnText}}</div>
+                               
                                 <img src="./reset.svg" alt="" @click.stop="mockReset"><!--重置-->
-                                <img src="./start.svg" alt="" v-if="mockDialogData.startShow" @click.stop="mockStart"><!--开始-->
+                                <img src="./start.svg" alt="" v-if="mockDialogData.startShow" @click.stop="mockStart" style="transform: rotate(180deg)"><!--开始-->
                                 <img src="./stop.svg" v-if="!mockDialogData.startShow" @click.stop="mockStop"><!--暂停-->
                                 
                             </li>
-                            <li :class="{'no-click':!show3d}" v-if="!mockDialogData.showVedioBtn" @click="mockShowDialog" class="sign"><img src="./mock.svg">模拟</li>
-                             <li v-if="mockDialogData.showVedioBtn" @click="closeMock" class="sign"><img src="./mock.svg">关闭模拟</li>
-                            <li class="no-click sign" v-show="!show3d"><img src="./import.svg">导入</li>
-                            <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}" class="sign"><img src="./table.svg"><span id="toggleGanttText">网络图</span></li>
-                            <li class="no-click sign" v-show="!show3d"><img src="./export.svg">导出</li>
+                            <li :class="{'no-click':!show3d}" v-if="!mockDialogData.showVedioBtn" @click="mockShowDialog" class="sign" title="模拟"><img src="./mock.svg"></li>
+                             <li v-if="mockDialogData.showVedioBtn" @click="closeMock" class="sign" title="关闭模拟"><img src="./mock.svg"></li>
+                            <!-- <li class="no-click sign" v-show="!show3d"><img src="./import.svg">导入</li> -->
+                            <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}" class="sign"><img src="./table.svg"><span id="toggleGanttText"></span></li>
+                            <!-- <li class="no-click sign" v-show="!show3d"><img src="./export.svg">导出</li> -->
 
                         </ul>
                     </div>
                 </div>
             </div>
-            <div class="mock-details" v-show='mockDetailData.show'>
+            <div class="mock-details" v-show='mockDetailData.show && !mockDialogData.startShow'>
                 <h1>模拟详情</h1>
                 <el-row class="mt20">
                     <el-col :span="8" class="title">模拟日期：</el-col>
@@ -78,22 +118,30 @@
                 </el-row>
 
             </div>
+            <reportForm
+                class="reportFrom"
+                :reportFormData=reportFormData
+                v-show="reportFormData.showOrHide"
+            ></reportForm>
             <gantt class="gantt-wp" 
-                v-show="showGantt" 
+                @upStyleHeader=upStyleHeader
+                v-show="showGantt && !reportFormData.showOrHide" 
                 :tasks="tasks" 
                 :selectScheduleID="selectScheduleID" 
                 :show3d=show3d
                 :timerNumber = mockDialogData.number*1
                 ref="ganttView"
+                @saveSelectGanttTaskData=saveSelectGanttTaskData
                 @upDataMockDetail=upDataMockDetail 
                 @ganttAddShow=ganttAddShow 
                 @reviseTaskDialog=reviseTaskDialog 
                 @resetMockDataArr=resetMockDataArr
                 @operationGanttAddView=operationGanttAddView
                 @hiddenStopBtn=hiddenStopBtn 
+                @ganttUpData=ganttUpData
                 @upDatedGanttDateToCharts=upDatedGanttDateToCharts>
             </gantt>
-            <chats v-if="!showGantt" class="chats-wp" ref="chats" 
+            <chats v-if="!showGantt && !reportFormData.showOrHide" class="chats-wp" ref="chats" 
                 :selectScheduleID="selectScheduleID"
                 @upDataMockDetail=upDataMockDetail
                 @chartUpDate=chartUpDate 
@@ -101,6 +149,7 @@
                 @hiddenStopBtn=hiddenStopBtn
                 :timerNumber = mockDialogData.number*1
                 :show3d = show3d
+                :reportFormDataTitle = reportFormData.title
                 :ganttData=ganttData></chats>
             <matchDialog></matchDialog>
             <ganttAdd ref="ganttAdd" 
@@ -139,6 +188,7 @@
         </div>
         <temporaryDialog ref="temporaryDialog"
             :selectItem=temporarySelectItem 
+            :scheduleMenuItems=scheduleMenuItems
             @listAddItem=listAddItem 
             @saveGanttData=saveGanttData 
             @addScheduleListItem=addScheduleListItem>
@@ -146,10 +196,26 @@
     </div>
 </template>
 <style>
+.gantt-nav .el-dropdown{
+    color: #fff;
+}
+.gantt-nav .el-radio__input.is-checked+.el-radio__label{
+    color: #f7a500;
+}
+.gantt-nav .el-radio__input.is-checked .el-radio__inner{ 
+    border-color: #f7a500;
+    background: #f7a500;
+}
+.el-radio+.el-radio{
+    margin-left: 10px;
+}
+.gantt-nav .el-radio__label{
+    color: #fff;
+}
 .mock-details{
     position: fixed;
     top: 30px;
-    right: 700px;
+    left: 180px;
     width:400px;
     height: 200px;
     border-radius: 10px;
@@ -332,6 +398,10 @@
         margin-left: -1px;
         position: relative;
     }
+    .chats-wp{
+        display: flex;
+        flex-direction: column-reverse;
+    }
     .scheduleList-wp {
         position: relative;
         z-index: 10;
@@ -343,6 +413,21 @@
     .el-loading-spinner i,.el-loading-spinner .el-loading-text{
         color: #fff;
     }
+    ::-webkit-scrollbar{
+            width: 4px;
+            height: 6px;
+            background-color: #f6f9fc;
+        }
+        ::-webkit-scrollbar-thumb{
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 4px rgba(0, 0, 0, 0);
+            background-color: #c6c6c6;
+        }
+        ::-webkit-scrollbar-track{
+            -webkit-box-shadow: inset 0 0 0px rgba(0, 0, 0, 0);
+            border-radius: 10px;
+            background-color: #f6f9fc;
+        }
 </style>
 <script>
     // window.urlConfig = "https://bimcomposer.probim.cn";
@@ -354,18 +439,49 @@
     import matchDialog from "./dialog/delDialogMatch";
     import ganttAdd from "./dialog/ganttAddDialog";
     import temporaryDialog from './dialog/temporaryDialog'
+    import reportForm from './reportForm/reportForm.vue'
     export default {
         components: {
             scheduleList,
             gantt,
             chats,
             ganttAdd,
+            reportForm,
             // matchDialog:resolve => {require(['./dialog/delDialogMatch'], resolve)},
             matchDialog,
             temporaryDialog
         },
         data() {
             return {
+                 pickerOptions1: {
+                    shortcuts: [{
+                        text: '今天',
+                        onClick(picker) {
+                        picker.$emit('pick', new Date());
+                        }
+                    }, {
+                        text: '昨天',
+                        onClick(picker) {
+                        const date = new Date();
+                        date.setTime(date.getTime() - 3600 * 1000 * 24);
+                        picker.$emit('pick', date);
+                        }
+                    }, {
+                        text: '一周前',
+                        onClick(picker) {
+                        const date = new Date();
+                        date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+                        picker.$emit('pick', date);
+                        }
+                    }]
+                },
+                radioHiddenInputDate:'',
+                hiddenInputDate:'',
+                ganttRadio:'3',
+                 activeIndex: '1',
+                activeIndex2: '1',
+                //
+                ganttHeaderWidth:'359px',
                 checkedCharts:[],
                 ganttData:[],
                 showGantt: true,
@@ -415,10 +531,293 @@
                     taskName:[],
                     show:false,
                     btnText:'详情'
-                }
+                },
+                scheduleMenuItems:[],
+                selectGanttTask:'',
+                reportFormData:{
+                    tableHeaderData:[],
+                    tableBodyData:[],
+                    title:'',
+                    showOrHide:false,
+                    selectTime:[]
+                },
+                reportFormSelect:''
             };
         },
         methods: {
+            hiddenInputBlur(){
+                if(!this.hiddenInputDate) return
+                let lists = []
+                this.reportFormData.tableBodyData = []
+                this.ganttData.forEach(g=>{
+                    if(this.common.isDateBetween(g.TaskStartTime,this.hiddenInputDate[0],this.hiddenInputDate[1]) || this.common.isDateBetween(g.TaskEndTime,this.hiddenInputDate[0],this.hiddenInputDate[1]) || this.common.isDateBetween(g.TaskPlanStartTime
+,this.hiddenInputDate[0],this.hiddenInputDate[1]) || this.common.isDateBetween(g.TaskPlanEndTime
+,this.hiddenInputDate[0],this.hiddenInputDate[1])){
+                        lists.push(g)
+                    }
+                })
+                if(window.parent.BIMe && this.show3d){
+					
+						let elementID = window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()
+						window.parent.BIMe.control.BIMeUtility.resetElementColor(elementID)
+				}
+                this.reportFormData.selectTime = this.hiddenInputDate
+                 if(this.reportFormSelect == 'actual'){
+                    this.reportFormData.tableHeaderData = [
+                        {label:'任务',prop:'task'},
+                        {label:'基准计划开始时间',prop:'planTimeStart'},    
+                        {label:'基准计划结束时间',prop:'planTimeEnd'},    
+                        {label:'预估开始时间',prop:'estimeTimeStart'},   
+                        {label:'预估结束时间',prop:'estimeTimeEnd'},   
+                        {label:'实际开始时间',prop:'actualTimeStart'},   
+                        {label:'实际结束时间',prop:'actualTimeEnd'},   
+                        {label:'本阶段状态',prop:'thisState'},   
+                        {label:'总体状态',prop:'massinState'},   
+                    ]
+                    lists.forEach(list => {
+                        
+                        let diff = null,diff1 = null;
+                        let diffMsg = '',diffMsg1 = '';
+                        if(list.Percentage){
+                            diff = this.common.DateDiff(list.TaskEndTime,list.TaskPlanEndTime)
+                            diff1 = this.common.DateDiff(list.TaskEndTime,list.TaskPlanEndTime)
+                        }else{
+                            diff = this.common.DateDiff(new Date(),list.TaskPlanEndTime)
+                            diff1 = this.common.DateDiff(new Date(),list.TaskPlanEndTime)
+                        }
+                        if(diff > 0){
+                            diffMsg = `延迟${diff}天`
+                        }else{
+                            diffMsg = '正常'
+                        }
+                        if(diff1 > 0){
+                            diffMsg1 = `延迟${Math.ceil(diff1)}天`
+                        }else{
+                            diffMsg1 = `正常`
+                        }
+                        if(list.Percentage){//已完成
+                            this.reportFormData.tableBodyData.push({
+                                task:list.TaskName,
+                                planTimeStart:this.common.dateSplit(list.TaskPlanStartTime,'T'),
+                                planTimeEnd:this.common.dateSplit(list.TaskPlanEndTime,'T'),
+                                estimeTimeStart:'',
+                                estimeTimeEnd:'',
+                                actualTimeStart:this.common.dateSplit(list.TaskStartTime,'T'),
+                                actualTimeEnd:this.common.dateSplit(list.TaskEndTime,'T'),
+                                thisState:diffMsg,
+                                massinState:diffMsg1
+                            })
+                        }else{
+                            this.reportFormData.tableBodyData.push({
+                                task:list.TaskName,
+                                planTimeStart:this.common.dateSplit(list.TaskPlanStartTime,'T'),
+                                planTimeEnd:this.common.dateSplit(list.TaskPlanEndTime,'T'),
+                                estimeTimeStart:this.common.dateSplit(list.TaskStartTime,'T'),
+                                estimeTimeEnd:this.common.dateSplit(list.TaskEndTime,'T'),
+                                actualTimeStart:'',
+                                actualTimeEnd:'',
+                                thisState:diffMsg,
+                                massinState:diffMsg1
+                            })
+                        }
+                        if(window.parent.BIMe && this.show3d){
+
+                            let a = list.ElementIDS.split(',')
+                            let b = []
+                            a.forEach(element => {
+                                b.push(
+                                    window.ModelID + '^' + element
+                                )
+                                
+                            });
+                            let color = this.colorRbg(list.Color)
+                            color = color.split('RGB')[1].split('(')[1].split(')')[0].split(',')
+                            window.parent.BIMe.control.BIMeUtility.setElementColor(b,color[0],color[1],color[2],.4)
+                        }
+                        
+                    });
+                    
+
+                }else if(this.reportFormSelect == 'plan'){
+                    this.reportFormData.tableHeaderData = [
+                        
+                        {label:'任务',prop:'task'},
+                        {label:'基准计划开始时间',prop:'planTimeStart'},    
+                        {label:'基准计划结束时间',prop:'planTimeEnd'},    
+                        {label:'预估开始时间',prop:'estimeTimeStart'},   
+                        {label:'预估结束时间',prop:'estimeTimeEnd'}, 
+                    ]
+                    lists.forEach(list=>{
+                        this.reportFormData.tableBodyData.push({
+                            task:list.TaskName,
+                            planTimeStart:this.common.dateSplit(list.TaskPlanStartTime,'T'),
+                            planTimeEnd:this.common.dateSplit(list.TaskPlanEndTime,'T'),
+                            estimeTimeStart:this.common.dateSplit(list.TaskStartTime,'T'),
+                            estimeTimeEnd:this.common.dateSplit(list.TaskEndTime,'T')
+                        })
+                        if(window.parent.BIMe && this.show3d){
+
+                            let a = list.ElementIDS.split(',')
+                            let b = []
+                            a.forEach(element => {
+                                b.push(
+                                    window.ModelID + '^' + element
+                                )
+                                
+                            });
+                            let color = this.colorRbg(list.Color)
+                            color = color.split('RGB')[1].split('(')[1].split(')')[0].split(',')
+                            window.parent.BIMe.control.BIMeUtility.setElementColor(b,color[0],color[1],color[2],.4)
+                        }
+                    })
+                }
+                this.reportFormData.showOrHide = true
+            },
+            colorRbg(a){
+				var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+				var sColor = a.toLowerCase();
+				if(sColor && reg.test(sColor)){
+					if(sColor.length === 4){
+						var sColorNew = "#";
+						for(var i=1; i<4; i+=1){
+							sColorNew += sColor.slice(i,i+1).concat(sColor.slice(i,i+1));	
+						}
+						sColor = sColorNew;
+					}
+					//处理六位的颜色值
+					var sColorChange = [];
+					for(var i=1; i<7; i+=2){
+						sColorChange.push(parseInt("0x"+sColor.slice(i,i+2)));	
+					}
+					return "RGB(" + sColorChange.join(",") + ")";
+				}else{
+					return sColor;	
+				}
+			},
+            radioHiddenInputBlur(){
+                if(!this.radioHiddenInputDate) return
+                this.$refs.chats.formatTableData(this.radioHiddenInputDate,true,true)
+            },
+            //下拉报表
+            reportForm(command){
+                if(command == 'day'){
+                    this.$refs.radioHiddenDateInput.focus()
+                }else{
+                    this.$refs.hiddenDateInput.focus()
+
+                }
+                this.reportFormSelect = command
+               
+            },
+            saveSelectGanttTaskData(a){
+                this.selectGanttTask = a
+            },
+            linkElementsTaskClick(){
+               
+                if(this.selectGanttTask == ''){
+                    this.$message.error('请选择gantt数据');
+                    return false
+                }
+                let elementIds = [1];
+                if(window.parent.BIMe){
+                    elementIds = window.parent.BIMe.control.BIMeSelector.getSelectorElementIds();
+                    
+                }
+                if(elementIds.length == 0){
+                    this.$message.error('请选中模型');
+                    return false
+                }
+                if(!this.selectGanttTask.ElementIDS){ //新增
+                    let loading = this.$loading({//loading
+                        lock: true,
+                        text: 'Loading',
+                        spinner: 'el-icon-loading',
+                        background: 'rgba(0, 0, 0, 0.5)'
+                    });
+                    let formatArr = []
+                    elementIds.forEach(e=>{
+                        formatArr.push(e.split('^')[1])
+                    })
+                    let formData = new FormData()
+                    formData.append('ProjectID',window.ProjectID)
+                    formData.append('ScheduleTaskID',this.selectGanttTask.id)
+                    formData.append('ElementIDs',formatArr)
+                    this.$axios.post(`${window.urlConfig}/api/Prj/LinkElements2Task`,formData).then(res=>{
+                        loading.close()
+                        this.$message('附加成功');
+                        this.requestData(this.selectItem)
+                    }).catch(res=>{
+                        loading.close()
+                        console.log('附加选中对象报错' + res)
+                        this.$message.error('附加失败');
+                    })
+                }else{
+                    this.$alert(`<label for="w1"><input type="radio" name='select' id="w1" value="0" class="selectRadio"><span>附加</span></label><label for="w2" style="margin-left:30px"><input class="selectRadio" type="radio" value="1" name='select' id="w2">替换</label>`, '提示', {
+                        dangerouslyUseHTMLString: true,
+                        showClose:false,
+                        beforeClose: (action, instance, done) =>{
+                            let loading = this.$loading({//loading
+                                lock: true,
+                                text: 'Loading',
+                                spinner: 'el-icon-loading',
+                                background: 'rgba(0, 0, 0, 0.5)'
+                            });
+                           let radioArr = document.getElementsByClassName('selectRadio')
+                            if(radioArr[0].checked){//附加
+                                let formData = new FormData()
+                                formData.append('ProjectID',window.ProjectID)
+                                formData.append('ScheduleTaskID',this.selectGanttTask.id)
+                                let formatArr = []
+                                elementIds.forEach(e=>{
+                                    formatArr.push(e.split('^')[1])
+                                })
+                                formatArr = this.selectGanttTask.ElementIDS.split(',').concat(formatArr)
+                                formData.append('ElementIDs',formatArr)
+                                 this.$axios.post(`${window.urlConfig}/api/Prj/LinkElements2Task`,formData).then(res=>{
+                                     done()
+                                     this.$message('附加成功');
+                                      this.requestData(this.selectItem)
+                                 }).catch(res=>{
+                                    console.log('附加选中对象报错' + res)
+                                    this.$message.error('附加失败');
+                                })
+
+                            }else if(radioArr[1].checked){//替换
+                                let formData = new FormData()
+                                formData.append('ProjectID',window.ProjectID)
+                                formData.append('ScheduleTaskID',this.selectGanttTask.id)
+                                let formatArr = []
+                                elementIds.forEach(e=>{
+                                    formatArr.push(e.split('^')[1])
+                                })
+                                formData.append('ElementIDs',formatArr)
+                                 this.$axios.post(`${window.urlConfig}/api/Prj/LinkElements2Task`,formData).then(res=>{
+                                      this.requestData(this.selectItem)
+
+                                     done()
+                                     this.$message('附加成功');
+                                 }).catch(res=>{
+                                    console.log('附加选中对象报错' + res)
+                                    this.$message.error('附加失败');
+                                })
+                            }else{
+                                this.$message.error('请选择附加类型');
+                                loading.close()
+                            }
+                        }
+                    });
+                }
+
+                
+            },
+             handleSelect(key, keyPath) {
+            },
+            upStyleHeader(a){
+                this.ganttHeaderWidth = a + 'px'
+            },
+            getSheduleAllData(arr){
+                this.scheduleMenuItems = arr
+            },
             mockDetailDataClick(){
                 this.mockDetailData.show = !this.mockDetailData.show
                 if(this.mockDetailData.show){
@@ -494,7 +893,6 @@
                                  this.mockDialogData.mockStartOrEndDate[1] = data.TaskEndTime
                             }
                             
-                            console.log(this.mockDialogData.mockStartOrEndDate[0])
                         }
                     })
                     if(judge){
@@ -588,6 +986,9 @@
 
                 })
             },
+            ganttUpData(task){
+                console.log(task)
+            },
             chartUpDate(diff){ 
                 let arr = []
                 for(let i = 0 ; i<this.ganttData.length;i++){
@@ -597,7 +998,6 @@
                     }
                     if(this.ganttData[i].Type == diff.selectTaskData.Type){
                         if(this.floorNameToNub(diff.selectTaskData.TaskName) <= this.floorNameToNub(this.ganttData[i].TaskName)){
-                           console.log(this.ganttData[i].TaskStartTime,this.initDiffDateTime(this.ganttData[i].TaskStartTime,diff.diff))
                             this.ganttData[i].TaskStartTime = this.initDiffDateTime(this.ganttData[i].TaskStartTime,diff.diff)
                             this.ganttData[i].TaskEndTime = this.initDiffDateTime(this.ganttData[i].TaskEndTime,diff.diff )
                             arr.push( this.ganttData[i])
@@ -608,7 +1008,6 @@
                 let formData = new FormData()
                 formData.append('ProjectID',window.ProjectID)
                 formData.append('ScheduleTasks',JSON.stringify(arr))
-               console.log(arr)
                this.$axios.post(`${window.urlConfig}/api/Prj/BatchUpdateScheduleTask`,formData).then(res=>{
                     this.$refs.chats.renderer.render( this.$refs.chats.acturalSchedule,  this.$refs.chats.plannedSchedule,  this.$refs.chats.initGanttDataToCharts(this.ganttData));
                }).catch(res=>{
@@ -635,19 +1034,12 @@
                 return year + '-' + month + '-' +day + 'T' +hour + ':' +min + ':' +sec;
             },
             upDatedGanttDateToCharts(task){
-                // this.tasks.data.forEach(taskArrData=>{
-                //     if(taskArrData.id == task.id){
-                //         console.log(this.ganttOrChartsData)
-                //         taskArrData = task
-                //     }
-                // })
                 this.ganttData.forEach(item=>{
                     if(item.TaskID == task.TaskID){
                         item.TaskStartTime = this.serverDateInit(task.TaskStartTime)
                         item.TaskEndTime = this.serverDateInit(task.TaskEndTime)
                     }
                 })
-                console.log(this.ganttData)
             },
             randomColor(){
                 return '#'+Math.floor(Math.random()*0xffffff).toString(16);
@@ -687,7 +1079,6 @@
                     var newTime = time.split("-");
                     if (newTime[2] * 1 > 2000) {
                         var newArr = [newTime[2], newTime[1], newTime[0]];
-                        console.log(newArr.join("-"));
                         return newArr.join("-");
                     } else {
                         return time;
@@ -701,11 +1092,12 @@
             },
             reviseTaskGantt(task) {
                 this.$set(task, "text", task.name);
+                this.$set(task,'TaskOrder',this.selectGanttTask.TaskOrder)
                 this.$refs.ganttView.reviseTasl(task);
             },
             reviseTaskDialog(task) {
                 //修改gantt
-                console.log(task)
+                
                 if (!task) return false;
                 this.ruleForm.id = task.id;
                 this.ruleForm.name = task.text;
@@ -737,10 +1129,9 @@
                                                     Category:process.ProcessNodeName 
                  */
                 let _this = this,index=0;
-                console.log(this.ganttData)
-                console.log(task.floorNumber)
+                
                 for(let i = 0;i<this.ganttData.length;i++){
-                    if(_this.floorNameToNub(_this.ganttData[i].TaskName) == task.floorNumber){
+                    if(_this.ganttData[i].TaskOrder == task.floorNumber){
                         index = i
                     }
                 }
@@ -751,7 +1142,8 @@
                     TaskPlanEndTime:task.end_date,
                     TaskName:task.text,
                     color:task.color,
-                    Category:task.type
+                    Category:task.type,
+                    TaskOrder:task.floornumber,
                 }
                 this.ganttData.splice(index, 0, data);
                 
@@ -839,32 +1231,32 @@
                 // formData.append('ProjectID',window.ProjectID)
                 // formData.append('ScheduleID',item.ScheduleID)
                 this.$axios.get(`${window.urlConfig}/api/Prj/GetScheduleTasks?ProjectID=${window.ProjectID}&ScheduleID=${item.ScheduleID}`).then(res=>{
-                    console.log(res)
+                    
                     this.ganttData = res.data
-                    let type = [],
-                    obj={};
-                    this.ganttData.forEach(item=>{
-                        type.push(item.Category)
-                    })
-                    type = [...new Set(type)]
-                    type.forEach((t,index)=>{
-                        this.ganttData.forEach((d,index1)=>{
-                            if(d.Category == t){
-                                    if(!obj[index]){
-                                        obj[index] = [d]
-                                    }else{
-                                        obj[index].push(d)
-                                    }
-                            }
-                        })
-                    })
-                    let newArr = []
-                    for (let x in obj){
-                        newArr = newArr.concat(obj[x].sort((a,b)=>{
-                         return a.TaskName.split('_')[1].split('F')[0]*1 - b.TaskName.split('_')[1].split('F')[0]*1
-                     }))
-                    }
-                    this.ganttData = newArr
+                    // let type = [],
+                    // obj={};
+                    // this.ganttData.forEach(item=>{
+                    //     type.push(item.Category)
+                    // })
+                    // type = [...new Set(type)]
+                    // type.forEach((t,index)=>{
+                    //     this.ganttData.forEach((d,index1)=>{
+                    //         if(d.Category == t){
+                    //                 if(!obj[index]){
+                    //                     obj[index] = [d]
+                    //                 }else{
+                    //                     obj[index].push(d)
+                    //                 }
+                    //         }
+                    //     })
+                    // })
+                    // let newArr = []
+                    // for (let x in obj){
+                    //     newArr = newArr.concat(obj[x].sort((a,b)=>{
+                    //      return a.TaskOrder - b.TaskOrder
+                    //  }))
+                    // }
+                    // this.ganttData = newArr
                     this.ganttData.forEach(item=>{
                         item.Type = item.Category
                         item.color = item.Color
@@ -883,6 +1275,8 @@
             },
             initGantt(){
                  this.tasks.data.length = 0;
+                  //层级关系
+                let typeArr = []
                  this.ganttData.forEach((item,index)=>{
                      var data ={
                          id: item.TaskID,
@@ -900,19 +1294,55 @@
                          ExternalProperty:item.ExternalProperty,
                          HasChildren:item.HasChildren,
                          Section:item.Section,
-                         ElementIDS:item.ElementIDS
+                         ElementIDS:item.ElementIDS,
+                         TaskOrder:item.TaskOrder
                      }
                      this.tasks.data.push(data)
+
+                     typeArr.push({
+                        Category:item.Category,
+                        id:this.GUID(),
+                        text:item.Category,
+                        ScheduleID:item.ScheduleID,
+                        procedureWp:true
+
+                    })
                  })
+                 typeArr = this.arrayUnique2(typeArr,'Category')
+                typeArr.forEach(type=>{
+                    this.tasks.data.forEach(d=>{
+                        if(type.Category == d.Category){
+                            if(!d.parent){
+                            d.parent = type.id
+
+                            }
+
+                        }
+                    })
+                })
+                 this.tasks.data  =  this.tasks.data.concat(typeArr)
+
                  this.$refs.ganttView.Repaint();
             },
+            //根据某一属性去重
+            arrayUnique2(arr, name) {
+                var hash = {};
+                return arr.reduce(function (item, next) {
+                    hash[next[name]] ? '' : hash[next[name]] = true && item.push(next);
+                    return item;
+                }, []);
+            },
             toggleGantt() {
+                if(this.reportFormData.showOrHide){
+                    this.reportFormData.showOrHide = false
+                    return 
+                }
                 if(window.parent.BIMe && this.show3d){
                     let elementID = window.parent.BIMe.modelData.BIMeElementData.getAllElementIds()
                     window.parent.BIMe.control.BIMeUtility.resetElementColor(elementID)
                     window.parent.BIMe.control.BIMeHide.removeAllHideElement();
                     window.parent.BIMe.control.BIMeSelector.removeAllSelectorElements();
-   }
+                }
                 
                 if(this.showGantt){
                     this.$refs.ganttView.delMaker()
@@ -924,12 +1354,12 @@
                 if(this.selectScheduleID != ''){
                     this.showGantt = !this.showGantt;
                 }   
-                var btn = document.getElementById('toggleGanttText')
-                if(this.showGantt){
-                    btn.innerHTML = '网络图'
-                }else{
-                    btn.innerHTML = '甘特图'
-                }
+                // var btn = document.getElementById('toggleGanttText')
+                // if(this.showGantt){
+                //     btn.innerHTML = '网络图'
+                // }else{
+                //     btn.innerHTML = '甘特图'
+                // }
                 
                  
 
@@ -1056,7 +1486,25 @@
             }
         },
         created() {
-            window.urlConfig = "https://bimcomposer.probim.cn";
+            if(window.sessionStorage.BimUrl){
+                window.urlConfig = window.sessionStorage.BimUrl
+            }else{
+                 window.urlConfig = "https://bimcomposer.probim.cn:444";
+            }
+            if(window.sessionStorage.ApiUrl){
+                window.apiUrlConfig = window.sessionStorage.ApiUrl
+                
+            }else{
+                window.apiUrlConfig = 'http://42.159.5.178:82'
+            }
+            // if(window.sessionStorage.urlConfig){
+            //     window.urlConfig = window.sessionStorage.BimUrl
+            //     window.apiUrlConfig = window.sessionStorage.ApiUrl
+
+            // }else{
+            //     window.urlConfig = "https://bimcomposer.probim.cn:444";
+            //     window.apiUrlConfig = 'https://api.probim.cn:444/'
+            // }
             if (this.getQueryString('ProjectID') == null) {
                 window.ProjectID = "18a9e792-6b0d-2bc6-2595-2de55708e58e";
                 window.ModelID = "09db5c33-41c6-4bdc-8921-fc9df2dd625d"
@@ -1064,8 +1512,35 @@
                 window.ProjectID = this.getQueryString('ProjectID')
                 window.ModelID = this.getQueryString('ModelID')
             }
+            if(this.reportFormData.title == ''){
+                    this.$axios.get(`${window.urlConfig}/api/Prj/GetModel?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}`).then(res=>{
+                        if(res){
+                            this.reportFormData.title = res.data.Name
+                        }
+                    })
+                    // this.$axios.get(`https://bimcomposer.probim.cn:444/api/Prj/GetModel?ProjectID=c14075a2-6c91-1fdb-3fbe-76bf898c24cf&ModelID=50f8553e-2928-461b-b2c5-7bfa3a0f528c`).then(res=>{
+                    //     console.log(res)
+                    //     if(res){
+                    //         this.reportFormData.title = res.data.Name
+                    //     }
+                    // })
+                }
+        },
+        computed:{
+            watchMock(){
+                return this.mockDialogData.show
+            }
         },
         watch: {
+            ganttRadio:function(val,oldval){
+                if(val == '1'){//年
+                    this.$refs.ganttView.resetGanttConfig("year")
+                }else if(val == '2'){//月
+                    this.$refs.ganttView.resetGanttConfig("month")
+                }else{//日
+                    this.$refs.ganttView.resetGanttConfig("day")
+                }
+            },
             show3d: function(val, oldval) {
                 this.$nextTick(function() {
                     this.$refs.ganttView.ganttResize();
@@ -1080,6 +1555,13 @@
                     this.requestData(this.selectItem)
                 }
                 
+            },
+            watchMock(val,oldval){
+                if(val){
+                    window.parent.document.getElementsByTagName('iframe')[0].style.zIndex = 0
+                }else{
+                    window.parent.document.getElementsByTagName('iframe')[0].style.zIndex = 999
+                }
             }
         }
     };

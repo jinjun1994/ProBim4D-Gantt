@@ -17,6 +17,9 @@ Vue.prototype.$axios = axios
 import './common/css/reset.css'
 import 'element-ui/lib/theme-chalk/index.css'
 
+import common from './utils/formatDate.js'
+
+Vue.prototype.common = common
 var vm = new Vue({
   el: '#app',
    router,

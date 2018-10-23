@@ -1,8 +1,6 @@
-let plannedScheduleUrl = '/api/Schedule?projectId=0';
-// var acturalScheduleUrl = `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${window.ScheduleID}&&IsGantt=true`
+import modelApi from './modelMock.js'
 
 // var acturalScheduleUrl
-import axios from 'axios'
 let createPlannedArrowRenderItem = (data, color) => {
   let _data = data;
   let arrowSize = 15;
@@ -40,29 +38,6 @@ let createPlannedArrowRenderItem = (data, color) => {
           lineWidth: 1,
         })
       },
-      // {
-      //   type: 'circle',
-      //   z: 10,
-      //   shape: {
-      //     cx: 0,
-      //     cy: 0,
-      //     r: 10
-      //   },
-      //   position: point,
-      //   style: {
-      //     fill: '#fff',
-      //     stroke: color,
-      //   },
-      // },
-      // {
-      //   type: 'text',
-      //   position: point,
-      //   style: {
-      //     text: '101',
-      //     textAlign: 'center',
-      //     textVerticalAlign: 'center'
-      //   }
-      // },
     ]));
     if (params.dataIndexInside === 0) {
       return null;
@@ -172,19 +147,6 @@ let createArrowRenderItem = (data, color) => {
 
 let getDateRange = (array = []) => {
   let result = [];
-  // array.map(function (data) {
-  //     data.data.map(function (d) {
-  //         let date = d[0];
-  //         if (!result.includes(date))
-  //             result.push(date);
-  //     })
-  // });
-  // result.sort(function (a, b) {
-  //     let date_a = new Date(a),
-  //         date_b = new Date(b);
-  //     return date_a - date_b;
-
-  // })
   let max = new Date()
   let min = new Date();
   array.map(function (data) {
@@ -253,6 +215,7 @@ class scheduleRenderer {
     }
 
   }
+  
   axisPointer(time,hideMaker){
     time?time: time = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) +'-'+ new Date().getDate()
     if(hideMaker){
@@ -265,7 +228,7 @@ class scheduleRenderer {
             lineStyle: {
                 color: 'red',
                 opacity: 1,
-                width: 1
+                width: 2
             },
             label: {
                 show: true,
@@ -281,7 +244,7 @@ class scheduleRenderer {
             }
         }
   }
-
+  
   async getPlannedScheduleAsync(ganttData) {
     var a = [];
     let response = ganttData
@@ -304,21 +267,6 @@ class scheduleRenderer {
       }));
     })
   }
-
-  // getPlannedSchedule() {
-  //   // var plannedScheduleUrl = `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${window.ScheduleID}&&IsGantt=false`
-  //   return new Promise(resolve => {
-  //     axios.get(plannedScheduleUrl).then(x => {
-  //       console.log(x.data)
-  //       resolve(x.data)
-  //     })
-  //     // $.get(plannedScheduleUrl).done(
-  //     //     x => {
-  //     //         resolve(x)
-  //     //     }
-  //     // )
-  //   })
-  // }
 
   async getActuralScheduleAsync(ganttData) {
     var a = [];
@@ -345,18 +293,6 @@ class scheduleRenderer {
     })
   }
 
-  // getActuralSchedule() {
-  //   var acturalScheduleUrl = `${window.urlConfig}/api/Prj/GetScheduleTask?ProjectID=${window.ProjectID}&ModelID=${window.ModelID}&ScheduleID=${window.ScheduleID}&&IsGantt=false`
-  //   //  var acturalScheduleUrl = `https://bimcomposer.probim.cn/api/Prj/GetScheduleTask?ProjectID=d975e1ea-7128-ceed-ac77-4a28d3bfd472&ModelID=7625a0b0-ae55-4131-843c-c791f93ff496&ScheduleID=609ec1fd-d973-4c71-a56a-8c7a8cc7d8f5&&IsGantt=false`
-  //   return new Promise(resolve => {
-  //     axios.get(acturalScheduleUrl).then(x => {
-  //       console.log(x)
-  //       resolve(x.data)
-  //     })
-  //   })
-
-  // }
-
   async render(actural, planned,ganttData) {
     actural = actural || false;
     planned = planned || false;
@@ -378,26 +314,48 @@ class scheduleRenderer {
       console.log(response)
       response[1].forEach(item => {
         if (item.color) legendColor.push(item.color)
-      })
+      })  
       legend_data = legend_data.concat(response[0]);
       series = series.concat(response[1]);
     }
+    let _this = this
     var options = {
       tooltip: {
-        trigger: 'item',
+        trigger: 'axis',
+        triggerOn:'none',
         position: function (pt) {
           return [pt[0]+30, '10%'];
         },
         axisPointer: {
           type: 'cross',
           snap: true
+        },
+        formatter:function(params){
+          function arrUnique(arr,field){
+            var map = {};
+            var res = [];
+            for (var i = 0; i < arr.length; i++) {
+                if (!map[arr[i][field][2]]) {
+                    map[arr[i][field][2]]=1;
+                    res.push(arr[i]);
+                }
+            }
+              return res;
+          }
+          
+          let newList = arrUnique(params,'data')
+          let res = `${params[0].data[0]}`
+          newList.forEach(list=>{
+            res+=`<br/><span style="width:10px;border-radius:50%;background-color:${list.color};height:10px;display:inline-block;margin-right:5px;"></span>${list.seriesName}:${list.data[1]}`
+          })
+          return res
         }
       },
-      //   toolbox: {
-      //     feature: {
-      //         saveAsImage: {}
-      //     }
-      // },
+        toolbox: {
+          feature: {
+              saveAsImage: {}
+          }
+      },
 
       grid: {
         y: 30,
@@ -413,23 +371,30 @@ class scheduleRenderer {
       },
       xAxis: {
         type: 'time',
-        name: '开始施工',
+        name: '',//x轴文字
         nameRotate: 45,
+        axisPointer: this.axisPointer(null,false),
         splitLine: {
-          interval: () => true,
-          show: true
-        },
-        axisPointer: this.axisPointer(null,true),
-        splitLine: {
-            show: false
+            show: true
         }
       },
       dataZoom: this.dataZoomSet(),
       yAxis: {
         type: 'value',
         boundaryGap: [0, '100%'],
-        max: 33,
+        max: 34,
         min: -3,
+        axisLabel:{
+          formatter: function (value) {
+            if(value<= 0){
+              return value
+            }else{
+              return value + 'F'
+            }
+
+          }
+              
+        },
         scale: true,
         interval: 1,
         splitLine: {
@@ -461,35 +426,6 @@ class scheduleRenderer {
           },
           data: schedule.schedule,
           step: 'start'})
-      // if(index == 0){
-      //   series.push({
-      //     z: 0,
-      //     name: schedule.business,
-      //     type: 'line',
-      //     lineStyle: {
-      //       color: schedule.color,
-      //       type: 'solid',
-      //       opacity: 1,
-      //       lineWidth: 2
-      //     },
-      //     data: schedule.schedule,
-      //     step: 'end'
-      //   })
-      // }else{
-      //   series.push({
-      //     z: 0,
-      //     name: schedule.business,
-      //     type: 'line',
-      //     lineStyle: {
-      //       color: schedule.color,
-      //       type: 'solid',
-      //       opacity: 1,
-      //       lineWidth: 2
-      //     },
-      //     data: schedule.schedule,
-      //     step: 'start'
-      //   })
-      // }
       
     });
     this.acturalLinkedSchedule = this.acturalLinkedSchedule
