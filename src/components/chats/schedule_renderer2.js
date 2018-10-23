@@ -375,7 +375,16 @@ class scheduleRenderer {
         nameRotate: 45,
         axisPointer: this.axisPointer(null,false),
         splitLine: {
+<<<<<<< HEAD
             show: true
+=======
+          interval: () => true,
+          show: true
+        },
+        axisPointer: this.axisPointer(null,false),
+        splitLine: {
+            show: false
+>>>>>>> 5ef9773a8d03da77cce514a06ddbaedf7d79f7f7
         }
       },
       dataZoom: this.dataZoomSet(),

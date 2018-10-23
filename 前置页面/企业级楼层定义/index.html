@@ -742,7 +742,9 @@
                     this.procedureViewShow = false
                     this.addDialogShow = false
                     this.mainDialog = false
-                    top.dialogClose('SystemManage') 
+                    top.dialogClose('SystemManage')
+                    
+                    // top.dialogClose('SystemManage') 
 
                 },
                 ProcessIdInit(floorType) {
@@ -860,8 +862,7 @@
 	                    	JsonData:JSON.stringify(schedule)
 	                    }
                     	top.$.post(`${this.urlConfig}/CompanyData/Save`, obj, function (res) {
-	                        console.log(res)
-	                        top.dialogClose('SystemManage') 
+	                        top.dialogClose('SystemManage')
 	                    }, 'json')
                     }else{
                     	var obj ={
@@ -871,7 +872,8 @@
                     	}
                     	top.$.post(`${this.urlConfig}/CompanyData/Update`, obj, function (res) {
 	                        console.log(res)
-	                        top.dialogClose('SystemManage') 
+                            // top.$('#SystemManage').remove()
+                            top.dialogClose('SystemManage')
 	                    }, 'json')
                     }
                     
@@ -924,6 +926,9 @@
                     this.addDialogShow = false
                     this.addDialog.floorTyoe = ''
                     this.addDialog.describe = ''
+                    if(top.dialogClose){
+                        top.dialogClose('SystemManage')
+                    }
                 },
                 tableRowDblCkucj(row, event) {
                     this.addDialog.floorTyoe = row.floorTyoe
@@ -1060,7 +1065,8 @@
                 if(windowHeight < 700){
                     this.windowHeight = '100%'
                 }
-                this.urlConfig = "https://api.probim.cn"
+                top.BimUrl?this.urlConfig = top.BimUrl : this.urlConfig = "https://api.probim.cn"
+                
                 let CompanyId = null
                 if(top.CompanyId){
                 	CompanyId = top.CompanyId

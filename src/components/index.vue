@@ -88,8 +88,13 @@
                                 <img src="./stop.svg" v-if="!mockDialogData.startShow" @click.stop="mockStop"><!--暂停-->
                                 
                             </li>
+<<<<<<< HEAD
                             <li :class="{'no-click':!show3d}" v-if="!mockDialogData.showVedioBtn" @click="mockShowDialog" class="sign" title="模拟"><img src="./mock.svg"></li>
                              <li v-if="mockDialogData.showVedioBtn" @click="closeMock" class="sign" title="关闭模拟"><img src="./mock.svg"></li>
+=======
+                            <li :class="{'no-click':!show3d}" v-if="!mockDialogData.showVedioBtn" @click="mockShowDialog" class="sign"><img src="./mock.svg">模拟</li>
+                             <li v-if="mockDialogData.showVedioBtn" @click="closeMock" class="sign"><img src="./mock.svg">关闭模拟</li>
+>>>>>>> 5ef9773a8d03da77cce514a06ddbaedf7d79f7f7
                             <!-- <li class="no-click sign" v-show="!show3d"><img src="./import.svg">导入</li> -->
                             <li @click='toggleGantt' :class="{'no-click':selectScheduleID == ''}" class="sign"><img src="./table.svg"><span id="toggleGanttText"></span></li>
                             <!-- <li class="no-click sign" v-show="!show3d"><img src="./export.svg">导出</li> -->
@@ -1525,6 +1530,11 @@
                     //     }
                     // })
                 }
+        },
+        computed:{
+            watchMock(){
+                return this.mockDialogData.show
+            }
         },
         computed:{
             watchMock(){

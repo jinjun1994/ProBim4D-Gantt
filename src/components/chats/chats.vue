@@ -433,10 +433,17 @@
 					if (date.getTime() < this.timeStamp.EndStamp) {
 						let newArr = []
 						date.setDate(date.getDate() + 1)
+<<<<<<< HEAD
 						this.formatTableData(date,false,false)
 						this.$props.ganttData.forEach(g => {
 							if (new Date(this.dateInit(g.TaskStartTime)).getTime() == new Date(this.dateInit(date)).getTime()) {
 								if (window.parent.BIMe) {
+=======
+						this.$props.ganttData.forEach(g=>{
+							if(new Date(this.dateInit(g.TaskStartTime)).getTime() == new Date(this.dateInit(date)).getTime()){
+								console.log(g)
+								if(window.parent.BIMe){
+>>>>>>> 5ef9773a8d03da77cce514a06ddbaedf7d79f7f7
 									let a = g.ElementIDS.split(',')
 									let b = []
 									a.forEach(element => {
@@ -446,7 +453,12 @@
 									});
 									let color = this.colorRbg(g.Color)
 									color = color.split('RGB')[1].split('(')[1].split(')')[0].split(',')
+<<<<<<< HEAD
 									window.parent.BIMe.control.BIMeUtility.setElementColor(b, color[0], color[1], color[2], .4)
+=======
+									window.parent.BIMe.control.BIMeUtility.setElementColor(b,color[0],color[1],color[2],1)
+
+>>>>>>> 5ef9773a8d03da77cce514a06ddbaedf7d79f7f7
 								}
 							}
 							if (window.parent.BIMe) {
@@ -537,6 +549,7 @@
 				}, Math.floor(this.$props.timerNumber * 1000 / arr.length))
 			},
 			/** 
+<<<<<<< HEAD
 			 * 判断日期是否在区间内，在区间内返回true，否返回false 
 			 * @param dateString 日期字符串 
 			 * @param startDateString 区间开始日期字符串 
@@ -585,11 +598,62 @@
 						var sColorNew = "#";
 						for (var i = 1; i < 4; i += 1) {
 							sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
+=======
+             * 判断日期是否在区间内，在区间内返回true，否返回false 
+             * @param dateString 日期字符串 
+             * @param startDateString 区间开始日期字符串 
+             * @param endDateString 区间结束日期字符串 
+             * @returns {Number} 
+             */ 
+             compareDate(startDate, endDate) {
+                 let endTimes,startTimes;
+                if((typeof startDate=='string')&&startDate.constructor==String){
+                    if(startDate.length >=8 && startDate.length <= 10){
+                        startTimes = new Date(startDate).getTime()
+                    }else{
+                        startTimes = new Date(startDate.split(' ')[0]).getTime()
+                    }
+                }else{
+                    startTimes = new Date(startDate).getTime()
+                }
+                if((typeof endDate=='string')&&endDate.constructor==String){
+                    if(endDate.length >=8 && endDate.length <= 10){
+                        endTimes = new Date(endDate).getTime()
+                    }else{
+                        endTimes = new Date(endDate.split(' ')[0]).getTime()
+                    }
+                }else{
+                    endTimes = new Date(endDate).getTime()
+                }
+                if (endTimes<startTimes) {
+                    return -1;
+                }
+                return 1;
+            },
+            isDateBetween(dateString, startDateString, endDateString){  
+                var flag = false;  
+                var startFlag = (this.compareDate(dateString, startDateString) < 1);  
+                var endFlag = (this.compareDate(dateString, endDateString) > -1);  
+                if(startFlag && endFlag){  
+                    flag = true;  
+                }  
+                return flag;  
+			},  
+			colorRbg(a){
+				var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+				var sColor = a.toLowerCase();
+				if(sColor && reg.test(sColor)){
+					if(sColor.length === 4){
+						var sColorNew = "#";
+						for(var i=1; i<4; i+=1){
+							sColorNew += sColor.slice(i,i+1).concat(sColor.slice(i,i+1));	
+>>>>>>> 5ef9773a8d03da77cce514a06ddbaedf7d79f7f7
 						}
 						sColor = sColorNew;
 					}
 					//处理六位的颜色值
 					var sColorChange = [];
+<<<<<<< HEAD
 					for (var i = 1; i < 7; i += 2) {
 						sColorChange.push(parseInt("0x" + sColor.slice(i, i + 2)));
 					}
@@ -603,6 +667,21 @@
 					if (date.indexOf('T') != -1) {
 						return date.split('T')[0]
 					} else {
+=======
+					for(var i=1; i<7; i+=2){
+						sColorChange.push(parseInt("0x"+sColor.slice(i,i+2)));	
+					}
+					return "RGB(" + sColorChange.join(",") + ")";
+				}else{
+					return sColor;	
+				}
+			},
+			dateInit(date){
+				if( (typeof date=='string')&&date.constructor==String){
+					if(date.indexOf('T') != -1){
+						 return date.split('T')[0]
+					}else{
+>>>>>>> 5ef9773a8d03da77cce514a06ddbaedf7d79f7f7
 						return date.split(' ')[0]
 					}
 				} else {
@@ -1219,7 +1298,11 @@
 									// let color = this.colorRbg(_this.$props.ganttData[i].Color)
 									// color = color.split('RGB')[1].split('(')[1].split(')')[0].split(',')
 									// window.parent.BIMe.control.BIMeUtility.setElementColor(b,color[0],color[1],color[2],1)
+<<<<<<< HEAD
 									window.parent.BIMe.control.BIMeSelector.selectorElementByElementId(b)
+=======
+									 window.parent.BIMe.control.BIMeSelector.selectorElementByElementId(b)
+>>>>>>> 5ef9773a8d03da77cce514a06ddbaedf7d79f7f7
 								}
 							}
 						}

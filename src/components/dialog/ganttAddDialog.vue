@@ -227,7 +227,7 @@
                         let floornumber = ''
                         console.log(this.floorSelect)
                         this.floorSelect.forEach(floor=>{
-                            if(this.$props.ruleForm.floor ==  floor.type){
+                            if(this.$props.ruleForm.floor.split('_')[0] ==  floor.type){
                                 floornumber = floor.id
                             }
                         })
